@@ -24,6 +24,7 @@ namespace Log {
         MsgType type = ALL;
         qint64 timestamp = -1;
         QString message;
+        QString trace;
     };
 
     struct Peer {

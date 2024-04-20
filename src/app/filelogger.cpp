@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QTextStream>
 #include <QVector>
+#include <iostream>
 
 #include "base/global.h"
 #include "base/logger.h"
@@ -103,7 +104,23 @@ void FileLogger::addLogMessage(const Log::Msg &msg) {
             stream << QStringView(u"(N) ");
     }
 
-    stream << QDateTime::fromSecsSinceEpoch(msg.timestamp).toString(Qt::ISODate) << QStringView(u" - ") << msg.message << QChar(u'\n');
+    QString timeStamp = QDateTime::fromSecsSinceEpoch(msg.timestamp).toString(Qt::ISODate);
+
+    // 控制台打印信息
+    std::cout << timeStamp.toStdString()
+              << " - "
+              << msg.trace.toStdString()
+              << " - "
+              << msg.message.toStdString()
+              << "\n";
+    std::cout.flush();
+
+    stream << timeStamp
+           << QStringView(u" - ")
+           << msg.trace
+           << QStringView(u" - ")
+           << msg.message
+           << QChar(u'\n');
 
     if (m_backup && (m_logFile.size() >= m_maxSize)) {
         closeLogFile();

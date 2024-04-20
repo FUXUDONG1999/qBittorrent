@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "trace.h"
 
 #include <algorithm>
 
@@ -37,7 +38,7 @@ void Logger::freeInstance() {
 
 void Logger::addMessage(const QString &message, const Log::MsgType &type) {
     QWriteLocker locker(&m_lock);
-    const Log::Msg msg = {m_msgCounter++, type, QDateTime::currentSecsSinceEpoch(), message};
+    const Log::Msg msg = {m_msgCounter++, type, QDateTime::currentSecsSinceEpoch(), message, getTrace(4)};
     m_messages.push_back(msg);
     locker.unlock();
 
