@@ -33,18 +33,18 @@
 #include "base/settingvalue.h"
 #include "base/tagset.h"
 
-namespace Ui
-{
+namespace Ui {
     class TorrentTagsDialog;
 }
 
-class TorrentTagsDialog final : public QDialog
-{
-    Q_OBJECT
+class TorrentTagsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentTagsDialog)
 
 public:
     explicit TorrentTagsDialog(const TagSet &initialTags, QWidget *parent = nullptr);
+
     ~TorrentTagsDialog() override;
 
     TagSet tags() const;

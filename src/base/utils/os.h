@@ -32,8 +32,7 @@
 
 #include <QtGlobal>
 
-namespace Utils::OS
-{
+namespace Utils::OS {
 #ifdef Q_OS_MACOS
     bool isTorrentFileAssocSet();
     void setTorrentFileAssoc();
@@ -42,9 +41,14 @@ namespace Utils::OS
 #endif // Q_OS_MACOS
 
 #ifdef Q_OS_WIN
+
     bool isTorrentFileAssocSet();
+
     void setTorrentFileAssoc(bool set);
+
     bool isMagnetLinkAssocSet();
+
     void setMagnetLinkAssoc(bool set);
+
 #endif // Q_OS_WIN
 }

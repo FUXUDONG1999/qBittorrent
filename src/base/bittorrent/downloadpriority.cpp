@@ -28,20 +28,17 @@
 
 #include "downloadpriority.h"
 
-namespace BitTorrent
-{
-    bool isValidDownloadPriority(const DownloadPriority priority)
-    {
-        switch (priority)
-        {
-        case DownloadPriority::Ignored:
-        case DownloadPriority::Normal:
-        case DownloadPriority::High:
-        case DownloadPriority::Maximum:
-        case DownloadPriority::Mixed:
-            return true;
-        default:
-            return false;
+namespace BitTorrent {
+    bool isValidDownloadPriority(const DownloadPriority priority) {
+        switch (priority) {
+            case DownloadPriority::Ignored:
+            case DownloadPriority::Normal:
+            case DownloadPriority::High:
+            case DownloadPriority::Maximum:
+            case DownloadPriority::Mixed:
+                return true;
+            default:
+                return false;
         }
     }
 }

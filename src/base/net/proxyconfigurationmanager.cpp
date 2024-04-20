@@ -30,19 +30,17 @@
 
 #define SETTINGS_KEY(name) (u"Network/Proxy/" name)
 
-bool Net::operator==(const ProxyConfiguration &left, const ProxyConfiguration &right)
-{
+bool Net::operator==(const ProxyConfiguration &left, const ProxyConfiguration &right) {
     return (left.type == right.type)
-            && (left.ip == right.ip)
-            && (left.port == right.port)
-            && (left.authEnabled == right.authEnabled)
-            && (left.username == right.username)
-            && (left.password == right.password)
-            && (left.hostnameLookupEnabled == right.hostnameLookupEnabled);
+           && (left.ip == right.ip)
+           && (left.port == right.port)
+           && (left.authEnabled == right.authEnabled)
+           && (left.username == right.username)
+           && (left.password == right.password)
+           && (left.hostnameLookupEnabled == right.hostnameLookupEnabled);
 }
 
-bool Net::operator!=(const ProxyConfiguration &left, const ProxyConfiguration &right)
-{
+bool Net::operator!=(const ProxyConfiguration &left, const ProxyConfiguration &right) {
     return !(left == right);
 }
 
@@ -51,15 +49,9 @@ using namespace Net;
 ProxyConfigurationManager *ProxyConfigurationManager::m_instance = nullptr;
 
 ProxyConfigurationManager::ProxyConfigurationManager(QObject *parent)
-    : QObject(parent)
-    , m_storeProxyType {SETTINGS_KEY(u"Type"_s)}
-    , m_storeProxyIP {SETTINGS_KEY(u"IP"_s)}
-    , m_storeProxyPort {SETTINGS_KEY(u"Port"_s)}
-    , m_storeProxyAuthEnabled {SETTINGS_KEY(u"AuthEnabled"_s)}
-    , m_storeProxyUsername {SETTINGS_KEY(u"Username"_s)}
-    , m_storeProxyPassword {SETTINGS_KEY(u"Password"_s)}
-    , m_storeProxyHostnameLookupEnabled {SETTINGS_KEY(u"HostnameLookupEnabled"_s)}
-{
+        : QObject(parent), m_storeProxyType{SETTINGS_KEY(u"Type"_s)}, m_storeProxyIP{SETTINGS_KEY(u"IP"_s)}, m_storeProxyPort{SETTINGS_KEY(u"Port"_s)},
+          m_storeProxyAuthEnabled{SETTINGS_KEY(u"AuthEnabled"_s)}, m_storeProxyUsername{SETTINGS_KEY(u"Username"_s)},
+          m_storeProxyPassword{SETTINGS_KEY(u"Password"_s)}, m_storeProxyHostnameLookupEnabled{SETTINGS_KEY(u"HostnameLookupEnabled"_s)} {
     m_config.type = m_storeProxyType.get(ProxyType::None);
     if ((m_config.type < ProxyType::None) || (m_config.type > ProxyType::SOCKS4))
         m_config.type = ProxyType::None;
@@ -71,32 +63,26 @@ ProxyConfigurationManager::ProxyConfigurationManager(QObject *parent)
     m_config.hostnameLookupEnabled = m_storeProxyHostnameLookupEnabled.get(true);
 }
 
-void ProxyConfigurationManager::initInstance()
-{
+void ProxyConfigurationManager::initInstance() {
     if (!m_instance)
         m_instance = new ProxyConfigurationManager;
 }
 
-void ProxyConfigurationManager::freeInstance()
-{
+void ProxyConfigurationManager::freeInstance() {
     delete m_instance;
     m_instance = nullptr;
 }
 
-ProxyConfigurationManager *ProxyConfigurationManager::instance()
-{
+ProxyConfigurationManager *ProxyConfigurationManager::instance() {
     return m_instance;
 }
 
-ProxyConfiguration ProxyConfigurationManager::proxyConfiguration() const
-{
+ProxyConfiguration ProxyConfigurationManager::proxyConfiguration() const {
     return m_config;
 }
 
-void ProxyConfigurationManager::setProxyConfiguration(const ProxyConfiguration &config)
-{
-    if (m_config != config)
-    {
+void ProxyConfigurationManager::setProxyConfiguration(const ProxyConfiguration &config) {
+    if (m_config != config) {
         m_config = config;
         m_storeProxyType = config.type;
         m_storeProxyIP = config.ip;

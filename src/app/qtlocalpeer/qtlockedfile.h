@@ -71,36 +71,42 @@
 #include <QFile>
 
 #ifdef Q_OS_WIN
+
 #include <QString>
 #include <QVector>
+
 #endif
 
-namespace QtLP_Private
-{
-    class QtLockedFile final : public QFile
-    {
+namespace QtLP_Private {
+    class QtLockedFile final : public QFile {
     public:
-        enum LockMode
-        {
+        enum LockMode {
             NoLock = 0,
             ReadLock,
             WriteLock
         };
 
         QtLockedFile();
+
         QtLockedFile(const QString &name);
+
         ~QtLockedFile();
 
         bool open(OpenMode mode) override;
 
         bool lock(LockMode mode, bool block = true);
+
         bool unlock();
+
         bool isLocked() const;
+
         LockMode lockMode() const;
 
     private:
 #ifdef Q_OS_WIN
+
         Qt::HANDLE getMutexHandle(int idx, bool doCreate);
+
         bool waitMutex(Qt::HANDLE mutex, bool doBlock) const;
 
         Qt::HANDLE m_writeMutex = nullptr;

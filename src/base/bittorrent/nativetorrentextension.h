@@ -33,10 +33,10 @@
 
 #include "extensiondata.h"
 
-class NativeTorrentExtension final : public lt::torrent_plugin
-{
+class NativeTorrentExtension final : public lt::torrent_plugin {
 public:
     NativeTorrentExtension(const lt::torrent_handle &torrentHandle, ExtensionData *data);
+
     ~NativeTorrentExtension();
 
 private:

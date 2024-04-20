@@ -32,24 +32,26 @@
 
 class QDBusPendingCallWatcher;
 
-class PowerManagementInhibitor : public QObject
-{
-    Q_OBJECT
+class PowerManagementInhibitor : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PowerManagementInhibitor)
 
 public:
     PowerManagementInhibitor(QObject *parent = nullptr);
+
     virtual ~PowerManagementInhibitor() = default;
 
     void requestIdle();
+
     void requestBusy();
 
 private slots:
+
     void onAsyncReply(QDBusPendingCallWatcher *call);
 
 private:
-    enum State
-    {
+    enum State {
         Error,
         Idle,
         RequestBusy,

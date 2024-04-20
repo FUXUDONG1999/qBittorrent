@@ -47,81 +47,60 @@ const QString Article::KeyLink = u"link"_s;
 const QString Article::KeyIsRead = u"isRead"_s;
 
 Article::Article(Feed *feed, const QVariantHash &varHash)
-    : QObject(feed)
-    , m_feed(feed)
-    , m_guid(varHash.value(KeyId).toString())
-    , m_date(varHash.value(KeyDate).toDateTime())
-    , m_title(varHash.value(KeyTitle).toString())
-    , m_author(varHash.value(KeyAuthor).toString())
-    , m_description(varHash.value(KeyDescription).toString())
-    , m_torrentURL(varHash.value(KeyTorrentURL).toString())
-    , m_link(varHash.value(KeyLink).toString())
-    , m_isRead(varHash.value(KeyIsRead, false).toBool())
-    , m_data(varHash)
-{
+        : QObject(feed), m_feed(feed), m_guid(varHash.value(KeyId).toString()), m_date(varHash.value(KeyDate).toDateTime()),
+          m_title(varHash.value(KeyTitle).toString()), m_author(varHash.value(KeyAuthor).toString()), m_description(varHash.value(KeyDescription).toString()),
+          m_torrentURL(varHash.value(KeyTorrentURL).toString()), m_link(varHash.value(KeyLink).toString()), m_isRead(varHash.value(KeyIsRead, false).toBool()),
+          m_data(varHash) {
 }
 
-QString Article::guid() const
-{
+QString Article::guid() const {
     return m_guid;
 }
 
-QDateTime Article::date() const
-{
+QDateTime Article::date() const {
     return m_date;
 }
 
-QString Article::title() const
-{
+QString Article::title() const {
     return m_title;
 }
 
-QString Article::author() const
-{
+QString Article::author() const {
     return m_author;
 }
 
-QString Article::description() const
-{
+QString Article::description() const {
     return m_description;
 }
 
-QString Article::torrentUrl() const
-{
+QString Article::torrentUrl() const {
     return (m_torrentURL.isEmpty() ? m_link : m_torrentURL);
 }
 
-QString Article::link() const
-{
+QString Article::link() const {
     return m_link;
 }
 
-bool Article::isRead() const
-{
+bool Article::isRead() const {
     return m_isRead;
 }
 
-QVariantHash Article::data() const
-{
+QVariantHash Article::data() const {
     return m_data;
 }
 
-void Article::markAsRead()
-{
-    if (!m_isRead)
-    {
+void Article::markAsRead() {
+    if (!m_isRead) {
         m_isRead = true;
         m_data[KeyIsRead] = m_isRead;
         emit read(this);
     }
 }
 
-bool Article::articleDateRecentThan(const Article *article, const QDateTime &date)
-{
+bool Article::articleDateRecentThan(const Article *article, const QDateTime &date) {
     return article->date() > date;
 }
 
-Feed *Article::feed() const
-{
+Feed *Article::feed() const {
     return m_feed;
 }

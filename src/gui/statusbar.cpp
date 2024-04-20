@@ -44,8 +44,7 @@
 #include "utils.h"
 
 StatusBar::StatusBar(QWidget *parent)
-    : QStatusBar(parent)
-{
+        : QStatusBar(parent) {
 #ifndef Q_OS_MACOS
     // Redefining global stylesheet breaks certain elements on mac like tabs.
     // Qt checks whether the stylesheet class inherits("QMacStyle") and this becomes false.
@@ -56,7 +55,7 @@ StatusBar::StatusBar(QWidget *parent)
     connect(session, &BitTorrent::Session::speedLimitModeChanged, this, &StatusBar::updateAltSpeedsBtn);
     QWidget *container = new QWidget(this);
     auto *layout = new QHBoxLayout(container);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     container->setLayout(layout);
     m_connecStatusLblIcon = new QPushButton(this);
@@ -64,8 +63,8 @@ StatusBar::StatusBar(QWidget *parent)
     m_connecStatusLblIcon->setFocusPolicy(Qt::NoFocus);
     m_connecStatusLblIcon->setCursor(Qt::PointingHandCursor);
     m_connecStatusLblIcon->setIcon(UIThemeManager::instance()->getIcon(u"firewalled"_s));
-    m_connecStatusLblIcon->setToolTip(u"<b>%1</b><br><i>%2</i>"_s.arg(tr("Connection status:")
-        , tr("No direct connections. This may indicate network configuration problems.")));
+    m_connecStatusLblIcon->setToolTip(
+            u"<b>%1</b><br><i>%2</i>"_s.arg(tr("Connection status:"), tr("No direct connections. This may indicate network configuration problems.")));
     connect(m_connecStatusLblIcon, &QAbstractButton::clicked, this, &StatusBar::connectionButtonClicked);
 
     m_dlSpeedLbl = new QPushButton(this);
@@ -149,13 +148,11 @@ StatusBar::StatusBar(QWidget *parent)
     connect(session, &BitTorrent::Session::statsUpdated, this, &StatusBar::refresh);
 }
 
-StatusBar::~StatusBar()
-{
+StatusBar::~StatusBar() {
     qDebug() << Q_FUNC_INFO;
 }
 
-void StatusBar::showRestartRequired()
-{
+void StatusBar::showRestartRequired() {
     // Restart required notification
     const QString restartText = tr("qBittorrent needs to be restarted!");
     QLabel *restartIconLbl = new QLabel(this);
@@ -168,50 +165,40 @@ void StatusBar::showRestartRequired()
     insertWidget(1, restartLbl);
 }
 
-void StatusBar::updateConnectionStatus()
-{
+void StatusBar::updateConnectionStatus() {
     const BitTorrent::SessionStatus &sessionStatus = BitTorrent::Session::instance()->status();
 
-    if (!BitTorrent::Session::instance()->isListening())
-    {
+    if (!BitTorrent::Session::instance()->isListening()) {
         m_connecStatusLblIcon->setIcon(UIThemeManager::instance()->getIcon(u"disconnected"_s));
-        const QString tooltip = u"<b>%1</b><br>%2"_s.arg(tr("Connection Status:"), tr("Offline. This usually means that qBittorrent failed to listen on the selected port for incoming connections."));
+        const QString tooltip = u"<b>%1</b><br>%2"_s.arg(tr("Connection Status:"),
+                                                         tr("Offline. This usually means that qBittorrent failed to listen on the selected port for incoming connections."));
         m_connecStatusLblIcon->setToolTip(tooltip);
-    }
-    else
-    {
-        if (sessionStatus.hasIncomingConnections)
-        {
+    } else {
+        if (sessionStatus.hasIncomingConnections) {
             // Connection OK
             m_connecStatusLblIcon->setIcon(UIThemeManager::instance()->getIcon(u"connected"_s));
             const QString tooltip = u"<b>%1</b><br>%2"_s.arg(tr("Connection Status:"), tr("Online"));
             m_connecStatusLblIcon->setToolTip(tooltip);
-        }
-        else
-        {
+        } else {
             m_connecStatusLblIcon->setIcon(UIThemeManager::instance()->getIcon(u"firewalled"_s));
-            const QString tooltip = u"<b>%1</b><br><i>%2</i>"_s.arg(tr("Connection Status:"), tr("No direct connections. This may indicate network configuration problems."));
+            const QString tooltip = u"<b>%1</b><br><i>%2</i>"_s.arg(tr("Connection Status:"),
+                                                                    tr("No direct connections. This may indicate network configuration problems."));
             m_connecStatusLblIcon->setToolTip(tooltip);
         }
     }
 }
 
-void StatusBar::updateDHTNodesNumber()
-{
-    if (BitTorrent::Session::instance()->isDHTEnabled())
-    {
+void StatusBar::updateDHTNodesNumber() {
+    if (BitTorrent::Session::instance()->isDHTEnabled()) {
         m_DHTLbl->setVisible(true);
         m_DHTLbl->setText(tr("DHT: %1 nodes")
-                          .arg(BitTorrent::Session::instance()->status().dhtNodes));
-    }
-    else
-    {
+                                  .arg(BitTorrent::Session::instance()->status().dhtNodes));
+    } else {
         m_DHTLbl->setVisible(false);
     }
 }
 
-void StatusBar::updateSpeedLabels()
-{
+void StatusBar::updateSpeedLabels() {
     const BitTorrent::SessionStatus &sessionStatus = BitTorrent::Session::instance()->status();
 
     QString dlSpeedLbl = Utils::Misc::friendlyUnit(sessionStatus.payloadDownloadRate, true);
@@ -229,23 +216,18 @@ void StatusBar::updateSpeedLabels()
     m_upSpeedLbl->setText(upSpeedLbl);
 }
 
-void StatusBar::refresh()
-{
+void StatusBar::refresh() {
     updateConnectionStatus();
     updateDHTNodesNumber();
     updateSpeedLabels();
 }
 
-void StatusBar::updateAltSpeedsBtn(bool alternative)
-{
-    if (alternative)
-    {
+void StatusBar::updateAltSpeedsBtn(bool alternative) {
+    if (alternative) {
         m_altSpeedsBtn->setIcon(UIThemeManager::instance()->getIcon(u"slow"_s));
         m_altSpeedsBtn->setToolTip(tr("Click to switch to regular speed limits"));
         m_altSpeedsBtn->setDown(true);
-    }
-    else
-    {
+    } else {
         m_altSpeedsBtn->setIcon(UIThemeManager::instance()->getIcon(u"slow_off"_s));
         m_altSpeedsBtn->setToolTip(tr("Click to switch to alternative speed limits"));
         m_altSpeedsBtn->setDown(false);
@@ -253,9 +235,8 @@ void StatusBar::updateAltSpeedsBtn(bool alternative)
     refresh();
 }
 
-void StatusBar::capSpeed()
-{
-    auto *dialog = new SpeedLimitDialog {parentWidget()};
+void StatusBar::capSpeed() {
+    auto *dialog = new SpeedLimitDialog{parentWidget()};
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->open();
 }

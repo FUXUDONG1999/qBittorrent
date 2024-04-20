@@ -36,8 +36,7 @@
 #include "base/path.h"
 #include "base/utils/fs.h"
 
-void BitTorrent::AbstractFileStorage::renameFile(const Path &oldPath, const Path &newPath)
-{
+void BitTorrent::AbstractFileStorage::renameFile(const Path &oldPath, const Path &newPath) {
     if (!oldPath.isValid())
         throw RuntimeError(tr("The old path is invalid: '%1'.").arg(oldPath.toString()));
     if (!newPath.isValid())
@@ -46,8 +45,7 @@ void BitTorrent::AbstractFileStorage::renameFile(const Path &oldPath, const Path
         throw RuntimeError(tr("Absolute path isn't allowed: '%1'.").arg(newPath.toString()));
 
     int renamingFileIndex = -1;
-    for (int i = 0; i < filesCount(); ++i)
-    {
+    for (int i = 0; i < filesCount(); ++i) {
         const Path path = filePath(i);
 
         if ((renamingFileIndex < 0) && (path == oldPath))
@@ -62,8 +60,7 @@ void BitTorrent::AbstractFileStorage::renameFile(const Path &oldPath, const Path
     renameFile(renamingFileIndex, newPath);
 }
 
-void BitTorrent::AbstractFileStorage::renameFolder(const Path &oldFolderPath, const Path &newFolderPath)
-{
+void BitTorrent::AbstractFileStorage::renameFolder(const Path &oldFolderPath, const Path &newFolderPath) {
     if (!oldFolderPath.isValid())
         throw RuntimeError(tr("The old path is invalid: '%1'.").arg(oldFolderPath.toString()));
     if (!newFolderPath.isValid())
@@ -74,8 +71,7 @@ void BitTorrent::AbstractFileStorage::renameFolder(const Path &oldFolderPath, co
     QVector<int> renamingFileIndexes;
     renamingFileIndexes.reserve(filesCount());
 
-    for (int i = 0; i < filesCount(); ++i)
-    {
+    for (int i = 0; i < filesCount(); ++i) {
         const Path path = filePath(i);
 
         if (path.hasAncestor(oldFolderPath))
@@ -87,8 +83,7 @@ void BitTorrent::AbstractFileStorage::renameFolder(const Path &oldFolderPath, co
     if (renamingFileIndexes.isEmpty())
         throw RuntimeError(tr("No such folder: '%1'.").arg(oldFolderPath.toString()));
 
-    for (const int index : renamingFileIndexes)
-    {
+    for (const int index: renamingFileIndexes) {
         const Path newFilePath = newFolderPath / oldFolderPath.relativePathOf(filePath(index));
         renameFile(index, newFilePath);
     }

@@ -37,34 +37,46 @@
 #include "base/bittorrent/trackerentry.h"
 
 class CategoryFilterWidget;
+
 class StatusFilterWidget;
+
 class TagFilterWidget;
+
 class TrackersFilterWidget;
+
 class TransferListWidget;
 
-class TransferListFiltersWidget final : public QWidget
-{
-    Q_OBJECT
+class TransferListFiltersWidget final : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TransferListFiltersWidget)
 
 public:
     TransferListFiltersWidget(QWidget *parent, TransferListWidget *transferList, bool downloadFavicon);
+
     void setDownloadTrackerFavicon(bool value);
 
 public slots:
+
     void addTrackers(const BitTorrent::Torrent *torrent, const QVector<BitTorrent::TrackerEntry> &trackers);
+
     void removeTrackers(const BitTorrent::Torrent *torrent, const QStringList &trackers);
+
     void refreshTrackers(const BitTorrent::Torrent *torrent);
+
     void changeTrackerless(const BitTorrent::Torrent *torrent, bool trackerless);
-    void trackerEntriesUpdated(const BitTorrent::Torrent *torrent
-            , const QHash<QString, BitTorrent::TrackerEntry> &updatedTrackerEntries);
+
+    void trackerEntriesUpdated(const BitTorrent::Torrent *torrent, const QHash<QString, BitTorrent::TrackerEntry> &updatedTrackerEntries);
 
 private slots:
+
     void onCategoryFilterStateChanged(bool enabled);
+
     void onTagFilterStateChanged(bool enabled);
 
 private:
     void toggleCategoryFilter(bool enabled);
+
     void toggleTagFilter(bool enabled);
 
     TransferListWidget *m_transferList = nullptr;

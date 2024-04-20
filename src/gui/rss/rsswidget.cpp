@@ -56,9 +56,7 @@
 #include "ui_rsswidget.h"
 
 RSSWidget::RSSWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_ui(new Ui::RSSWidget)
-{
+        : QWidget(parent), m_ui(new Ui::RSSWidget) {
     m_ui->setupUi(this);
 
     // Icons
@@ -123,14 +121,11 @@ RSSWidget::RSSWidget(QWidget *parent)
 
     if (RSS::Session::instance()->isProcessingEnabled())
         m_ui->labelWarn->hide();
-    connect(RSS::Session::instance(), &RSS::Session::processingStateChanged
-            , this, &RSSWidget::handleSessionProcessingStateChanged);
-    connect(RSS::Session::instance()->rootFolder(), &RSS::Folder::unreadCountChanged
-            , this, &RSSWidget::handleUnreadCountChanged);
+    connect(RSS::Session::instance(), &RSS::Session::processingStateChanged, this, &RSSWidget::handleSessionProcessingStateChanged);
+    connect(RSS::Session::instance()->rootFolder(), &RSS::Folder::unreadCountChanged, this, &RSSWidget::handleUnreadCountChanged);
 }
 
-RSSWidget::~RSSWidget()
-{
+RSSWidget::~RSSWidget() {
     // we need it here to properly mark latest article
     // as read without having additional code
     m_articleListWidget->clear();
@@ -142,8 +137,7 @@ RSSWidget::~RSSWidget()
 }
 
 // display a right-click menu
-void RSSWidget::displayRSSListMenu(const QPoint &pos)
-{
+void RSSWidget::displayRSSListMenu(const QPoint &pos) {
     if (!m_feedListWidget->indexAt(pos).isValid())
         // No item under the mouse, clear selection
         m_feedListWidget->clearSelection();
@@ -152,17 +146,14 @@ void RSSWidget::displayRSSListMenu(const QPoint &pos)
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
-    if (!selectedItems.isEmpty())
-    {
+    if (!selectedItems.isEmpty()) {
         menu->addAction(m_ui->actionUpdate);
         menu->addAction(m_ui->actionMarkItemsRead);
         menu->addSeparator();
 
-        if (selectedItems.size() == 1)
-        {
+        if (selectedItems.size() == 1) {
             QTreeWidgetItem *selectedItem = selectedItems.first();
-            if (selectedItem != m_feedListWidget->stickyUnreadItem())
-            {
+            if (selectedItem != m_feedListWidget->stickyUnreadItem()) {
                 menu->addAction(m_ui->actionRename);
                 if (m_feedListWidget->isFeed(selectedItem))
                     menu->addAction(m_ui->actionEditFeedURL);
@@ -171,23 +162,18 @@ void RSSWidget::displayRSSListMenu(const QPoint &pos)
                 if (m_feedListWidget->isFolder(selectedItem))
                     menu->addAction(m_ui->actionNewFolder);
             }
-        }
-        else
-        {
+        } else {
             menu->addAction(m_ui->actionDelete);
             menu->addSeparator();
         }
 
         menu->addAction(m_ui->actionNewSubscription);
 
-        if (m_feedListWidget->isFeed(selectedItems.first()))
-        {
+        if (m_feedListWidget->isFeed(selectedItems.first())) {
             menu->addSeparator();
             menu->addAction(m_ui->actionCopyFeedURL);
         }
-    }
-    else
-    {
+    } else {
         menu->addAction(m_ui->actionNewSubscription);
         menu->addAction(m_ui->actionNewFolder);
         menu->addSeparator();
@@ -197,12 +183,10 @@ void RSSWidget::displayRSSListMenu(const QPoint &pos)
     menu->popup(QCursor::pos());
 }
 
-void RSSWidget::displayItemsListMenu()
-{
+void RSSWidget::displayItemsListMenu() {
     bool hasTorrent = false;
     bool hasLink = false;
-    for (const QListWidgetItem *item : asConst(m_articleListWidget->selectedItems()))
-    {
+    for (const QListWidgetItem *item: asConst(m_articleListWidget->selectedItems())) {
         auto *article = item->data(Qt::UserRole).value<RSS::Article *>();
         Q_ASSERT(article);
 
@@ -226,12 +210,10 @@ void RSSWidget::displayItemsListMenu()
         myItemListMenu->popup(QCursor::pos());
 }
 
-void RSSWidget::askNewFolder()
-{
+void RSSWidget::askNewFolder() {
     bool ok = false;
     QString newName = AutoExpandableDialog::getText(
-                this, tr("Please choose a folder name"), tr("Folder name:"), QLineEdit::Normal
-                , tr("New folder"), &ok);
+            this, tr("Please choose a folder name"), tr("Folder name:"), QLineEdit::Normal, tr("New folder"), &ok);
     if (!ok) return;
 
     newName = newName.trimmed();
@@ -240,8 +222,7 @@ void RSSWidget::askNewFolder()
     // Determine destination folder for new item
     QTreeWidgetItem *destItem = nullptr;
     QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
-    if (!selectedItems.empty())
-    {
+    if (!selectedItems.empty()) {
         destItem = selectedItems.first();
         if (!m_feedListWidget->isFolder(destItem))
             destItem = destItem->parent();
@@ -264,15 +245,14 @@ void RSSWidget::askNewFolder()
 }
 
 // add a stream by a button
-void RSSWidget::on_newFeedButton_clicked()
-{
+void RSSWidget::on_newFeedButton_clicked() {
     // Ask for feed URL
     const QString clipText = qApp->clipboard()->text();
     const QString defaultURL = Net::DownloadManager::hasSupportedScheme(clipText) ? clipText : u"http://"_s;
 
     bool ok = false;
     QString newURL = AutoExpandableDialog::getText(
-                this, tr("Please type a RSS feed URL"), tr("Feed URL:"), QLineEdit::Normal, defaultURL, &ok);
+            this, tr("Please type a RSS feed URL"), tr("Feed URL:"), QLineEdit::Normal, defaultURL, &ok);
     if (!ok) return;
 
     newURL = newURL.trimmed();
@@ -281,8 +261,7 @@ void RSSWidget::on_newFeedButton_clicked()
     // Determine destination folder for new item
     QTreeWidgetItem *destItem = nullptr;
     QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
-    if (!selectedItems.empty())
-    {
+    if (!selectedItems.empty()) {
         destItem = selectedItems.first();
         if (!m_feedListWidget->isFolder(destItem))
             destItem = destItem->parent();
@@ -305,8 +284,7 @@ void RSSWidget::on_newFeedButton_clicked()
     m_feedListWidget->setCurrentItem(m_feedListWidget->mapRSSItem(RSS::Session::instance()->itemByPath(newFeedPath)));
 }
 
-void RSSWidget::deleteSelectedItems()
-{
+void RSSWidget::deleteSelectedItems() {
     const QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
     if (selectedItems.isEmpty())
         return;
@@ -314,30 +292,25 @@ void RSSWidget::deleteSelectedItems()
         return;
 
     QMessageBox::StandardButton answer = QMessageBox::question(
-                this, tr("Deletion confirmation"), tr("Are you sure you want to delete the selected RSS feeds?")
-                , QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            this, tr("Deletion confirmation"), tr("Are you sure you want to delete the selected RSS feeds?"), QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No);
     if (answer == QMessageBox::No)
         return;
 
-    for (QTreeWidgetItem *item : selectedItems)
+    for (QTreeWidgetItem *item: selectedItems)
         if (item != m_feedListWidget->stickyUnreadItem())
             RSS::Session::instance()->removeItem(m_feedListWidget->itemPath(item));
 }
 
-void RSSWidget::loadFoldersOpenState()
-{
+void RSSWidget::loadFoldersOpenState() {
     const QStringList openedFolders = Preferences::instance()->getRssOpenFolders();
-    for (const QString &varPath : openedFolders)
-    {
+    for (const QString &varPath: openedFolders) {
         QTreeWidgetItem *parent = nullptr;
-        for (const QString &name : asConst(varPath.split(u'\\')))
-        {
+        for (const QString &name: asConst(varPath.split(u'\\'))) {
             int nbChildren = (parent ? parent->childCount() : m_feedListWidget->topLevelItemCount());
-            for (int i = 0; i < nbChildren; ++i)
-            {
+            for (int i = 0; i < nbChildren; ++i) {
                 QTreeWidgetItem *child = (parent ? parent->child(i) : m_feedListWidget->topLevelItem(i));
-                if (m_feedListWidget->getRSSItem(child)->name() == name)
-                {
+                if (m_feedListWidget->getRSSItem(child)->name() == name) {
                     parent = child;
                     parent->setExpanded(true);
                     break;
@@ -347,31 +320,26 @@ void RSSWidget::loadFoldersOpenState()
     }
 }
 
-void RSSWidget::saveFoldersOpenState()
-{
+void RSSWidget::saveFoldersOpenState() {
     QStringList openedFolders;
-    for (QTreeWidgetItem *item : asConst(m_feedListWidget->getAllOpenedFolders()))
+    for (QTreeWidgetItem *item: asConst(m_feedListWidget->getAllOpenedFolders()))
         openedFolders << m_feedListWidget->itemPath(item);
     Preferences::instance()->setRssOpenFolders(openedFolders);
 }
 
-void RSSWidget::refreshAllFeeds()
-{
+void RSSWidget::refreshAllFeeds() {
     RSS::Session::instance()->refresh();
 }
 
-void RSSWidget::downloadSelectedTorrents()
-{
-    for (QListWidgetItem *item : asConst(m_articleListWidget->selectedItems()))
-    {
+void RSSWidget::downloadSelectedTorrents() {
+    for (QListWidgetItem *item: asConst(m_articleListWidget->selectedItems())) {
         auto *article = item->data(Qt::UserRole).value<RSS::Article *>();
         Q_ASSERT(article);
 
         // Mark as read
         article->markAsRead();
 
-        if (!article->torrentUrl().isEmpty())
-        {
+        if (!article->torrentUrl().isEmpty()) {
             if (AddNewTorrentDialog::isEnabled())
                 AddNewTorrentDialog::show(article->torrentUrl(), window());
             else
@@ -381,10 +349,8 @@ void RSSWidget::downloadSelectedTorrents()
 }
 
 // open the url of the selected RSS articles in the Web browser
-void RSSWidget::openSelectedArticlesUrls()
-{
-    for (QListWidgetItem *item : asConst(m_articleListWidget->selectedItems()))
-    {
+void RSSWidget::openSelectedArticlesUrls() {
+    for (QListWidgetItem *item: asConst(m_articleListWidget->selectedItems())) {
         auto *article = item->data(Qt::UserRole).value<RSS::Article *>();
         Q_ASSERT(article);
 
@@ -396,8 +362,7 @@ void RSSWidget::openSelectedArticlesUrls()
     }
 }
 
-void RSSWidget::renameSelectedRSSItem()
-{
+void RSSWidget::renameSelectedRSSItem() {
     QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
     if (selectedItems.size() != 1) return;
 
@@ -408,25 +373,21 @@ void RSSWidget::renameSelectedRSSItem()
     RSS::Item *rssItem = m_feedListWidget->getRSSItem(item);
     const QString parentPath = RSS::Item::parentPath(rssItem->path());
     bool ok = false;
-    do
-    {
+    do {
         QString newName = AutoExpandableDialog::getText(
-                    this, tr("Please choose a new name for this RSS feed"), tr("New feed name:")
-                    , QLineEdit::Normal, rssItem->name(), &ok);
+                this, tr("Please choose a new name for this RSS feed"), tr("New feed name:"), QLineEdit::Normal, rssItem->name(), &ok);
         // Check if name is already taken
         if (!ok) return;
 
         const nonstd::expected<void, QString> result = RSS::Session::instance()->moveItem(rssItem, RSS::Item::joinPath(parentPath, newName));
-        if (!result)
-        {
+        if (!result) {
             QMessageBox::warning(nullptr, tr("Rename failed"), result.error());
             ok = false;
         }
     } while (!ok);
 }
 
-void RSSWidget::editSelectedRSSFeedURL()
-{
+void RSSWidget::editSelectedRSSFeedURL() {
     QList<QTreeWidgetItem *> selectedItems = m_feedListWidget->selectedItems();
     if (selectedItems.size() != 1)
         return;
@@ -438,8 +399,7 @@ void RSSWidget::editSelectedRSSFeedURL()
         return;
 
     bool ok = false;
-    QString newURL = AutoExpandableDialog::getText(this, tr("Please type a RSS feed URL")
-            , tr("Feed URL:"), QLineEdit::Normal, rssFeed->url(), &ok).trimmed();
+    QString newURL = AutoExpandableDialog::getText(this, tr("Please type a RSS feed URL"), tr("Feed URL:"), QLineEdit::Normal, rssFeed->url(), &ok).trimmed();
     if (!ok || newURL.isEmpty())
         return;
 
@@ -448,12 +408,9 @@ void RSSWidget::editSelectedRSSFeedURL()
         QMessageBox::warning(this, u"qBittorrent"_s, result.error(), QMessageBox::Ok);
 }
 
-void RSSWidget::refreshSelectedItems()
-{
-    for (QTreeWidgetItem *item : asConst(m_feedListWidget->selectedItems()))
-    {
-        if (item == m_feedListWidget->stickyUnreadItem())
-        {
+void RSSWidget::refreshSelectedItems() {
+    for (QTreeWidgetItem *item: asConst(m_feedListWidget->selectedItems())) {
+        if (item == m_feedListWidget->stickyUnreadItem()) {
             refreshAllFeeds();
             return;
         }
@@ -462,27 +419,21 @@ void RSSWidget::refreshSelectedItems()
     }
 }
 
-void RSSWidget::copySelectedFeedsURL()
-{
+void RSSWidget::copySelectedFeedsURL() {
     QStringList URLs;
-    for (QTreeWidgetItem *item : asConst(m_feedListWidget->selectedItems()))
-    {
+    for (QTreeWidgetItem *item: asConst(m_feedListWidget->selectedItems())) {
         if (auto *feed = qobject_cast<RSS::Feed *>(m_feedListWidget->getRSSItem(item)))
             URLs << feed->url();
     }
     qApp->clipboard()->setText(URLs.join(u'\n'));
 }
 
-void RSSWidget::handleCurrentFeedItemChanged(QTreeWidgetItem *currentItem)
-{
-    m_articleListWidget->setRSSItem(m_feedListWidget->getRSSItem(currentItem)
-                                    , (currentItem == m_feedListWidget->stickyUnreadItem()));
+void RSSWidget::handleCurrentFeedItemChanged(QTreeWidgetItem *currentItem) {
+    m_articleListWidget->setRSSItem(m_feedListWidget->getRSSItem(currentItem), (currentItem == m_feedListWidget->stickyUnreadItem()));
 }
 
-void RSSWidget::on_markReadButton_clicked()
-{
-    for (QTreeWidgetItem *item : asConst(m_feedListWidget->selectedItems()))
-    {
+void RSSWidget::on_markReadButton_clicked() {
+    for (QTreeWidgetItem *item: asConst(m_feedListWidget->selectedItems())) {
         m_feedListWidget->getRSSItem(item)->markAsRead();
         if (item == m_feedListWidget->stickyUnreadItem())
             break; // all items was read
@@ -490,12 +441,10 @@ void RSSWidget::on_markReadButton_clicked()
 }
 
 // display a news
-void RSSWidget::handleCurrentArticleItemChanged(QListWidgetItem *currentItem, QListWidgetItem *previousItem)
-{
+void RSSWidget::handleCurrentArticleItemChanged(QListWidgetItem *currentItem, QListWidgetItem *previousItem) {
     m_ui->textBrowser->clear();
 
-    if (previousItem)
-    {
+    if (previousItem) {
         auto *article = m_articleListWidget->getRSSArticle(previousItem);
         Q_ASSERT(article);
         article->markAsRead();
@@ -511,25 +460,24 @@ void RSSWidget::handleCurrentArticleItemChanged(QListWidgetItem *currentItem, QL
     const QString alternateBaseColor = m_ui->textBrowser->palette().color(QPalette::AlternateBase).name();
 
     QString html =
-        u"<div style='border: 2px solid red; margin-left: 5px; margin-right: 5px; margin-bottom: 5px;'>" +
-        u"<div style='background-color: \"%1\"; font-weight: bold; color: \"%2\";'>%3</div>"_s.arg(highlightedBaseColor, highlightedBaseTextColor, article->title());
+            u"<div style='border: 2px solid red; margin-left: 5px; margin-right: 5px; margin-bottom: 5px;'>" +
+            u"<div style='background-color: \"%1\"; font-weight: bold; color: \"%2\";'>%3</div>"_s.arg(highlightedBaseColor, highlightedBaseTextColor,
+                                                                                                       article->title());
     if (article->date().isValid())
-        html += u"<div style='background-color: \"%1\";'><b>%2</b>%3</div>"_s.arg(alternateBaseColor, tr("Date: "), QLocale::system().toString(article->date().toLocalTime()));
+        html += u"<div style='background-color: \"%1\";'><b>%2</b>%3</div>"_s.arg(alternateBaseColor, tr("Date: "),
+                                                                                  QLocale::system().toString(article->date().toLocalTime()));
     if (!article->author().isEmpty())
         html += u"<div style='background-color: \"%1\";'><b>%2</b>%3</div>"_s.arg(alternateBaseColor, tr("Author: "), article->author());
     html += u"</div>"
             u"<div style='margin-left: 5px; margin-right: 5px;'>";
-    if (Qt::mightBeRichText(article->description()))
-    {
+    if (Qt::mightBeRichText(article->description())) {
         html += article->description();
-    }
-    else
-    {
+    } else {
         QString description = article->description();
         QRegularExpression rx;
         // If description is plain text, replace BBCode tags with HTML and wrap everything in <pre></pre> so it looks nice
         rx.setPatternOptions(QRegularExpression::InvertedGreedinessOption
-            | QRegularExpression::CaseInsensitiveOption);
+                             | QRegularExpression::CaseInsensitiveOption);
 
         rx.setPattern(u"\\[img\\](.+)\\[/img\\]"_s);
         description = description.replace(rx, u"<img src=\"\\1\">"_s);
@@ -555,16 +503,14 @@ void RSSWidget::handleCurrentArticleItemChanged(QListWidgetItem *currentItem, QL
     m_ui->textBrowser->setHtml(html);
 }
 
-void RSSWidget::saveSlidersPosition()
-{
+void RSSWidget::saveSlidersPosition() {
     // Remember sliders positions
     Preferences *const pref = Preferences::instance();
     pref->setRssSideSplitterState(m_ui->splitterSide->saveState());
     pref->setRssMainSplitterState(m_ui->splitterMain->saveState());
 }
 
-void RSSWidget::restoreSlidersPosition()
-{
+void RSSWidget::restoreSlidersPosition() {
     const Preferences *const pref = Preferences::instance();
     const QByteArray stateSide = pref->getRssSideSplitterState();
     if (!stateSide.isEmpty())
@@ -574,24 +520,20 @@ void RSSWidget::restoreSlidersPosition()
         m_ui->splitterMain->restoreState(stateMain);
 }
 
-void RSSWidget::updateRefreshInterval(int val) const
-{
+void RSSWidget::updateRefreshInterval(int val) const {
     RSS::Session::instance()->setRefreshInterval(val);
 }
 
-void RSSWidget::on_rssDownloaderBtn_clicked()
-{
+void RSSWidget::on_rssDownloaderBtn_clicked() {
     auto *downloader = new AutomatedRssDownloader(this);
     downloader->setAttribute(Qt::WA_DeleteOnClose);
     downloader->open();
 }
 
-void RSSWidget::handleSessionProcessingStateChanged(bool enabled)
-{
+void RSSWidget::handleSessionProcessingStateChanged(bool enabled) {
     m_ui->labelWarn->setVisible(!enabled);
 }
 
-void RSSWidget::handleUnreadCountChanged()
-{
+void RSSWidget::handleUnreadCountChanged() {
     emit unreadCountUpdated(RSS::Session::instance()->rootFolder()->unreadCount());
 }

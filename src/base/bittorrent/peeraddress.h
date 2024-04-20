@@ -33,20 +33,22 @@
 
 class QString;
 
-namespace BitTorrent
-{
-    struct PeerAddress
-    {
+namespace BitTorrent {
+    struct PeerAddress {
         QHostAddress ip;
         ushort port = 0;
 
         static PeerAddress parse(QStringView address);
+
         QString toString() const;
     };
 
     bool operator==(const PeerAddress &left, const PeerAddress &right);
+
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
     std::size_t qHash(const PeerAddress &addr, std::size_t seed = 0);
+
 #else
     uint qHash(const PeerAddress &addr, uint seed = 0);
 #endif

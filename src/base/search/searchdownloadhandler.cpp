@@ -37,30 +37,24 @@
 #include "searchpluginmanager.h"
 
 SearchDownloadHandler::SearchDownloadHandler(const QString &siteUrl, const QString &url, SearchPluginManager *manager)
-    : QObject {manager}
-    , m_manager {manager}
-    , m_downloadProcess {new QProcess {this}}
-{
+        : QObject{manager}, m_manager{manager}, m_downloadProcess{new QProcess{this}} {
     m_downloadProcess->setEnvironment(QProcess::systemEnvironment());
-    connect(m_downloadProcess, qOverload<int, QProcess::ExitStatus>(&QProcess::finished)
-            , this, &SearchDownloadHandler::downloadProcessFinished);
+    connect(m_downloadProcess, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &SearchDownloadHandler::downloadProcessFinished);
     const QStringList params
-    {
-        Utils::ForeignApps::PYTHON_ISOLATE_MODE_FLAG,
-        (SearchPluginManager::engineLocation() / Path(u"nova2dl.py"_s)).toString(),
-        siteUrl,
-        url
-    };
+            {
+                    Utils::ForeignApps::PYTHON_ISOLATE_MODE_FLAG,
+                    (SearchPluginManager::engineLocation() / Path(u"nova2dl.py"_s)).toString(),
+                    siteUrl,
+                    url
+            };
     // Launch search
     m_downloadProcess->start(Utils::ForeignApps::pythonInfo().executableName, params, QIODevice::ReadOnly);
 }
 
-void SearchDownloadHandler::downloadProcessFinished(int exitcode)
-{
+void SearchDownloadHandler::downloadProcessFinished(int exitcode) {
     QString path;
 
-    if ((exitcode == 0) && (m_downloadProcess->exitStatus() == QProcess::NormalExit))
-    {
+    if ((exitcode == 0) && (m_downloadProcess->exitStatus() == QProcess::NormalExit)) {
         const QString line = QString::fromUtf8(m_downloadProcess->readAllStandardOutput()).trimmed();
         const QList<QStringView> parts = QStringView(line).split(u' ');
         if (parts.size() == 2)

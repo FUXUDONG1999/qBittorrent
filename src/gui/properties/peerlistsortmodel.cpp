@@ -31,24 +31,20 @@
 #include "peerlistwidget.h"
 
 PeerListSortModel::PeerListSortModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
+        : QSortFilterProxyModel(parent) {
     setSortRole(UnderlyingDataRole);
 }
 
-bool PeerListSortModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    switch (sortColumn())
-    {
-    case PeerListWidget::IP:
-    case PeerListWidget::CLIENT:
-        {
+bool PeerListSortModel::lessThan(const QModelIndex &left, const QModelIndex &right) const {
+    switch (sortColumn()) {
+        case PeerListWidget::IP:
+        case PeerListWidget::CLIENT: {
             const QString strL = left.data(UnderlyingDataRole).toString();
             const QString strR = right.data(UnderlyingDataRole).toString();
             return m_naturalLessThan(strL, strR);
         }
-        break;
-    default:
-        return QSortFilterProxyModel::lessThan(left, right);
+            break;
+        default:
+            return QSortFilterProxyModel::lessThan(left, right);
     };
 }

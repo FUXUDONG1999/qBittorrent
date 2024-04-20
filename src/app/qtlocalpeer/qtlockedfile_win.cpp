@@ -75,10 +75,8 @@
 // Maximum number of concurrent read locks. Must not be greater than MAXIMUM_WAIT_OBJECTS
 const int MAX_READERS = MAXIMUM_WAIT_OBJECTS;
 
-Qt::HANDLE QtLockedFile::getMutexHandle(const int idx, const bool doCreate)
-{
-    if (m_mutexName.isEmpty())
-    {
+Qt::HANDLE QtLockedFile::getMutexHandle(const int idx, const bool doCreate) {
+    if (m_mutexName.isEmpty()) {
         QFileInfo fi(*this);
         m_mutexName = u"QtLockedFile mutex " + fi.absoluteFilePath().toLower();
     }
@@ -89,22 +87,17 @@ Qt::HANDLE QtLockedFile::getMutexHandle(const int idx, const bool doCreate)
 
     const std::wstring mnameWStr = mname.toStdWString();
 
-    if (doCreate)
-    {
+    if (doCreate) {
         const Qt::HANDLE mutex = ::CreateMutexW(NULL, FALSE, mnameWStr.c_str());
-        if (!mutex)
-        {
+        if (!mutex) {
             qErrnoWarning("QtLockedFile::lock(): CreateMutex failed");
             return nullptr;
         }
 
         return mutex;
-    }
-    else
-    {
+    } else {
         const Qt::HANDLE mutex = ::OpenMutexW((SYNCHRONIZE | MUTEX_MODIFY_STATE), FALSE, mnameWStr.c_str());
-        if (!mutex)
-        {
+        if (!mutex) {
             if (GetLastError() != ERROR_FILE_NOT_FOUND)
                 qErrnoWarning("QtLockedFile::lock(): OpenMutex failed");
             return nullptr;
@@ -116,29 +109,25 @@ Qt::HANDLE QtLockedFile::getMutexHandle(const int idx, const bool doCreate)
     return nullptr;
 }
 
-bool QtLockedFile::waitMutex(const Qt::HANDLE mutex, const bool doBlock) const
-{
+bool QtLockedFile::waitMutex(const Qt::HANDLE mutex, const bool doBlock) const {
     Q_ASSERT(mutex);
 
     const DWORD res = ::WaitForSingleObject(mutex, (doBlock ? INFINITE : 0));
-    switch (res)
-    {
-    case WAIT_OBJECT_0:
-    case WAIT_ABANDONED:
-        return true;
-    case WAIT_TIMEOUT:
-        return false;
-    default:
-        qErrnoWarning("QtLockedFile::lock(): WaitForSingleObject failed");
-        break;
+    switch (res) {
+        case WAIT_OBJECT_0:
+        case WAIT_ABANDONED:
+            return true;
+        case WAIT_TIMEOUT:
+            return false;
+        default:
+            qErrnoWarning("QtLockedFile::lock(): WaitForSingleObject failed");
+            break;
     }
     return false;
 }
 
-bool QtLockedFile::lock(const LockMode mode, const bool block)
-{
-    if (!isOpen())
-    {
+bool QtLockedFile::lock(const LockMode mode, const bool block) {
+    if (!isOpen()) {
         qWarning("QtLockedFile::lock(): file is not opened");
         return false;
     }
@@ -158,11 +147,9 @@ bool QtLockedFile::lock(const LockMode mode, const bool block)
     if (!waitMutex(m_writeMutex, block))
         return false;
 
-    if (mode == ReadLock)
-    {
+    if (mode == ReadLock) {
         int idx = 0;
-        for (; idx < MAX_READERS; ++idx)
-        {
+        for (; idx < MAX_READERS; ++idx) {
             m_readMutex = getMutexHandle(idx, false);
             if (!m_readMutex || waitMutex(m_readMutex, false))
                 break;
@@ -170,21 +157,17 @@ bool QtLockedFile::lock(const LockMode mode, const bool block)
         }
 
         bool ok = true;
-        if (idx >= MAX_READERS)
-        {
+        if (idx >= MAX_READERS) {
             qWarning("QtLockedFile::lock(): too many readers");
             m_readMutex = nullptr;
             ok = false;
-        }
-        else if (!m_readMutex)
-        {
+        } else if (!m_readMutex) {
             m_readMutex = getMutexHandle(idx, true);
             if (!m_readMutex || !waitMutex(m_readMutex, false))
                 ok = false;
         }
 
-        if (!ok && m_readMutex)
-        {
+        if (!ok && m_readMutex) {
             ::CloseHandle(m_readMutex);
             m_readMutex = nullptr;
         }
@@ -192,22 +175,17 @@ bool QtLockedFile::lock(const LockMode mode, const bool block)
         ::ReleaseMutex(m_writeMutex);
         if (!ok)
             return false;
-    }
-    else
-    {
+    } else {
         Q_ASSERT(m_readMutexes.isEmpty());
-        for (int i = 0; i < MAX_READERS; ++i)
-        {
+        for (int i = 0; i < MAX_READERS; ++i) {
             const Qt::HANDLE mutex = getMutexHandle(i, false);
             if (mutex)
                 m_readMutexes.append(mutex);
         }
-        if (m_readMutexes.size())
-        {
+        if (m_readMutexes.size()) {
             const DWORD res = ::WaitForMultipleObjects(m_readMutexes.size(), m_readMutexes.constData(),
-                TRUE, (block ? INFINITE : 0));
-            if ((res != WAIT_OBJECT_0) && (res != WAIT_ABANDONED))
-            {
+                                                       TRUE, (block ? INFINITE : 0));
+            if ((res != WAIT_OBJECT_0) && (res != WAIT_ABANDONED)) {
                 if (res != WAIT_TIMEOUT)
                     qErrnoWarning("QtLockedFile::lock(): WaitForMultipleObjects failed");
                 m_lockMode = WriteLock;  // trick unlock() to clean up - semiyucky
@@ -221,10 +199,8 @@ bool QtLockedFile::lock(const LockMode mode, const bool block)
     return true;
 }
 
-bool QtLockedFile::unlock()
-{
-    if (!isOpen())
-    {
+bool QtLockedFile::unlock() {
+    if (!isOpen()) {
         qWarning("QtLockedFile::unlock(): file is not opened");
         return false;
     }
@@ -232,16 +208,12 @@ bool QtLockedFile::unlock()
     if (!isLocked())
         return true;
 
-    if (m_lockMode == ReadLock)
-    {
+    if (m_lockMode == ReadLock) {
         ::ReleaseMutex(m_readMutex);
         ::CloseHandle(m_readMutex);
         m_readMutex = nullptr;
-    }
-    else
-    {
-        for (const Qt::HANDLE &mutex : asConst(m_readMutexes))
-        {
+    } else {
+        for (const Qt::HANDLE &mutex: asConst(m_readMutexes)) {
             ::ReleaseMutex(mutex);
             ::CloseHandle(mutex);
         }
@@ -253,8 +225,7 @@ bool QtLockedFile::unlock()
     return true;
 }
 
-QtLockedFile::~QtLockedFile()
-{
+QtLockedFile::~QtLockedFile() {
     if (isOpen())
         unlock();
     if (m_writeMutex)

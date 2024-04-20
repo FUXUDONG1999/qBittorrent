@@ -37,32 +37,34 @@
 
 class QString;
 
-namespace Private
-{
+namespace Private {
     class Profile;
+
     class PathConverter;
 }
 
-enum class SpecialFolder
-{
+enum class SpecialFolder {
     Cache,
     Config,
     Data,
     Downloads
 };
 
-class Profile
-{
+class Profile {
 public:
     static void initInstance(const Path &rootProfilePath, const QString &configurationName,
-        bool convertPathsToProfileRelative);
+                             bool convertPathsToProfileRelative);
+
     static void freeInstance();
+
     static const Profile *instance();
 
     Path location(SpecialFolder folder) const;
+
     std::unique_ptr<QSettings> applicationSettings(const QString &name) const;
 
     Path rootPath() const;
+
     QString configurationName() const;
 
     /// Returns either default name for configuration file (QCoreApplication::applicationName())
@@ -70,10 +72,12 @@ public:
     QString profileName() const;
 
     Path toPortablePath(const Path &absolutePath) const;
+
     Path fromPortablePath(const Path &portablePath) const;
 
 private:
     Profile(const Path &rootProfilePath, const QString &configurationName, bool convertPathsToProfileRelative);
+
     ~Profile() = default;  // to generate correct call to ProfilePrivate::~ProfileImpl()
 
     void ensureDirectoryExists(SpecialFolder folder) const;

@@ -42,39 +42,38 @@
 #include "base/utils/fs.h"
 #include "fspathedit_p.h"
 
-namespace
-{
-    struct TrStringWithComment
-    {
+namespace {
+    struct TrStringWithComment {
         const char *source = nullptr;
         const char *comment = nullptr;
 
-        QString tr() const
-        {
+        QString tr() const {
             return QCoreApplication::translate("FileSystemPathEdit", source, comment);
         }
     };
 
     constexpr TrStringWithComment browseButtonBriefText =
-        QT_TRANSLATE_NOOP3("FileSystemPathEdit", "...", "Launch file dialog button text (brief)");
+            QT_TRANSLATE_NOOP3("FileSystemPathEdit", "...", "Launch file dialog button text (brief)");
     constexpr TrStringWithComment browseButtonFullText =
-        QT_TRANSLATE_NOOP3("FileSystemPathEdit", "&Browse...", "Launch file dialog button text (full)");
+            QT_TRANSLATE_NOOP3("FileSystemPathEdit", "&Browse...", "Launch file dialog button text (full)");
     constexpr TrStringWithComment defaultDialogCaptionForFile =
-        QT_TRANSLATE_NOOP3("FileSystemPathEdit", "Choose a file", "Caption for file open/save dialog");
+            QT_TRANSLATE_NOOP3("FileSystemPathEdit", "Choose a file", "Caption for file open/save dialog");
     constexpr TrStringWithComment defaultDialogCaptionForDirectory =
-        QT_TRANSLATE_NOOP3("FileSystemPathEdit", "Choose a folder", "Caption for directory open dialog");
+            QT_TRANSLATE_NOOP3("FileSystemPathEdit", "Choose a folder", "Caption for directory open dialog");
 }
 
-class FileSystemPathEdit::FileSystemPathEditPrivate
-{
+class FileSystemPathEdit::FileSystemPathEditPrivate {
     Q_DECLARE_PUBLIC(FileSystemPathEdit)
+
     Q_DISABLE_COPY_MOVE(FileSystemPathEditPrivate)
 
 private:
     FileSystemPathEditPrivate(FileSystemPathEdit *q, Private::IFileEditorWithCompletion *editor);
 
     void modeChanged();
+
     void browseActionTriggered();
+
     QString dialogCaptionOrDefault() const;
 
     FileSystemPathEdit *q_ptr = nullptr;
@@ -89,14 +88,9 @@ private:
 };
 
 FileSystemPathEdit::FileSystemPathEditPrivate::FileSystemPathEditPrivate(
-                        FileSystemPathEdit *q, Private::IFileEditorWithCompletion *editor)
-    : q_ptr {q}
-    , m_editor {editor}
-    , m_browseAction {new QAction(QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon), browseButtonFullText.tr(), q)}
-    , m_browseBtn {new QToolButton(q)}
-    , m_fileNameFilter {tr("Any file") + u" (*)"}
-    , m_validator {new Private::FileSystemPathValidator(q)}
-{
+        FileSystemPathEdit *q, Private::IFileEditorWithCompletion *editor)
+        : q_ptr{q}, m_editor{editor}, m_browseAction{new QAction(QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon), browseButtonFullText.tr(), q)},
+          m_browseBtn{new QToolButton(q)}, m_fileNameFilter{tr("Any file") + u" (*)"}, m_validator{new Private::FileSystemPathValidator(q)} {
     m_browseAction->setIconText(browseButtonBriefText.tr());
     m_browseAction->setShortcut(Qt::CTRL + Qt::Key_B);
     m_browseAction->setToolTip(browseButtonFullText.tr().remove(u'&'));
@@ -111,76 +105,71 @@ FileSystemPathEdit::FileSystemPathEditPrivate::FileSystemPathEditPrivate(
     modeChanged();
 }
 
-void FileSystemPathEdit::FileSystemPathEditPrivate::browseActionTriggered()
-{
+void FileSystemPathEdit::FileSystemPathEditPrivate::browseActionTriggered() {
     Q_Q(FileSystemPathEdit);
 
     const Path currentDirectory = (m_mode == FileSystemPathEdit::Mode::DirectoryOpen) || (m_mode == FileSystemPathEdit::Mode::DirectorySave)
-            ? q->selectedPath()
-            : q->selectedPath().parentPath();
+                                  ? q->selectedPath()
+                                  : q->selectedPath().parentPath();
     const Path initialDirectory = currentDirectory.isAbsolute() ? currentDirectory : (Utils::Fs::homePath() / currentDirectory);
 
     QString filter = q->fileNameFilter();
     QString newPath;
-    switch (m_mode)
-    {
-    case FileSystemPathEdit::Mode::FileOpen:
-        newPath = QFileDialog::getOpenFileName(q, dialogCaptionOrDefault(), initialDirectory.data(), filter);
-        break;
-    case FileSystemPathEdit::Mode::FileSave:
-        newPath = QFileDialog::getSaveFileName(q, dialogCaptionOrDefault(), initialDirectory.data(), filter, &filter);
-        break;
-    case FileSystemPathEdit::Mode::DirectoryOpen:
-    case FileSystemPathEdit::Mode::DirectorySave:
-        newPath = QFileDialog::getExistingDirectory(q, dialogCaptionOrDefault(),
-                                initialDirectory.data(), QFileDialog::ShowDirsOnly);
-        break;
-    case FileSystemPathEdit::Mode::ReadOnly:
-        throw std::logic_error("Not supported");
-    default:
-        throw std::logic_error("Unknown FileSystemPathEdit mode");
+    switch (m_mode) {
+        case FileSystemPathEdit::Mode::FileOpen:
+            newPath = QFileDialog::getOpenFileName(q, dialogCaptionOrDefault(), initialDirectory.data(), filter);
+            break;
+        case FileSystemPathEdit::Mode::FileSave:
+            newPath = QFileDialog::getSaveFileName(q, dialogCaptionOrDefault(), initialDirectory.data(), filter, &filter);
+            break;
+        case FileSystemPathEdit::Mode::DirectoryOpen:
+        case FileSystemPathEdit::Mode::DirectorySave:
+            newPath = QFileDialog::getExistingDirectory(q, dialogCaptionOrDefault(),
+                                                        initialDirectory.data(), QFileDialog::ShowDirsOnly);
+            break;
+        case FileSystemPathEdit::Mode::ReadOnly:
+            throw std::logic_error("Not supported");
+        default:
+            throw std::logic_error("Unknown FileSystemPathEdit mode");
     }
 
     if (!newPath.isEmpty())
         q->setSelectedPath(Path(newPath));
 }
 
-QString FileSystemPathEdit::FileSystemPathEditPrivate::dialogCaptionOrDefault() const
-{
+QString FileSystemPathEdit::FileSystemPathEditPrivate::dialogCaptionOrDefault() const {
     if (!m_dialogCaption.isEmpty())
         return m_dialogCaption;
 
-    switch (m_mode)
-    {
-    case FileSystemPathEdit::Mode::FileOpen:
-    case FileSystemPathEdit::Mode::FileSave:
-        return defaultDialogCaptionForFile.tr();
-    case FileSystemPathEdit::Mode::DirectoryOpen:
-    case FileSystemPathEdit::Mode::DirectorySave:
-        return defaultDialogCaptionForDirectory.tr();
-    case FileSystemPathEdit::Mode::ReadOnly:
-        throw std::logic_error("Not supported");
-    default:
-        throw std::logic_error("Unknown FileSystemPathEdit mode");
+    switch (m_mode) {
+        case FileSystemPathEdit::Mode::FileOpen:
+        case FileSystemPathEdit::Mode::FileSave:
+            return defaultDialogCaptionForFile.tr();
+        case FileSystemPathEdit::Mode::DirectoryOpen:
+        case FileSystemPathEdit::Mode::DirectorySave:
+            return defaultDialogCaptionForDirectory.tr();
+        case FileSystemPathEdit::Mode::ReadOnly:
+            throw std::logic_error("Not supported");
+        default:
+            throw std::logic_error("Unknown FileSystemPathEdit mode");
     }
 }
 
-void FileSystemPathEdit::FileSystemPathEditPrivate::modeChanged()
-{
+void FileSystemPathEdit::FileSystemPathEditPrivate::modeChanged() {
     m_browseBtn->setVisible(m_mode != FileSystemPathEdit::Mode::ReadOnly);
     m_editor->completeDirectoriesOnly((m_mode == FileSystemPathEdit::Mode::DirectoryOpen) || (m_mode == FileSystemPathEdit::Mode::DirectorySave));
 
-    m_validator->setExistingOnly((m_mode == FileSystemPathEdit::Mode::FileOpen) || (m_mode == FileSystemPathEdit::Mode::DirectoryOpen) || (m_mode == FileSystemPathEdit::Mode::ReadOnly));
+    m_validator->setExistingOnly((m_mode == FileSystemPathEdit::Mode::FileOpen) || (m_mode == FileSystemPathEdit::Mode::DirectoryOpen) ||
+                                 (m_mode == FileSystemPathEdit::Mode::ReadOnly));
     m_validator->setFilesOnly((m_mode == FileSystemPathEdit::Mode::FileOpen) || (m_mode == FileSystemPathEdit::Mode::FileSave));
     m_validator->setDirectoriesOnly((m_mode == FileSystemPathEdit::Mode::DirectoryOpen) || (m_mode == FileSystemPathEdit::Mode::DirectorySave));
-    m_validator->setCheckReadPermission((m_mode == FileSystemPathEdit::Mode::FileOpen) || (m_mode == FileSystemPathEdit::Mode::DirectoryOpen) || (m_mode == FileSystemPathEdit::Mode::ReadOnly));
+    m_validator->setCheckReadPermission((m_mode == FileSystemPathEdit::Mode::FileOpen) || (m_mode == FileSystemPathEdit::Mode::DirectoryOpen) ||
+                                        (m_mode == FileSystemPathEdit::Mode::ReadOnly));
     m_validator->setCheckWritePermission((m_mode == FileSystemPathEdit::Mode::FileSave) || (m_mode == FileSystemPathEdit::Mode::DirectorySave));
 }
 
 FileSystemPathEdit::FileSystemPathEdit(Private::IFileEditorWithCompletion *editor, QWidget *parent)
-    : QWidget(parent)
-    , d_ptr(new FileSystemPathEditPrivate(this, editor))
-{
+        : QWidget(parent), d_ptr(new FileSystemPathEditPrivate(this, editor)) {
     Q_D(FileSystemPathEdit);
     editor->widget()->setParent(this);
 
@@ -196,18 +185,15 @@ FileSystemPathEdit::FileSystemPathEdit(Private::IFileEditorWithCompletion *edito
     connect(d->m_browseAction, &QAction::triggered, this, [this]() { this->d_func()->browseActionTriggered(); });
 }
 
-FileSystemPathEdit::~FileSystemPathEdit()
-{
+FileSystemPathEdit::~FileSystemPathEdit() {
     delete d_ptr;
 }
 
-Path FileSystemPathEdit::selectedPath() const
-{
+Path FileSystemPathEdit::selectedPath() const {
     return Path(editWidgetText());
 }
 
-void FileSystemPathEdit::setSelectedPath(const Path &val)
-{
+void FileSystemPathEdit::setSelectedPath(const Path &val) {
     Q_D(FileSystemPathEdit);
 
     const QString nativePath = val.toString();
@@ -215,14 +201,12 @@ void FileSystemPathEdit::setSelectedPath(const Path &val)
     d->m_editor->widget()->setToolTip(nativePath);
 }
 
-QString FileSystemPathEdit::fileNameFilter() const
-{
+QString FileSystemPathEdit::fileNameFilter() const {
     Q_D(const FileSystemPathEdit);
     return d->m_fileNameFilter;
 }
 
-void FileSystemPathEdit::setFileNameFilter(const QString &val)
-{
+void FileSystemPathEdit::setFileNameFilter(const QString &val) {
     Q_D(FileSystemPathEdit);
     d->m_fileNameFilter = val;
 
@@ -252,157 +236,130 @@ void FileSystemPathEdit::setFileNameFilter(const QString &val)
 #endif
 }
 
-Path FileSystemPathEdit::placeholder() const
-{
+Path FileSystemPathEdit::placeholder() const {
     Q_D(const FileSystemPathEdit);
     return d->m_editor->placeholder();
 }
 
-void FileSystemPathEdit::setPlaceholder(const Path &val)
-{
+void FileSystemPathEdit::setPlaceholder(const Path &val) {
     Q_D(FileSystemPathEdit);
     d->m_editor->setPlaceholder(val);
 }
 
-bool FileSystemPathEdit::briefBrowseButtonCaption() const
-{
+bool FileSystemPathEdit::briefBrowseButtonCaption() const {
     Q_D(const FileSystemPathEdit);
     return d->m_browseBtn->text() == browseButtonBriefText.tr();
 }
 
-void FileSystemPathEdit::setBriefBrowseButtonCaption(bool brief)
-{
+void FileSystemPathEdit::setBriefBrowseButtonCaption(bool brief) {
     Q_D(FileSystemPathEdit);
     d->m_browseBtn->setText(brief ? browseButtonBriefText.tr() : browseButtonFullText.tr());
 }
 
-void FileSystemPathEdit::onPathEdited()
-{
+void FileSystemPathEdit::onPathEdited() {
     Q_D(FileSystemPathEdit);
 
     const Path newPath = selectedPath();
-    if (newPath != d->m_lastSignaledPath)
-    {
+    if (newPath != d->m_lastSignaledPath) {
         emit selectedPathChanged(newPath);
         d->m_lastSignaledPath = newPath;
         d->m_editor->widget()->setToolTip(editWidgetText());
     }
 }
 
-FileSystemPathEdit::Mode FileSystemPathEdit::mode() const
-{
+FileSystemPathEdit::Mode FileSystemPathEdit::mode() const {
     Q_D(const FileSystemPathEdit);
     return d->m_mode;
 }
 
-void FileSystemPathEdit::setMode(const Mode mode)
-{
+void FileSystemPathEdit::setMode(const Mode mode) {
     Q_D(FileSystemPathEdit);
     d->m_mode = mode;
     d->modeChanged();
 }
 
-QString FileSystemPathEdit::dialogCaption() const
-{
+QString FileSystemPathEdit::dialogCaption() const {
     Q_D(const FileSystemPathEdit);
     return d->m_dialogCaption;
 }
 
-void FileSystemPathEdit::setDialogCaption(const QString &caption)
-{
+void FileSystemPathEdit::setDialogCaption(const QString &caption) {
     Q_D(FileSystemPathEdit);
     d->m_dialogCaption = caption;
 }
 
-QWidget *FileSystemPathEdit::editWidgetImpl() const
-{
+QWidget *FileSystemPathEdit::editWidgetImpl() const {
     Q_D(const FileSystemPathEdit);
     return d->m_editor->widget();
 }
 
 // ------------------------- FileSystemPathLineEdit ----------------------
 FileSystemPathLineEdit::FileSystemPathLineEdit(QWidget *parent)
-    : FileSystemPathEdit(new WidgetType(), parent)
-{
+        : FileSystemPathEdit(new WidgetType(), parent) {
     connect(editWidget<WidgetType>(), &QLineEdit::editingFinished, this, &FileSystemPathLineEdit::onPathEdited);
     connect(editWidget<WidgetType>(), &QLineEdit::textChanged, this, &FileSystemPathLineEdit::onPathEdited);
 }
 
-QString FileSystemPathLineEdit::editWidgetText() const
-{
+QString FileSystemPathLineEdit::editWidgetText() const {
     return editWidget<WidgetType>()->text();
 }
 
-void FileSystemPathLineEdit::clear()
-{
+void FileSystemPathLineEdit::clear() {
     editWidget<WidgetType>()->clear();
 }
 
-void FileSystemPathLineEdit::setEditWidgetText(const QString &text)
-{
+void FileSystemPathLineEdit::setEditWidgetText(const QString &text) {
     editWidget<WidgetType>()->setText(text);
 }
 
 // ----------------------- FileSystemPathComboEdit -----------------------
 FileSystemPathComboEdit::FileSystemPathComboEdit(QWidget *parent)
-    : FileSystemPathEdit(new WidgetType(), parent)
-{
+        : FileSystemPathEdit(new WidgetType(), parent) {
     editWidget<WidgetType>()->setEditable(true);
     connect(editWidget<WidgetType>(), &QComboBox::currentTextChanged, this, &FileSystemPathComboEdit::onPathEdited);
     connect(editWidget<WidgetType>()->lineEdit(), &QLineEdit::editingFinished, this, &FileSystemPathComboEdit::onPathEdited);
 }
 
-void FileSystemPathComboEdit::clear()
-{
+void FileSystemPathComboEdit::clear() {
     editWidget<WidgetType>()->clear();
 }
 
-int FileSystemPathComboEdit::count() const
-{
+int FileSystemPathComboEdit::count() const {
     return editWidget<WidgetType>()->count();
 }
 
-Path FileSystemPathComboEdit::item(int index) const
-{
+Path FileSystemPathComboEdit::item(int index) const {
     return Path(editWidget<WidgetType>()->itemText(index));
 }
 
-void FileSystemPathComboEdit::addItem(const Path &path)
-{
+void FileSystemPathComboEdit::addItem(const Path &path) {
     editWidget<WidgetType>()->addItem(path.toString());
 }
 
-void FileSystemPathComboEdit::insertItem(int index, const Path &path)
-{
+void FileSystemPathComboEdit::insertItem(int index, const Path &path) {
     editWidget<WidgetType>()->insertItem(index, path.toString());
 }
 
-int FileSystemPathComboEdit::currentIndex() const
-{
+int FileSystemPathComboEdit::currentIndex() const {
     return editWidget<WidgetType>()->currentIndex();
 }
 
-void FileSystemPathComboEdit::setCurrentIndex(int index)
-{
+void FileSystemPathComboEdit::setCurrentIndex(int index) {
     editWidget<WidgetType>()->setCurrentIndex(index);
 }
 
-int FileSystemPathComboEdit::maxVisibleItems() const
-{
+int FileSystemPathComboEdit::maxVisibleItems() const {
     return editWidget<WidgetType>()->maxVisibleItems();
 }
 
-void FileSystemPathComboEdit::setMaxVisibleItems(int maxItems)
-{
+void FileSystemPathComboEdit::setMaxVisibleItems(int maxItems) {
     editWidget<WidgetType>()->setMaxVisibleItems(maxItems);
 }
 
-QString FileSystemPathComboEdit::editWidgetText() const
-{
+QString FileSystemPathComboEdit::editWidgetText() const {
     return editWidget<WidgetType>()->currentText();
 }
 
-void FileSystemPathComboEdit::setEditWidgetText(const QString &text)
-{
+void FileSystemPathComboEdit::setEditWidgetText(const QString &text) {
     editWidget<WidgetType>()->setCurrentText(text);
 }

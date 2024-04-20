@@ -38,20 +38,21 @@
 
 #include "base/pathfwd.h"
 
-namespace RSS::Private
-{
-    class FeedSerializer final : public QObject
-    {
-        Q_OBJECT
+namespace RSS::Private {
+    class FeedSerializer final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(FeedSerializer)
 
     public:
         using QObject::QObject;
 
         void load(const Path &dataFileName, const QString &url);
+
         void store(const Path &dataFileName, const QVector<QVariantHash> &articlesData);
 
     signals:
+
         void loadingFinished(const QVector<QVariantHash> &articles);
 
     private:

@@ -32,20 +32,25 @@
 #include <QWidget>
 
 class QHBoxLayout;
+
 class QLabel;
+
 class QMenu;
+
 class QVBoxLayout;
 
 class PropertiesWidget;
+
 class SpeedPlotView;
 
-class ComboBoxMenuButton final : public QComboBox
-{
-    Q_OBJECT
+class ComboBoxMenuButton final : public QComboBox {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ComboBoxMenuButton)
 
 public:
     ComboBoxMenuButton(QWidget *parent, QMenu *menu);
+
     void showPopup() override;
 
 private:
@@ -53,22 +58,27 @@ private:
 };
 
 
-class SpeedWidget : public QWidget
-{
-    Q_OBJECT
+class SpeedWidget : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(SpeedWidget)
 
 public:
     explicit SpeedWidget(PropertiesWidget *parent);
+
     ~SpeedWidget();
 
 private slots:
+
     void onPeriodChange(int period);
+
     void onGraphChange(int id);
+
     void update();
 
 private:
     void loadSettings();
+
     void saveSettings() const;
 
     QVBoxLayout *m_layout = nullptr;

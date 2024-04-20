@@ -37,8 +37,7 @@
 #include "gui/uithememanager.h"
 
 PropTabBar::PropTabBar(QWidget *parent)
-    : QHBoxLayout(parent)
-{
+        : QHBoxLayout(parent) {
     setAlignment(Qt::AlignLeft | Qt::AlignCenter);
     setSpacing(3);
     m_btnGroup = new QButtonGroup(this);
@@ -99,37 +98,29 @@ PropTabBar::PropTabBar(QWidget *parent)
     addWidget(speedButton);
     m_btnGroup->addButton(speedButton, SpeedTab);
     // SIGNAL/SLOT
-    connect(m_btnGroup, &QButtonGroup::idClicked
-            , this, &PropTabBar::setCurrentIndex);
+    connect(m_btnGroup, &QButtonGroup::idClicked, this, &PropTabBar::setCurrentIndex);
 }
 
-int PropTabBar::currentIndex() const
-{
+int PropTabBar::currentIndex() const {
     return m_currentIndex;
 }
 
-void PropTabBar::setCurrentIndex(int index)
-{
+void PropTabBar::setCurrentIndex(int index) {
     if (index >= m_btnGroup->buttons().size())
         index = 0;
     // If asked to hide or if the currently selected tab is clicked
-    if ((index < 0) || (m_currentIndex == index))
-    {
-        if (m_currentIndex >= 0)
-        {
-          m_btnGroup->button(m_currentIndex)->setDown(false);
-          m_currentIndex = -1;
-          emit visibilityToggled(false);
+    if ((index < 0) || (m_currentIndex == index)) {
+        if (m_currentIndex >= 0) {
+            m_btnGroup->button(m_currentIndex)->setDown(false);
+            m_currentIndex = -1;
+            emit visibilityToggled(false);
         }
         return;
     }
     // Unselect previous tab
-    if (m_currentIndex >= 0)
-    {
+    if (m_currentIndex >= 0) {
         m_btnGroup->button(m_currentIndex)->setDown(false);
-    }
-    else
-    {
+    } else {
         // Nothing was selected, show!
         emit visibilityToggled(true);
     }

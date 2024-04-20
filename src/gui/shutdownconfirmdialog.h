@@ -33,18 +33,18 @@
 
 #include "base/types.h"
 
-namespace Ui
-{
+namespace Ui {
     class ShutdownConfirmDialog;
 }
 
-class ShutdownConfirmDialog final : public QDialog
-{
-    Q_OBJECT
+class ShutdownConfirmDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ShutdownConfirmDialog)
 
 public:
     ShutdownConfirmDialog(QWidget *parent, const ShutdownDialogAction &action);
+
     ~ShutdownConfirmDialog();
 
     static bool askForConfirmation(QWidget *parent, const ShutdownDialogAction &action);
@@ -53,12 +53,15 @@ protected:
     void showEvent(QShowEvent *event) override;
 
 private slots:
+
     void updateSeconds();
+
     void accept() override;
 
 private:
     // Methods
     void initText();
+
     void updateText();
 
     // Vars

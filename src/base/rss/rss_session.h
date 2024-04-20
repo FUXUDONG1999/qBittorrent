@@ -80,81 +80,117 @@
 class QThread;
 
 class Application;
+
 class AsyncFileStorage;
 
-namespace RSS
-{
+namespace RSS {
     class Feed;
+
     class Folder;
+
     class Item;
 
-    class Session final : public QObject
-    {
-        Q_OBJECT
+    class Session final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Session)
 
         friend class ::Application;
 
         Session();
+
         ~Session() override;
 
     public:
         static Session *instance();
 
         bool isProcessingEnabled() const;
+
         void setProcessingEnabled(bool enabled);
 
         QThread *workingThread() const;
+
         AsyncFileStorage *confFileStorage() const;
+
         AsyncFileStorage *dataFileStorage() const;
 
         int maxArticlesPerFeed() const;
+
         void setMaxArticlesPerFeed(int n);
 
         int refreshInterval() const;
+
         void setRefreshInterval(int refreshInterval);
 
         nonstd::expected<void, QString> addFolder(const QString &path);
+
         nonstd::expected<void, QString> addFeed(const QString &url, const QString &path);
+
         nonstd::expected<void, QString> setFeedURL(const QString &path, const QString &url);
+
         nonstd::expected<void, QString> setFeedURL(Feed *feed, const QString &url);
+
         nonstd::expected<void, QString> moveItem(const QString &itemPath, const QString &destPath);
+
         nonstd::expected<void, QString> moveItem(Item *item, const QString &destPath);
+
         nonstd::expected<void, QString> removeItem(const QString &itemPath);
 
         QList<Item *> items() const;
+
         Item *itemByPath(const QString &path) const;
+
         QList<Feed *> feeds() const;
+
         Feed *feedByURL(const QString &url) const;
 
         Folder *rootFolder() const;
 
     public slots:
+
         void refresh();
 
     signals:
+
         void processingStateChanged(bool enabled);
+
         void maxArticlesPerFeedChanged(int n);
+
         void itemAdded(Item *item);
+
         void itemPathChanged(Item *item);
+
         void itemAboutToBeRemoved(Item *item);
+
         void feedIconLoaded(Feed *feed);
+
         void feedStateChanged(Feed *feed);
+
         void feedURLChanged(Feed *feed, const QString &oldURL);
 
     private slots:
+
         void handleItemAboutToBeDestroyed(Item *item);
+
         void handleFeedTitleChanged(Feed *feed);
 
     private:
         QUuid generateUID() const;
+
         void load();
+
         bool loadFolder(const QJsonObject &jsonObj, Folder *folder);
+
         void loadLegacy();
+
         void store();
+
         nonstd::expected<Folder *, QString> prepareItemDest(const QString &path);
+
         Folder *addSubfolder(const QString &name, Folder *parentFolder);
+
         Feed *addFeedToFolder(const QUuid &uid, const QString &url, const QString &name, Folder *parentFolder);
+
         void addItem(Item *item, Folder *destFolder);
 
         static QPointer<Session> m_instance;

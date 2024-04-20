@@ -36,37 +36,32 @@
 #include "previewselectdialog.h"
 
 PreviewListDelegate::PreviewListDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{
+        : QStyledItemDelegate(parent) {
 }
 
-void PreviewListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
+void PreviewListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     painter->save();
 
-    switch (index.column())
-    {
-    case PreviewSelectDialog::PROGRESS:
-        {
+    switch (index.column()) {
+        case PreviewSelectDialog::PROGRESS: {
             const qreal progress = (index.data().toReal() * 100);
             const QString text = (progress >= 100)
-                ? u"100%"_s
-                : (Utils::String::fromDouble(progress, 1) + u'%');
+                                 ? u"100%"_s
+                                 : (Utils::String::fromDouble(progress, 1) + u'%');
 
             m_progressBarPainter.paint(painter, option, text, static_cast<int>(progress));
         }
-        break;
+            break;
 
-    default:
-        QStyledItemDelegate::paint(painter, option, index);
-        break;
+        default:
+            QStyledItemDelegate::paint(painter, option, index);
+            break;
     }
 
     painter->restore();
 }
 
-QWidget *PreviewListDelegate::createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const
-{
+QWidget *PreviewListDelegate::createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const {
     // No editor here
     return nullptr;
 }

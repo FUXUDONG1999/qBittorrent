@@ -31,9 +31,11 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN
+
 #include <Objbase.h>
 #include <Shlobj.h>
 #include <Shellapi.h>
+
 #endif
 
 #include <QApplication>
@@ -57,54 +59,48 @@
 #include "base/utils/fs.h"
 #include "base/utils/version.h"
 
-QPixmap Utils::Gui::scaledPixmap(const QIcon &icon, const QWidget *widget, const int height)
-{
+QPixmap Utils::Gui::scaledPixmap(const QIcon &icon, const QWidget *widget, const int height) {
     Q_UNUSED(widget);  // TODO: remove it
     Q_ASSERT(height > 0);
 
     return icon.pixmap(height);
 }
 
-QPixmap Utils::Gui::scaledPixmap(const Path &path, const QWidget *widget, const int height)
-{
+QPixmap Utils::Gui::scaledPixmap(const Path &path, const QWidget *widget, const int height) {
     Q_UNUSED(widget);
     Q_ASSERT(height >= 0);
 
-    const QPixmap pixmap {path.data()};
+    const QPixmap pixmap{path.data()};
     return (height == 0) ? pixmap : pixmap.scaledToHeight(height, Qt::SmoothTransformation);
 }
 
-QSize Utils::Gui::smallIconSize(const QWidget *widget)
-{
+QSize Utils::Gui::smallIconSize(const QWidget *widget) {
     // Get DPI scaled icon size (device-dependent), see QT source
     // under a 1080p screen is usually 16x16
     const int s = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, widget);
     return {s, s};
 }
 
-QSize Utils::Gui::mediumIconSize(const QWidget *widget)
-{
+QSize Utils::Gui::mediumIconSize(const QWidget *widget) {
     // under a 1080p screen is usually 24x24
     return ((smallIconSize(widget) + largeIconSize(widget)) / 2);
 }
 
-QSize Utils::Gui::largeIconSize(const QWidget *widget)
-{
+QSize Utils::Gui::largeIconSize(const QWidget *widget) {
     // Get DPI scaled icon size (device-dependent), see QT source
     // under a 1080p screen is usually 32x32
     const int s = QApplication::style()->pixelMetric(QStyle::PM_LargeIconSize, nullptr, widget);
     return {s, s};
 }
 
-QPoint Utils::Gui::screenCenter(const QWidget *w)
-{
+QPoint Utils::Gui::screenCenter(const QWidget *w) {
     // Returns the QPoint which the widget will be placed center on screen (where parent resides)
 
     if (!w)
         return {};
 
     QRect r = QGuiApplication::primaryScreen()->availableGeometry();
-    const QPoint primaryScreenCenter {(r.x() + (r.width() - w->frameSize().width()) / 2), (r.y() + (r.height() - w->frameSize().height()) / 2)};
+    const QPoint primaryScreenCenter{(r.x() + (r.width() - w->frameSize().width()) / 2), (r.y() + (r.height() - w->frameSize().height()) / 2)};
 
     const QWidget *parent = w->parentWidget();
     if (!parent)
@@ -123,18 +119,15 @@ QPoint Utils::Gui::screenCenter(const QWidget *w)
 }
 
 // Open the given path with an appropriate application
-void Utils::Gui::openPath(const Path &path)
-{
+void Utils::Gui::openPath(const Path &path) {
     // Hack to access samba shares with QDesktopServices::openUrl
     const QUrl url = path.data().startsWith(u"//")
-        ? QUrl(u"file:" + path.data())
-        : QUrl::fromLocalFile(path.data());
+                     ? QUrl(u"file:" + path.data())
+                     : QUrl::fromLocalFile(path.data());
 
 #ifdef Q_OS_WIN
-    auto *thread = QThread::create([path]()
-    {
-        if (SUCCEEDED(::CoInitializeEx(NULL, (COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))))
-        {
+    auto *thread = QThread::create([path]() {
+        if (SUCCEEDED(::CoInitializeEx(NULL, (COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))) {
             const std::wstring pathWStr = path.toString().toStdWString();
 
             ::ShellExecuteW(nullptr, nullptr, pathWStr.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
@@ -151,24 +144,19 @@ void Utils::Gui::openPath(const Path &path)
 
 // Open the parent directory of the given path with a file manager and select
 // (if possible) the item at the given path
-void Utils::Gui::openFolderSelect(const Path &path)
-{
+void Utils::Gui::openFolderSelect(const Path &path) {
     // If the item to select doesn't exist, try to open its parent
-    if (!path.exists())
-    {
+    if (!path.exists()) {
         openPath(path.parentPath());
         return;
     }
 
 #ifdef Q_OS_WIN
-    auto *thread = QThread::create([path]()
-    {
-        if (SUCCEEDED(::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
-        {
+    auto *thread = QThread::create([path]() {
+        if (SUCCEEDED(::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
             const std::wstring pathWStr = path.toString().toStdWString();
             PIDLIST_ABSOLUTE pidl = ::ILCreateFromPathW(pathWStr.c_str());
-            if (pidl)
-            {
+            if (pidl) {
                 ::SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
                 ::ILFree(pidl);
             }

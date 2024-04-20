@@ -33,27 +33,30 @@
 #include <QString>
 #include <QUrl>
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-class ProgramUpdater final : public QObject
-{
-    Q_OBJECT
+class ProgramUpdater final : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ProgramUpdater)
 
 public:
     using QObject::QObject;
 
     void checkForUpdates() const;
+
     QString getNewVersion() const;
+
     bool updateProgram() const;
 
 signals:
+
     void updateCheckFinished();
 
 private slots:
+
     void rssDownloadFinished(const Net::DownloadResult &result);
 
 private:

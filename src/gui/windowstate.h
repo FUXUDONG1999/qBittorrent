@@ -30,17 +30,16 @@
 
 #include <QMetaObject>
 
-inline namespace WindowStateNS
-{
+inline namespace WindowStateNS {
     Q_NAMESPACE
 
-    enum class WindowState
-    {
+    enum class WindowState {
         Normal,
         Minimized,
 #ifndef Q_OS_MACOS
         Hidden
 #endif
     };
+
     Q_ENUM_NS(WindowState)
 }

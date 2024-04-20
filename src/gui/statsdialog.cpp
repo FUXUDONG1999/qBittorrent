@@ -43,17 +43,13 @@
 #define SETTINGS_KEY(name) u"StatisticsDialog/" name
 
 StatsDialog::StatsDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::StatsDialog)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
-{
+        : QDialog(parent), m_ui(new Ui::StatsDialog), m_storeDialogSize(SETTINGS_KEY(u"Size"_s)) {
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &StatsDialog::close);
 
     update();
-    connect(BitTorrent::Session::instance(), &BitTorrent::Session::statsUpdated
-            , this, &StatsDialog::update);
+    connect(BitTorrent::Session::instance(), &BitTorrent::Session::statsUpdated, this, &StatsDialog::update);
 
 #ifdef QBT_USES_LIBTORRENT2
     m_ui->labelCacheHitsText->hide();
@@ -64,14 +60,12 @@ StatsDialog::StatsDialog(QWidget *parent)
         resize(dialogSize);
 }
 
-StatsDialog::~StatsDialog()
-{
+StatsDialog::~StatsDialog() {
     m_storeDialogSize = size();
     delete m_ui;
 }
 
-void StatsDialog::update()
-{
+void StatsDialog::update() {
     const BitTorrent::SessionStatus &ss = BitTorrent::Session::instance()->status();
     const BitTorrent::CacheStatus &cs = BitTorrent::Session::instance()->cacheStatus();
 
@@ -84,9 +78,9 @@ void StatsDialog::update()
     m_ui->labelWaste->setText(Utils::Misc::friendlyUnit(ss.totalWasted));
     // Global ratio
     m_ui->labelGlobalRatio->setText(
-                ((atd > 0) && (atu > 0))
-                ? Utils::String::fromDouble(static_cast<qreal>(atu) / atd, 2)
-                : u"-"_s);
+            ((atd > 0) && (atu > 0))
+            ? Utils::String::fromDouble(static_cast<qreal>(atu) / atd, 2)
+            : u"-"_s);
 #ifndef QBT_USES_LIBTORRENT2
     // Cache hits
     const qreal readRatio = cs.readRatio;
@@ -101,11 +95,11 @@ void StatsDialog::update()
     // to complete before it receives or sends any more data on the socket. It's a metric of how disk bound you are.
 
     m_ui->labelWriteStarve->setText(u"%1%"_s.arg(((ss.diskWriteQueue > 0) && (ss.peersCount > 0))
-        ? Utils::String::fromDouble((100. * ss.diskWriteQueue / ss.peersCount), 2)
-        : u"0"_s));
+                                                 ? Utils::String::fromDouble((100. * ss.diskWriteQueue / ss.peersCount), 2)
+                                                 : u"0"_s));
     m_ui->labelReadStarve->setText(u"%1%"_s.arg(((ss.diskReadQueue > 0) && (ss.peersCount > 0))
-        ? Utils::String::fromDouble((100. * ss.diskReadQueue / ss.peersCount), 2)
-        : u"0"_s));
+                                                ? Utils::String::fromDouble((100. * ss.diskReadQueue / ss.peersCount), 2)
+                                                : u"0"_s));
 
     // Disk queues
     m_ui->labelQueuedJobs->setText(QString::number(cs.jobQueueLength));

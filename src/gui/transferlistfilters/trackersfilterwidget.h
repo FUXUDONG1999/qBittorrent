@@ -38,48 +38,60 @@
 
 class TransferListWidget;
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-class TrackersFilterWidget final : public BaseFilterWidget
-{
-    Q_OBJECT
+class TrackersFilterWidget final : public BaseFilterWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TrackersFilterWidget)
 
 public:
     TrackersFilterWidget(QWidget *parent, TransferListWidget *transferList, bool downloadFavicon);
+
     ~TrackersFilterWidget() override;
 
     void addTrackers(const BitTorrent::Torrent *torrent, const QVector<BitTorrent::TrackerEntry> &trackers);
+
     void removeTrackers(const BitTorrent::Torrent *torrent, const QStringList &trackers);
+
     void refreshTrackers(const BitTorrent::Torrent *torrent);
+
     void changeTrackerless(const BitTorrent::Torrent *torrent, bool trackerless);
-    void handleTrackerEntriesUpdated(const BitTorrent::Torrent *torrent
-            , const QHash<QString, BitTorrent::TrackerEntry> &updatedTrackerEntries);
+
+    void handleTrackerEntriesUpdated(const BitTorrent::Torrent *torrent, const QHash<QString, BitTorrent::TrackerEntry> &updatedTrackerEntries);
+
     void setDownloadTrackerFavicon(bool value);
 
 private slots:
+
     void handleFavicoDownloadFinished(const Net::DownloadResult &result);
 
 private:
     // These 4 methods are virtual slots in the base class.
     // No need to redeclare them here as slots.
     void showMenu() override;
+
     void applyFilter(int row) override;
+
     void handleTorrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents) override;
+
     void torrentAboutToBeDeleted(BitTorrent::Torrent *torrent) override;
 
     void addItems(const QString &trackerURL, const QVector<BitTorrent::TorrentID> &torrents);
+
     void removeItem(const QString &trackerURL, const BitTorrent::TorrentID &id);
+
     QString trackerFromRow(int row) const;
+
     int rowFromTracker(const QString &tracker) const;
+
     QSet<BitTorrent::TorrentID> getTorrentIDs(int row) const;
+
     void downloadFavicon(const QString &trackerHost, const QString &faviconURL);
 
-    struct TrackerData
-    {
+    struct TrackerData {
         QSet<BitTorrent::TorrentID> torrents;
         QListWidgetItem *item = nullptr;
     };

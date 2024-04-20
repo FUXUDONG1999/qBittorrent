@@ -34,13 +34,13 @@
 #include "base/net/downloadmanager.h"
 
 class QObject;
+
 class QUrl;
 
-namespace Net
-{
-    class DownloadHandlerImpl final : public DownloadHandler
-    {
-        Q_OBJECT
+namespace Net {
+    class DownloadHandlerImpl final : public DownloadHandler {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(DownloadHandlerImpl)
 
     public:
@@ -49,16 +49,22 @@ namespace Net
         void cancel() override;
 
         QString url() const;
+
         DownloadRequest downloadRequest() const;
+
         bool useProxy() const;
 
         void assignNetworkReply(QNetworkReply *reply);
 
     private:
         void processFinishedDownload();
+
         void checkDownloadSize(qint64 bytesReceived, qint64 bytesTotal);
+
         void handleRedirection(const QUrl &newUrl);
+
         void setError(const QString &error);
+
         void finish();
 
         static QString errorCodeToString(QNetworkReply::NetworkError status);

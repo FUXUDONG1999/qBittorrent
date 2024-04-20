@@ -39,8 +39,7 @@ class QListWidgetItem;
 class AdvancedSettings;
 
 // actions on double-click on torrents
-enum DoubleClickAction
-{
+enum DoubleClickAction {
     TOGGLE_PAUSE = 0,
     OPEN_DEST = 1,
     PREVIEW_FILE = 2,
@@ -48,25 +47,22 @@ enum DoubleClickAction
     SHOW_OPTIONS = 4
 };
 
-namespace Net
-{
+namespace Net {
     enum class ProxyType;
 }
 
-namespace Ui
-{
+namespace Ui {
     class OptionsDialog;
 }
 
-class OptionsDialog final : public QDialog, public GUIApplicationComponent
-{
-    Q_OBJECT
+class OptionsDialog final : public QDialog, public GUIApplicationComponent {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(OptionsDialog)
 
     using ThisType = OptionsDialog;
 
-    enum Tabs
-    {
+    enum Tabs {
         TAB_UI,
         TAB_DOWNLOADS,
         TAB_CONNECTION,
@@ -79,35 +75,59 @@ class OptionsDialog final : public QDialog, public GUIApplicationComponent
 
 public:
     explicit OptionsDialog(IGUIApplication *app, QWidget *parent = nullptr);
+
     ~OptionsDialog() override;
 
 public slots:
+
     void showConnectionTab();
 
 private slots:
+
     void adjustProxyOptions();
+
     void on_buttonBox_accepted();
+
     void on_buttonBox_rejected();
+
     void enableApplyButton();
+
     void toggleComboRatioLimitAct();
+
     void changePage(QListWidgetItem *, QListWidgetItem *);
+
     void loadSplitterState();
+
     void handleWatchedFolderViewSelectionChanged();
+
     void editWatchedFolderOptions(const QModelIndex &index);
+
     void on_IpFilterRefreshBtn_clicked();
+
     void handleIPFilterParsed(bool error, int ruleCount);
+
     void on_banListButton_clicked();
+
     void on_IPSubnetWhitelistButton_clicked();
+
     void on_randomButton_clicked();
+
     void on_addWatchedFolderButton_clicked();
+
     void on_editWatchedFolderButton_clicked();
+
     void on_removeWatchedFolderButton_clicked();
+
     void setLocale(const QString &localeStr);
 
 #ifndef DISABLE_WEBUI
+
     void webUIHttpsCertChanged(const Path &path);
+
     void webUIHttpsKeyChanged(const Path &path);
+
     void on_registerDNSBtn_clicked();
+
 #endif
 
 private:
@@ -115,80 +135,130 @@ private:
 
     // Methods
     bool applySettings();
+
     void saveOptions() const;
 
     void loadBehaviorTabOptions();
+
     void saveBehaviorTabOptions() const;
 
     void loadDownloadsTabOptions();
+
     void saveDownloadsTabOptions() const;
 
     void loadConnectionTabOptions();
+
     void saveConnectionTabOptions() const;
 
     void loadSpeedTabOptions();
+
     void saveSpeedTabOptions() const;
 
     void loadBittorrentTabOptions();
+
     void saveBittorrentTabOptions() const;
 
     void loadRSSTabOptions();
+
     void saveRSSTabOptions() const;
 
 #ifndef DISABLE_WEBUI
+
     void loadWebUITabOptions();
+
     void saveWebUITabOptions() const;
+
 #endif // DISABLE_WEBUI
 
     // General options
     void initializeLanguageCombo();
+
     QString getLocale() const;
+
     bool isSplashScreenDisabled() const;
+
 #ifdef Q_OS_WIN
+
     bool WinStartup() const;
+
 #endif
+
     // Downloads
     bool preAllocateAllFiles() const;
+
     bool useAdditionDialog() const;
+
     bool addTorrentsInPause() const;
+
     Path getTorrentExportDir() const;
+
     Path getFinishedTorrentExportDir() const;
+
     // Connection options
     int getPort() const;
+
     bool isUPnPEnabled() const;
+
     // Bittorrent options
     int getMaxConnections() const;
+
     int getMaxConnectionsPerTorrent() const;
+
     int getMaxUploads() const;
+
     int getMaxUploadsPerTorrent() const;
+
     bool isDHTEnabled() const;
+
     bool isLSDEnabled() const;
+
     int getEncryptionSetting() const;
+
     qreal getMaxRatio() const;
+
     int getMaxSeedingMinutes() const;
+
     int getMaxInactiveSeedingMinutes() const;
+
     // Proxy options
     bool isProxyEnabled() const;
+
     QString getProxyIp() const;
+
     unsigned short getProxyPort() const;
+
     QString getProxyUsername() const;
+
     QString getProxyPassword() const;
+
     Net::ProxyType getProxyType() const;
+
     // IP Filter
     bool isIPFilteringEnabled() const;
+
     Path getFilter() const;
+
     // Queueing system
     bool isQueueingSystemEnabled() const;
+
     int getMaxActiveDownloads() const;
+
     int getMaxActiveUploads() const;
+
     int getMaxActiveTorrents() const;
     // WebUI
 #ifndef DISABLE_WEBUI
+
     bool isWebUIEnabled() const;
+
     QString webUIUsername() const;
+
     QString webUIPassword() const;
+
     bool webUIAuthenticationOk();
+
     bool isAlternativeWebUIPathValid();
+
 #endif
 
     bool schedTimesOk();

@@ -38,17 +38,13 @@
 
 #include "base/global.h"
 
-namespace Utils
-{
-    namespace Net
-    {
-        bool isValidIP(const QString &ip)
-        {
+namespace Utils {
+    namespace Net {
+        bool isValidIP(const QString &ip) {
             return !QHostAddress(ip).isNull();
         }
 
-        std::optional<Subnet> parseSubnet(const QString &subnetStr)
-        {
+        std::optional<Subnet> parseSubnet(const QString &subnetStr) {
             const Subnet subnet = QHostAddress::parseSubnet(subnetStr);
             const Subnet invalid = {QHostAddress(), -1};
             if (subnet == invalid)
@@ -56,44 +52,36 @@ namespace Utils
             return subnet;
         }
 
-        bool isLoopbackAddress(const QHostAddress &addr)
-        {
+        bool isLoopbackAddress(const QHostAddress &addr) {
             return (addr == QHostAddress::LocalHost)
-                    || (addr == QHostAddress::LocalHostIPv6)
-                    || (addr == QHostAddress(u"::ffff:127.0.0.1"_s));
+                   || (addr == QHostAddress::LocalHostIPv6)
+                   || (addr == QHostAddress(u"::ffff:127.0.0.1"_s));
         }
 
-        bool isIPInSubnets(const QHostAddress &addr, const QVector<Subnet> &subnets)
-        {
+        bool isIPInSubnets(const QHostAddress &addr, const QVector<Subnet> &subnets) {
             QHostAddress protocolEquivalentAddress;
             bool addrConversionOk = false;
 
-            if (addr.protocol() == QAbstractSocket::IPv4Protocol)
-            {
+            if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
                 // always succeeds
                 protocolEquivalentAddress = QHostAddress(addr.toIPv6Address());
                 addrConversionOk = true;
-            }
-            else
-            {
+            } else {
                 // only succeeds when addr is an ipv4-mapped ipv6 address
                 protocolEquivalentAddress = QHostAddress(addr.toIPv4Address(&addrConversionOk));
             }
 
-            return std::any_of(subnets.begin(), subnets.end(), [&](const Subnet &subnet)
-            {
+            return std::any_of(subnets.begin(), subnets.end(), [&](const Subnet &subnet) {
                 return addr.isInSubnet(subnet)
-                    || (addrConversionOk && protocolEquivalentAddress.isInSubnet(subnet));
+                       || (addrConversionOk && protocolEquivalentAddress.isInSubnet(subnet));
             });
         }
 
-        QString subnetToString(const Subnet &subnet)
-        {
+        QString subnetToString(const Subnet &subnet) {
             return subnet.first.toString() + u'/' + QString::number(subnet.second);
         }
 
-        QHostAddress canonicalIPv6Addr(const QHostAddress &addr)
-        {
+        QHostAddress canonicalIPv6Addr(const QHostAddress &addr) {
             // Link-local IPv6 textual address always contains a scope id (or zone index)
             // The scope id is appended to the IPv6 address using the '%' character
             // The scope id can be either a interface name or an interface number
@@ -123,32 +111,27 @@ namespace Utils
             return canonical;
         }
 
-        QList<QSslCertificate> loadSSLCertificate(const QByteArray &data)
-        {
-            const QList<QSslCertificate> certs {QSslCertificate::fromData(data)};
-            const bool hasInvalidCerts = std::any_of(certs.cbegin(), certs.cend(), [](const QSslCertificate &cert)
-            {
+        QList<QSslCertificate> loadSSLCertificate(const QByteArray &data) {
+            const QList<QSslCertificate> certs{QSslCertificate::fromData(data)};
+            const bool hasInvalidCerts = std::any_of(certs.cbegin(), certs.cend(), [](const QSslCertificate &cert) {
                 return cert.isNull();
             });
             return hasInvalidCerts ? QList<QSslCertificate>() : certs;
         }
 
-        bool isSSLCertificatesValid(const QByteArray &data)
-        {
+        bool isSSLCertificatesValid(const QByteArray &data) {
             return !loadSSLCertificate(data).isEmpty();
         }
 
-        QSslKey loadSSLKey(const QByteArray &data)
-        {
+        QSslKey loadSSLKey(const QByteArray &data) {
             // try different formats
-            const QSslKey key {data, QSsl::Rsa};
+            const QSslKey key{data, QSsl::Rsa};
             if (!key.isNull())
                 return key;
             return {data, QSsl::Ec};
         }
 
-        bool isSSLKeyValid(const QByteArray &data)
-        {
+        bool isSSLKeyValid(const QByteArray &data) {
             return !loadSSLKey(data).isNull();
         }
     }

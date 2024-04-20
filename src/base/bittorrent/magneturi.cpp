@@ -38,12 +38,10 @@
 #include "base/global.h"
 #include "infohash.h"
 
-namespace
-{
+namespace {
     // BEP9 Extension for Peers to Send Metadata Files
 
-    bool isV1Hash(const QString &string)
-    {
+    bool isV1Hash(const QString &string) {
         // There are 2 representations for BitTorrent v1 info hash:
         // 1. 40 chars hex-encoded string
         //      == 20 (SHA-1 length in bytes) * 2 (each byte maps to 2 hex characters)
@@ -53,20 +51,19 @@ namespace
         const int V1_BASE32_SIZE = SHA1Hash::length() * 1.6;
 
         return ((((string.size() == V1_HEX_SIZE))
-                && !string.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s)))
-            || ((string.size() == V1_BASE32_SIZE)
-                && !string.contains(QRegularExpression(u"[^2-7A-Za-z]"_s))));
+                 && !string.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s)))
+                || ((string.size() == V1_BASE32_SIZE)
+                    && !string.contains(QRegularExpression(u"[^2-7A-Za-z]"_s))));
     }
 
-    bool isV2Hash(const QString &string)
-    {
+    bool isV2Hash(const QString &string) {
         // There are 1 representation for BitTorrent v2 info hash:
         // 1. 64 chars hex-encoded string
         //      == 32 (SHA-2 256 length in bytes) * 2 (each byte maps to 2 hex characters)
         const int V2_HEX_SIZE = SHA256Hash::length() * 2;
 
         return (string.size() == V2_HEX_SIZE)
-                && !string.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s));
+               && !string.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s));
     }
 }
 
@@ -75,8 +72,7 @@ using namespace BitTorrent;
 const int magnetUriId = qRegisterMetaType<MagnetUri>();
 
 MagnetUri::MagnetUri(const QString &source)
-    : m_url(source)
-{
+        : m_url(source) {
     if (source.isEmpty()) return;
 
     if (isV2Hash(source))
@@ -101,8 +97,7 @@ MagnetUri::MagnetUri(const QString &source)
     m_trackers.reserve(static_cast<decltype(m_trackers)::size_type>(m_addTorrentParams.trackers.size()));
     int tier = 0;
     auto tierIter = m_addTorrentParams.tracker_tiers.cbegin();
-    for (const std::string &url : m_addTorrentParams.trackers)
-    {
+    for (const std::string &url: m_addTorrentParams.trackers) {
         if (tierIter != m_addTorrentParams.tracker_tiers.cend())
             tier = *tierIter++;
 
@@ -110,41 +105,34 @@ MagnetUri::MagnetUri(const QString &source)
     }
 
     m_urlSeeds.reserve(static_cast<decltype(m_urlSeeds)::size_type>(m_addTorrentParams.url_seeds.size()));
-    for (const std::string &urlSeed : m_addTorrentParams.url_seeds)
+    for (const std::string &urlSeed: m_addTorrentParams.url_seeds)
         m_urlSeeds.append(QString::fromStdString(urlSeed));
 }
 
-bool MagnetUri::isValid() const
-{
+bool MagnetUri::isValid() const {
     return m_valid;
 }
 
-InfoHash MagnetUri::infoHash() const
-{
+InfoHash MagnetUri::infoHash() const {
     return m_infoHash;
 }
 
-QString MagnetUri::name() const
-{
+QString MagnetUri::name() const {
     return m_name;
 }
 
-QVector<TrackerEntry> MagnetUri::trackers() const
-{
+QVector<TrackerEntry> MagnetUri::trackers() const {
     return m_trackers;
 }
 
-QVector<QUrl> MagnetUri::urlSeeds() const
-{
+QVector<QUrl> MagnetUri::urlSeeds() const {
     return m_urlSeeds;
 }
 
-QString MagnetUri::url() const
-{
+QString MagnetUri::url() const {
     return m_url;
 }
 
-lt::add_torrent_params MagnetUri::addTorrentParams() const
-{
+lt::add_torrent_params MagnetUri::addTorrentParams() const {
     return m_addTorrentParams;
 }

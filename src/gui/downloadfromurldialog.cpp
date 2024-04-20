@@ -44,25 +44,20 @@
 
 #define SETTINGS_KEY(name) u"DownloadFromURLDialog/" name
 
-namespace
-{
-    bool isDownloadable(const QString &str)
-    {
+namespace {
+    bool isDownloadable(const QString &str) {
         return (Net::DownloadManager::hasSupportedScheme(str)
-            || str.startsWith(u"magnet:", Qt::CaseInsensitive)
-#ifdef QBT_USES_LIBTORRENT2
-            || ((str.size() == 64) && !str.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s))) // v2 hex-encoded SHA-256 info-hash
-#endif
-            || ((str.size() == 40) && !str.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s))) // v1 hex-encoded SHA-1 info-hash
-            || ((str.size() == 32) && !str.contains(QRegularExpression(u"[^2-7A-Za-z]"_s)))); // v1 Base32 encoded SHA-1 info-hash
+                || str.startsWith(u"magnet:", Qt::CaseInsensitive)
+                #ifdef QBT_USES_LIBTORRENT2
+                || ((str.size() == 64) && !str.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s))) // v2 hex-encoded SHA-256 info-hash
+                #endif
+                || ((str.size() == 40) && !str.contains(QRegularExpression(u"[^0-9A-Fa-f]"_s))) // v1 hex-encoded SHA-1 info-hash
+                || ((str.size() == 32) && !str.contains(QRegularExpression(u"[^2-7A-Za-z]"_s)))); // v1 Base32 encoded SHA-1 info-hash
     }
 }
 
 DownloadFromURLDialog::DownloadFromURLDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::DownloadFromURLDialog)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
-{
+        : QDialog(parent), m_ui(new Ui::DownloadFromURLDialog), m_storeDialogSize(SETTINGS_KEY(u"Size"_s)) {
     m_ui->setupUi(this);
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Download"));
@@ -79,8 +74,7 @@ DownloadFromURLDialog::DownloadFromURLDialog(QWidget *parent)
     QStringList urls;
     urls.reserve(clipboardList.size());
 
-    for (QStringView url : clipboardList)
-    {
+    for (QStringView url: clipboardList) {
         url = url.trimmed();
 
         if (url.isEmpty())
@@ -91,7 +85,7 @@ DownloadFromURLDialog::DownloadFromURLDialog(QWidget *parent)
     }
 
     const QString text = urls.join(u'\n')
-        + (!urls.isEmpty() ? u"\n" : u"");
+                         + (!urls.isEmpty() ? u"\n" : u"");
 
     m_ui->textUrls->setText(text);
     m_ui->textUrls->moveCursor(QTextCursor::End);
@@ -100,14 +94,12 @@ DownloadFromURLDialog::DownloadFromURLDialog(QWidget *parent)
         resize(dialogSize);
 }
 
-DownloadFromURLDialog::~DownloadFromURLDialog()
-{
+DownloadFromURLDialog::~DownloadFromURLDialog() {
     m_storeDialogSize = size();
     delete m_ui;
 }
 
-void DownloadFromURLDialog::onSubmit()
-{
+void DownloadFromURLDialog::onSubmit() {
     const QString plainText = m_ui->textUrls->toPlainText();
     const QList<QStringView> urls = QStringView(plainText).split(u'\n');
 
@@ -116,22 +108,19 @@ void DownloadFromURLDialog::onSubmit()
     QStringList urlList;
     urlList.reserve(urls.size());
 
-    for (QStringView url : urls)
-    {
+    for (QStringView url: urls) {
         url = url.trimmed();
 
         if (url.isEmpty())
             continue;
 
-        if (!uniqueURLs.contains(url))
-        {
+        if (!uniqueURLs.contains(url)) {
             uniqueURLs.insert(url);
             urlList << url.toString();
         }
     }
 
-    if (urlList.isEmpty())
-    {
+    if (urlList.isEmpty()) {
         QMessageBox::warning(this, tr("No URL entered"), tr("Please type at least one URL."));
         return;
     }
@@ -140,10 +129,8 @@ void DownloadFromURLDialog::onSubmit()
     accept();
 }
 
-void DownloadFromURLDialog::keyPressEvent(QKeyEvent *event)
-{
-    if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_Return))
-    {
+void DownloadFromURLDialog::keyPressEvent(QKeyEvent *event) {
+    if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_Return)) {
         onSubmit();
         return;
     }

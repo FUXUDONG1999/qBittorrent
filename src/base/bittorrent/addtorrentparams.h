@@ -41,12 +41,10 @@
 
 class QJsonObject;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     enum class DownloadPriority;
 
-    struct AddTorrentParams
-    {
+    struct AddTorrentParams {
         QString name;
         QString category;
         TagSet tags;
@@ -74,6 +72,7 @@ namespace BitTorrent
     bool operator==(const AddTorrentParams &lhs, const AddTorrentParams &rhs);
 
     AddTorrentParams parseAddTorrentParams(const QJsonObject &jsonObj);
+
     QJsonObject serializeAddTorrentParams(const AddTorrentParams &params);
 }
 

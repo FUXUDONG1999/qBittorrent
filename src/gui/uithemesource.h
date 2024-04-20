@@ -41,31 +41,32 @@
 #include "base/path.h"
 #include "uithemecommon.h"
 
-enum class ColorMode
-{
+enum class ColorMode {
     Light,
     Dark
 };
 
-class UIThemeSource
-{
-    Q_DECLARE_TR_FUNCTIONS(UIThemeSource)
+class UIThemeSource {
+Q_DECLARE_TR_FUNCTIONS(UIThemeSource)
 
 public:
     virtual ~UIThemeSource() = default;
 
     virtual QColor getColor(const QString &colorId, ColorMode colorMode) const = 0;
+
     virtual Path getIconPath(const QString &iconId, ColorMode colorMode) const = 0;
+
     virtual QByteArray readStyleSheet() = 0;
 };
 
-class DefaultThemeSource final : public UIThemeSource
-{
+class DefaultThemeSource final : public UIThemeSource {
 public:
     DefaultThemeSource();
 
     QByteArray readStyleSheet() override;
+
     QColor getColor(const QString &colorId, ColorMode colorMode) const override;
+
     Path getIconPath(const QString &iconId, ColorMode colorMode) const override;
 
 private:
@@ -76,11 +77,12 @@ private:
     QHash<QString, UIThemeColor> m_colors;
 };
 
-class CustomThemeSource : public UIThemeSource
-{
+class CustomThemeSource : public UIThemeSource {
 public:
     QColor getColor(const QString &colorId, ColorMode colorMode) const override;
+
     Path getIconPath(const QString &iconId, ColorMode colorMode) const override;
+
     QByteArray readStyleSheet() override;
 
 protected:
@@ -90,6 +92,7 @@ protected:
 
 private:
     Path themeRootPath() const;
+
     void loadColors();
 
     const std::unique_ptr<DefaultThemeSource> m_defaultThemeSource = std::make_unique<DefaultThemeSource>();
@@ -98,14 +101,12 @@ private:
     QHash<QString, QColor> m_darkModeColors;
 };
 
-class QRCThemeSource final : public CustomThemeSource
-{
+class QRCThemeSource final : public CustomThemeSource {
 public:
     QRCThemeSource();
 };
 
-class FolderThemeSource : public CustomThemeSource
-{
+class FolderThemeSource : public CustomThemeSource {
 public:
     explicit FolderThemeSource(const Path &folderPath);
 

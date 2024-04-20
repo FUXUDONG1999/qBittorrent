@@ -39,17 +39,14 @@
 
 #include "base/global.h"
 
-namespace Utils::String
-{
+namespace Utils::String {
     QString wildcardToRegexPattern(const QString &pattern);
 
-    template <typename T>
-    T unquote(const T &str, const QString &quotes = u"\""_s)
-    {
+    template<typename T>
+    T unquote(const T &str, const QString &quotes = u"\""_s) {
         if (str.length() < 2) return str;
 
-        for (const QChar quote : quotes)
-        {
+        for (const QChar quote: quotes) {
             if (str.startsWith(quote) && str.endsWith(quote))
                 return str.mid(1, (str.length() - 2));
         }
@@ -58,7 +55,9 @@ namespace Utils::String
     }
 
     std::optional<bool> parseBool(const QString &string);
+
     std::optional<int> parseInt(const QString &string);
+
     std::optional<double> parseDouble(const QString &string);
 
     QStringList splitCommand(const QString &command);
@@ -67,9 +66,8 @@ namespace Utils::String
 
     QString fromDouble(double n, int precision);
 
-    template <typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
-    QString fromEnum(const T &value)
-    {
+    template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
+    QString fromEnum(const T &value) {
         static_assert(std::is_same_v<int, typename std::underlying_type_t<T>>,
                       "Enumeration underlying type has to be int.");
 
@@ -77,9 +75,8 @@ namespace Utils::String
         return QString::fromLatin1(metaEnum.valueToKey(static_cast<int>(value)));
     }
 
-    template <typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
-    T toEnum(const QString &serializedValue, const T &defaultValue)
-    {
+    template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
+    T toEnum(const QString &serializedValue, const T &defaultValue) {
         static_assert(std::is_same_v<int, typename std::underlying_type_t<T>>,
                       "Enumeration underlying type has to be int.");
 

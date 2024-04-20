@@ -35,41 +35,55 @@
 #include "base/path.h"
 #include "base/settingvalue.h"
 
-namespace Ui
-{
+namespace Ui {
     class TorrentCreatorDialog;
 }
 
-class TorrentCreatorDialog final : public QDialog
-{
-    Q_OBJECT
+class TorrentCreatorDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentCreatorDialog)
 
 public:
     TorrentCreatorDialog(QWidget *parent = nullptr, const Path &defaultPath = {});
+
     ~TorrentCreatorDialog() override;
+
     void updateInputPath(const Path &path);
 
 private slots:
+
     void updateProgressBar(int progress);
+
     void updatePiecesCount();
+
     void onCreateButtonClicked();
+
     void onAddFileButtonClicked();
+
     void onAddFolderButtonClicked();
+
     void handleCreationFailure(const QString &msg);
+
     void handleCreationSuccess(const Path &path, const Path &branchPath);
 
 private:
     void dropEvent(QDropEvent *event) override;
+
     void dragEnterEvent(QDragEnterEvent *event) override;
 
     void saveSettings();
+
     void loadSettings();
+
     void setInteractionEnabled(bool enabled) const;
 
     int getPieceSize() const;
+
 #ifdef QBT_USES_LIBTORRENT2
+
     BitTorrent::TorrentFormat getTorrentFormat() const;
+
 #else
     int getPaddedFileSizeLimit() const;
 #endif

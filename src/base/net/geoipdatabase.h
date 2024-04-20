@@ -37,41 +37,54 @@
 #include "base/pathfwd.h"
 
 class QByteArray;
+
 class QHostAddress;
+
 class QString;
 
 struct DataFieldDescriptor;
 
-class GeoIPDatabase
-{
+class GeoIPDatabase {
     Q_DISABLE_COPY_MOVE(GeoIPDatabase)
-    Q_DECLARE_TR_FUNCTIONS(GeoIPDatabase)
+
+Q_DECLARE_TR_FUNCTIONS(GeoIPDatabase)
 
 public:
     static GeoIPDatabase *load(const Path &filename, QString &error);
+
     static GeoIPDatabase *load(const QByteArray &data, QString &error);
 
     ~GeoIPDatabase();
 
     QString type() const;
+
     quint16 ipVersion() const;
+
     QDateTime buildEpoch() const;
+
     QString lookup(const QHostAddress &hostAddr) const;
 
 private:
     explicit GeoIPDatabase(quint32 size);
 
     bool parseMetadata(const QVariantHash &metadata, QString &error);
+
     bool loadDB(QString &error) const;
+
     QVariantHash readMetadata() const;
 
     QVariant readDataField(quint32 &offset) const;
+
     bool readDataFieldDescriptor(quint32 &offset, DataFieldDescriptor &out) const;
+
     void fromBigEndian(uchar *buf, quint32 len) const;
+
     QVariant readMapValue(quint32 &offset, quint32 count) const;
+
     QVariant readArrayValue(quint32 &offset, quint32 count) const;
 
-    template <typename T> QVariant readPlainValue(quint32 &offset, quint8 len) const;
+    template<typename T>
+    QVariant readPlainValue(quint32 &offset, quint8 len) const;
 
     // Metadata
     quint16 m_ipVersion = 0;

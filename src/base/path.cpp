@@ -49,38 +49,33 @@ const Qt::CaseSensitivity CASE_SENSITIVITY = Qt::CaseSensitive;
 
 const int PATHLIST_TYPEID = qRegisterMetaType<PathList>("PathList");
 
-namespace
-{
-    QString cleanPath(const QString &path)
-    {
-        const bool hasSeparator = std::any_of(path.cbegin(), path.cend(), [](const QChar c)
-        {
+namespace {
+    QString cleanPath(const QString &path) {
+        const bool hasSeparator = std::any_of(path.cbegin(), path.cend(), [](const QChar c) {
             return (c == u'/') || (c == u'\\');
         });
         return hasSeparator ? QDir::cleanPath(path) : path;
     }
 
 #ifdef Q_OS_WIN
-    bool hasDriveLetter(const QStringView path)
-    {
-        const QRegularExpression driveLetterRegex {u"^[A-Za-z]:/"_s};
+
+    bool hasDriveLetter(const QStringView path) {
+        const QRegularExpression driveLetterRegex{u"^[A-Za-z]:/"_s};
         return driveLetterRegex.match(path).hasMatch();
     }
+
 #endif
 }
 
 Path::Path(const QString &pathStr)
-    : m_pathStr {cleanPath(pathStr)}
-{
+        : m_pathStr{cleanPath(pathStr)} {
 }
 
 Path::Path(const std::string &pathStr)
-    : Path(QString::fromStdString(pathStr))
-{
+        : Path(QString::fromStdString(pathStr)) {
 }
 
-bool Path::isValid() const
-{
+bool Path::isValid() const {
     // does not support UNC path
 
     if (isEmpty())
@@ -93,7 +88,7 @@ bool Path::isValid() const
         view = view.mid(3);
 
     // \\37 is using base-8 number system
-    const QRegularExpression regex {u"[\\0-\\37:?\"*<>|]"_s};
+    const QRegularExpression regex{u"[\\0-\\37:?\"*<>|]"_s};
     return !regex.match(view).hasMatch();
 #elif defined(Q_OS_MACOS)
     const QRegularExpression regex {u"[\\0:]"_s};
@@ -103,34 +98,29 @@ bool Path::isValid() const
     return !m_pathStr.contains(regex);
 }
 
-bool Path::isEmpty() const
-{
+bool Path::isEmpty() const {
     return m_pathStr.isEmpty();
 }
 
-bool Path::isAbsolute() const
-{
+bool Path::isAbsolute() const {
     // `QDir::isAbsolutePath` treats `:` as a path to QResource, so handle it manually
     if (m_pathStr.startsWith(u':'))
         return false;
     return QDir::isAbsolutePath(m_pathStr);
 }
 
-bool Path::isRelative() const
-{
+bool Path::isRelative() const {
     // `QDir::isRelativePath` treats `:` as a path to QResource, so handle it manually
     if (m_pathStr.startsWith(u':'))
         return true;
     return QDir::isRelativePath(m_pathStr);
 }
 
-bool Path::exists() const
-{
+bool Path::exists() const {
     return !isEmpty() && QFileInfo::exists(m_pathStr);
 }
 
-Path Path::rootItem() const
-{
+Path Path::rootItem() const {
     // does not support UNC path
 
     const int slashIndex = m_pathStr.indexOf(u'/');
@@ -148,8 +138,7 @@ Path Path::rootItem() const
     return createUnchecked(m_pathStr.left(slashIndex));
 }
 
-Path Path::parentPath() const
-{
+Path Path::parentPath() const {
     // does not support UNC path
 
     const int slashIndex = m_pathStr.lastIndexOf(u'/');
@@ -168,8 +157,7 @@ Path Path::parentPath() const
     return createUnchecked(m_pathStr.left(slashIndex));
 }
 
-QString Path::filename() const
-{
+QString Path::filename() const {
     const int slashIndex = m_pathStr.lastIndexOf(u'/');
     if (slashIndex == -1)
         return m_pathStr;
@@ -177,8 +165,7 @@ QString Path::filename() const
     return m_pathStr.mid(slashIndex + 1);
 }
 
-QString Path::extension() const
-{
+QString Path::extension() const {
     const QString suffix = QMimeDatabase().suffixForFileName(m_pathStr);
     if (!suffix.isEmpty())
         return (u"." + suffix);
@@ -189,24 +176,21 @@ QString Path::extension() const
     return ((dotIndex == -1) ? QString() : filename.mid(dotIndex).toString());
 }
 
-bool Path::hasExtension(const QStringView ext) const
-{
+bool Path::hasExtension(const QStringView ext) const {
     Q_ASSERT(ext.startsWith(u'.') && (ext.size() >= 2));
 
     return m_pathStr.endsWith(ext, Qt::CaseInsensitive);
 }
 
-bool Path::hasAncestor(const Path &other) const
-{
+bool Path::hasAncestor(const Path &other) const {
     if (other.isEmpty() || (m_pathStr.size() <= other.m_pathStr.size()))
         return false;
 
     return (m_pathStr[other.m_pathStr.size()] == u'/')
-            && m_pathStr.startsWith(other.m_pathStr, CASE_SENSITIVITY);
+           && m_pathStr.startsWith(other.m_pathStr, CASE_SENSITIVITY);
 }
 
-Path Path::relativePathOf(const Path &childPath) const
-{
+Path Path::relativePathOf(const Path &childPath) const {
     // If both paths are relative, we assume that they have the same base path
     if (isRelative() && childPath.isRelative())
         return Path(QDir(QDir::home().absoluteFilePath(m_pathStr)).relativeFilePath(QDir::home().absoluteFilePath(childPath.data())));
@@ -214,39 +198,32 @@ Path Path::relativePathOf(const Path &childPath) const
     return Path(QDir(m_pathStr).relativeFilePath(childPath.data()));
 }
 
-void Path::removeExtension()
-{
+void Path::removeExtension() {
     m_pathStr.chop(extension().size());
 }
 
-Path Path::removedExtension() const
-{
+Path Path::removedExtension() const {
     return createUnchecked(m_pathStr.chopped(extension().size()));
 }
 
-void Path::removeExtension(const QStringView ext)
-{
+void Path::removeExtension(const QStringView ext) {
     if (hasExtension(ext))
         m_pathStr.chop(ext.size());
 }
 
-Path Path::removedExtension(const QStringView ext) const
-{
+Path Path::removedExtension(const QStringView ext) const {
     return (hasExtension(ext) ? createUnchecked(m_pathStr.chopped(ext.size())) : *this);
 }
 
-QString Path::data() const
-{
+QString Path::data() const {
     return m_pathStr;
 }
 
-QString Path::toString() const
-{
+QString Path::toString() const {
     return QDir::toNativeSeparators(m_pathStr);
 }
 
-std::filesystem::path Path::toStdFsPath() const
-{
+std::filesystem::path Path::toStdFsPath() const {
 #ifdef Q_OS_WIN
     return {data().toStdWString(), std::filesystem::path::format::generic_format};
 #else
@@ -254,20 +231,17 @@ std::filesystem::path Path::toStdFsPath() const
 #endif
 }
 
-Path &Path::operator/=(const Path &other)
-{
+Path &Path::operator/=(const Path &other) {
     *this = *this / other;
     return *this;
 }
 
-Path &Path::operator+=(const QStringView str)
-{
+Path &Path::operator+=(const QStringView str) {
     *this = *this + str;
     return *this;
 }
 
-Path Path::commonPath(const Path &left, const Path &right)
-{
+Path Path::commonPath(const Path &left, const Path &right) {
     if (left.isEmpty() || right.isEmpty())
         return {};
 
@@ -275,8 +249,7 @@ Path Path::commonPath(const Path &left, const Path &right)
     const QList<QStringView> rightPathItems = QStringView(right.m_pathStr).split(u'/');
     int commonItemsCount = 0;
     qsizetype commonPathSize = 0;
-    while ((commonItemsCount < leftPathItems.size()) && (commonItemsCount < rightPathItems.size()))
-    {
+    while ((commonItemsCount < leftPathItems.size()) && (commonItemsCount < rightPathItems.size())) {
         const QStringView leftPathItem = leftPathItems[commonItemsCount];
         const QStringView rightPathItem = rightPathItems[commonItemsCount];
         if (leftPathItem.compare(rightPathItem, CASE_SENSITIVITY) != 0)
@@ -292,11 +265,9 @@ Path Path::commonPath(const Path &left, const Path &right)
     return Path::createUnchecked(left.m_pathStr.left(commonPathSize));
 }
 
-Path Path::findRootFolder(const PathList &filePaths)
-{
+Path Path::findRootFolder(const PathList &filePaths) {
     Path rootFolder;
-    for (const Path &filePath : filePaths)
-    {
+    for (const Path &filePath: filePaths) {
         const auto filePathElements = QStringView(filePath.m_pathStr).split(u'/');
         // if at least one file has no root folder, no common root folder exists
         if (filePathElements.count() <= 1)
@@ -311,44 +282,38 @@ Path Path::findRootFolder(const PathList &filePaths)
     return rootFolder;
 }
 
-void Path::stripRootFolder(PathList &filePaths)
-{
+void Path::stripRootFolder(PathList &filePaths) {
     const Path commonRootFolder = findRootFolder(filePaths);
     if (commonRootFolder.isEmpty())
         return;
 
-    for (Path &filePath : filePaths)
+    for (Path &filePath: filePaths)
         filePath.m_pathStr.remove(0, (commonRootFolder.m_pathStr.size() + 1));
 }
 
-void Path::addRootFolder(PathList &filePaths, const Path &rootFolder)
-{
+void Path::addRootFolder(PathList &filePaths, const Path &rootFolder) {
     Q_ASSERT(!rootFolder.isEmpty());
 
-    for (Path &filePath : filePaths)
+    for (Path &filePath: filePaths)
         filePath = rootFolder / filePath;
 }
 
-Path Path::createUnchecked(const QString &pathStr)
-{
+Path Path::createUnchecked(const QString &pathStr) {
     Path path;
     path.m_pathStr = pathStr;
 
     return path;
 }
 
-bool operator==(const Path &lhs, const Path &rhs)
-{
+bool operator==(const Path &lhs, const Path &rhs) {
     return (lhs.data().compare(rhs.data(), CASE_SENSITIVITY) == 0);
 }
 
-bool operator!=(const Path &lhs, const Path &rhs)
-{
+bool operator!=(const Path &lhs, const Path &rhs) {
     return !(lhs == rhs);
 }
 
-Path operator/(const Path &lhs, const Path &rhs)
-{
+Path operator/(const Path &lhs, const Path &rhs) {
     if (rhs.isEmpty())
         return lhs;
 
@@ -358,19 +323,16 @@ Path operator/(const Path &lhs, const Path &rhs)
     return Path(lhs.m_pathStr + u'/' + rhs.m_pathStr);
 }
 
-Path operator+(const Path &lhs, const QStringView rhs)
-{
+Path operator+(const Path &lhs, const QStringView rhs) {
     return Path(lhs.data() + rhs);
 }
 
-QDataStream &operator<<(QDataStream &out, const Path &path)
-{
+QDataStream &operator<<(QDataStream &out, const Path &path) {
     out << path.data();
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, Path &path)
-{
+QDataStream &operator>>(QDataStream &in, Path &path) {
     QString pathStr;
     in >> pathStr;
     path = Path(pathStr);
@@ -378,6 +340,7 @@ QDataStream &operator>>(QDataStream &in, Path &path)
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
 std::size_t qHash(const Path &key, const std::size_t seed)
 #else
 uint qHash(const Path &key, const uint seed)

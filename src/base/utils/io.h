@@ -39,14 +39,14 @@
 #include "base/pathfwd.h"
 
 class QByteArray;
+
 class QFileDevice;
+
 class QString;
 
-namespace Utils::IO
-{
+namespace Utils::IO {
     // A wrapper class that satisfy LegacyOutputIterator requirement
-    class FileDeviceOutputIterator
-    {
+    class FileDeviceOutputIterator {
     public:
         // std::iterator_traits
         using iterator_category = std::output_iterator_tag;
@@ -56,24 +56,23 @@ namespace Utils::IO
         using reference = void;
 
         explicit FileDeviceOutputIterator(QFileDevice &device, int bufferSize = (4 * 1024));
+
         FileDeviceOutputIterator(const FileDeviceOutputIterator &other) = default;
+
         ~FileDeviceOutputIterator();
 
         // mimic std::ostream_iterator behavior
         FileDeviceOutputIterator &operator=(char c);
 
-        constexpr FileDeviceOutputIterator &operator*()
-        {
+        constexpr FileDeviceOutputIterator &operator*() {
             return *this;
         }
 
-        constexpr FileDeviceOutputIterator &operator++()
-        {
+        constexpr FileDeviceOutputIterator &operator++() {
             return *this;
         }
 
-        constexpr FileDeviceOutputIterator &operator++(int)
-        {
+        constexpr FileDeviceOutputIterator &operator++(int) {
             return *this;
         }
 
@@ -83,10 +82,8 @@ namespace Utils::IO
         int m_bufferSize = 0;
     };
 
-    struct ReadError
-    {
-        enum Code
-        {
+    struct ReadError {
+        enum Code {
             NotExist,
             ExceedSize,
             Failed,  // `read()` operation failed
@@ -99,8 +96,9 @@ namespace Utils::IO
 
     // TODO: define a specific type for `additionalMode`
     // providing `size` is explicit and is strongly recommended
-    nonstd::expected<QByteArray, ReadError> readFile(const Path &path, qint64 size, QIODevice::OpenMode additionalMode = {});
+    nonstd::expected <QByteArray, ReadError> readFile(const Path &path, qint64 size, QIODevice::OpenMode additionalMode = {});
 
     nonstd::expected<void, QString> saveToFile(const Path &path, const QByteArray &data);
+
     nonstd::expected<void, QString> saveToFile(const Path &path, const lt::entry &data);
 }

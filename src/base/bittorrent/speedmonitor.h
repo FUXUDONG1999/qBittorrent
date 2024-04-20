@@ -30,50 +30,48 @@
 #pragma once
 
 #ifndef Q_MOC_RUN
+
 #include <boost/circular_buffer.hpp>
+
 #endif
 
 #include <QtGlobal>
 
 template<typename T>
-struct Sample
-{
+struct Sample {
     constexpr Sample() = default;
 
     constexpr Sample(const T dl, const T ul)
-        : download {dl}
-        , upload {ul}
-    {
+            : download{dl}, upload{ul} {
     }
 
-    constexpr Sample<T> &operator+=(const Sample<T> &other)
-    {
+    constexpr Sample<T> &operator+=(const Sample<T> &other) {
         download += other.download;
         upload += other.upload;
         return *this;
     }
 
-    constexpr Sample<T> &operator-=(const Sample<T> &other)
-    {
+    constexpr Sample<T> &operator-=(const Sample<T> &other) {
         download -= other.download;
         upload -= other.upload;
         return *this;
     }
 
-    T download {};
-    T upload {};
+    T download{};
+    T upload{};
 };
 
 typedef Sample<qlonglong> SpeedSample;
 typedef Sample<qreal> SpeedSampleAvg;
 
-class SpeedMonitor
-{
+class SpeedMonitor {
 public:
     SpeedMonitor();
 
     void addSample(const SpeedSample &sample);
+
     SpeedSampleAvg average() const;
+
     void reset();
 
 private:

@@ -31,24 +31,31 @@
 #include "base/pathfwd.h"
 
 class QIcon;
+
 class QPixmap;
+
 class QPoint;
+
 class QSize;
+
 class QWidget;
 
-namespace Utils::Gui
-{
+namespace Utils::Gui {
     bool isDarkTheme();
 
     QPixmap scaledPixmap(const QIcon &icon, const QWidget *widget, int height);
+
     QPixmap scaledPixmap(const Path &path, const QWidget *widget, int height = 0);
 
     QSize smallIconSize(const QWidget *widget = nullptr);
+
     QSize mediumIconSize(const QWidget *widget = nullptr);
+
     QSize largeIconSize(const QWidget *widget = nullptr);
 
     QPoint screenCenter(const QWidget *w);
 
     void openPath(const Path &path);
+
     void openFolderSelect(const Path &path);
 }

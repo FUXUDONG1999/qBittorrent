@@ -35,40 +35,45 @@
 
 #include "base/preferences.h"
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 
     // Based on http://www.dyndns.com/developers/specs/
-    class DNSUpdater : public QObject
-    {
-        Q_OBJECT
+    class DNSUpdater : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(DNSUpdater)
 
     public:
         explicit DNSUpdater(QObject *parent = nullptr);
+
         ~DNSUpdater();
 
         static QUrl getRegistrationUrl(DNS::Service service);
 
     public slots:
+
         void updateCredentials();
 
     private slots:
+
         void checkPublicIP();
+
         void ipRequestFinished(const DownloadResult &result);
+
         void updateDNSService();
+
         void ipUpdateFinished(const DownloadResult &result);
 
     private:
-        enum State
-        {
+        enum State {
             OK,
             INVALID_CREDS,
             FATAL
         };
 
         QString getUpdateUrl() const;
+
         void processIPUpdateReply(const QString &reply);
 
         QHostAddress m_lastIP;

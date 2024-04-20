@@ -30,17 +30,14 @@
 
 #include <QColor>
 
-namespace Color
-{
+namespace Color {
     /*
      * Documentation: https://primer.style/primitives/colors
      * Repository: https://github.com/primer/primitives
      * Primer Primitives v7.9
      */
-    namespace Primer
-    {
-        namespace Dark
-        {
+    namespace Primer {
+        namespace Dark {
             // Functional variables
             inline const QColor accentEmphasis = 0x1f6feb;
             inline const QColor accentFg = 0x58a6ff;
@@ -55,8 +52,7 @@ namespace Color
             inline const QColor scaleYellow6 = 0x845306;
         }
 
-        namespace Light
-        {
+        namespace Light {
             // Functional variables
             inline const QColor accentEmphasis = 0x0969da;
             inline const QColor accentFg = 0x0969da;

@@ -39,37 +39,33 @@
 #include "gui/torrentcontentmodel.h"
 
 TorrentContentItemDelegate::TorrentContentItemDelegate(QWidget *parent)
-    : QStyledItemDelegate(parent)
-{
+        : QStyledItemDelegate(parent) {
 }
 
-void TorrentContentItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
+void TorrentContentItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
     auto *combobox = static_cast<QComboBox *>(editor);
     // Set combobox index
     const int priority = index.data(TorrentContentModel::UnderlyingDataRole).toInt();
-    switch (static_cast<BitTorrent::DownloadPriority>(priority))
-    {
-    case BitTorrent::DownloadPriority::Ignored:
-        combobox->setCurrentIndex(0);
-        break;
-    case BitTorrent::DownloadPriority::High:
-        combobox->setCurrentIndex(2);
-        break;
-    case BitTorrent::DownloadPriority::Maximum:
-        combobox->setCurrentIndex(3);
-        break;
-    case BitTorrent::DownloadPriority::Mixed:
-        combobox->setCurrentIndex(4);
-        break;
-    default:
-        combobox->setCurrentIndex(1);
-        break;
+    switch (static_cast<BitTorrent::DownloadPriority>(priority)) {
+        case BitTorrent::DownloadPriority::Ignored:
+            combobox->setCurrentIndex(0);
+            break;
+        case BitTorrent::DownloadPriority::High:
+            combobox->setCurrentIndex(2);
+            break;
+        case BitTorrent::DownloadPriority::Maximum:
+            combobox->setCurrentIndex(3);
+            break;
+        case BitTorrent::DownloadPriority::Mixed:
+            combobox->setCurrentIndex(4);
+            break;
+        default:
+            combobox->setCurrentIndex(1);
+            break;
     }
 }
 
-QWidget *TorrentContentItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
-{
+QWidget *TorrentContentItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const {
     if (index.column() != TorrentContentModelItem::COL_PRIO)
         return nullptr;
 
@@ -82,72 +78,63 @@ QWidget *TorrentContentItemDelegate::createEditor(QWidget *parent, const QStyleO
 
     // add Mixed priority item to the new combobox only for those items with Mixed priority
     const auto priority = static_cast<BitTorrent::DownloadPriority>(index.data(TorrentContentModel::UnderlyingDataRole).toInt());
-    if (priority == BitTorrent::DownloadPriority::Mixed)
-    {
+    if (priority == BitTorrent::DownloadPriority::Mixed) {
         editor->addItem(tr("Mixed", "Mixed (priorities)"));
     }
 
-    connect(editor, qOverload<int>(&QComboBox::currentIndexChanged), this, [this, editor]()
-    {
+    connect(editor, qOverload<int>(&QComboBox::currentIndexChanged), this, [this, editor]() {
         emit const_cast<TorrentContentItemDelegate *>(this)->commitData(editor);
     });
 
     return editor;
 }
 
-void TorrentContentItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{
+void TorrentContentItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
     const auto *combobox = static_cast<QComboBox *>(editor);
 
     BitTorrent::DownloadPriority prio = BitTorrent::DownloadPriority::Normal; // NORMAL
-    switch (combobox->currentIndex())
-    {
-    case 0:
-        prio = BitTorrent::DownloadPriority::Ignored; // IGNORED
-        break;
-    case 2:
-        prio = BitTorrent::DownloadPriority::High; // HIGH
-        break;
-    case 3:
-        prio = BitTorrent::DownloadPriority::Maximum; // MAX
-        break;
-    case 4:
-        prio = BitTorrent::DownloadPriority::Mixed; // MIXED
-        break;
+    switch (combobox->currentIndex()) {
+        case 0:
+            prio = BitTorrent::DownloadPriority::Ignored; // IGNORED
+            break;
+        case 2:
+            prio = BitTorrent::DownloadPriority::High; // HIGH
+            break;
+        case 3:
+            prio = BitTorrent::DownloadPriority::Maximum; // MAX
+            break;
+        case 4:
+            prio = BitTorrent::DownloadPriority::Mixed; // MIXED
+            break;
     }
 
     const int newPriority = static_cast<int>(prio);
     const int previousPriority = index.data(TorrentContentModel::UnderlyingDataRole).toInt();
 
-    if (newPriority != previousPriority)
-    {
+    if (newPriority != previousPriority) {
         model->setData(index, newPriority);
     }
 }
 
-void TorrentContentItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
-{
+void TorrentContentItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const {
     editor->setGeometry(option.rect);
 }
 
-void TorrentContentItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    switch (index.column())
-    {
-    case TorrentContentModelItem::COL_PROGRESS:
-        {
+void TorrentContentItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    switch (index.column()) {
+        case TorrentContentModelItem::COL_PROGRESS: {
             const int progress = static_cast<int>(index.data(TorrentContentModel::UnderlyingDataRole).toReal());
             const int priority = index.sibling(index.row(), TorrentContentModelItem::COL_PRIO).data(TorrentContentModel::UnderlyingDataRole).toInt();
             const bool isEnabled = static_cast<BitTorrent::DownloadPriority>(priority) != BitTorrent::DownloadPriority::Ignored;
 
-            QStyleOptionViewItem customOption {option};
+            QStyleOptionViewItem customOption{option};
             customOption.state.setFlag(QStyle::State_Enabled, isEnabled);
 
             m_progressBarPainter.paint(painter, customOption, index.data().toString(), progress);
         }
-        break;
-    default:
-        QStyledItemDelegate::paint(painter, option, index);
-        break;
+            break;
+        default:
+            QStyledItemDelegate::paint(painter, option, index);
+            break;
     }
 }

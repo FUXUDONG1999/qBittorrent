@@ -36,56 +36,75 @@
 class QString;
 
 class Path;
+
 class WebUI;
+
 struct QBtCommandLineParameters;
 
 #ifdef Q_OS_WIN
-inline namespace ApplicationSettingsEnums
-{
+inline namespace ApplicationSettingsEnums {
     Q_NAMESPACE
 
-    enum class MemoryPriority : int
-    {
+    enum class MemoryPriority : int {
         Normal = 0,
         BelowNormal = 1,
         Medium = 2,
         Low = 3,
         VeryLow = 4
     };
+
     Q_ENUM_NS(MemoryPriority)
 }
 #endif
 
-class IApplication
-{
+class IApplication {
 public:
     virtual ~IApplication() = default;
 
     // FileLogger properties
     virtual bool isFileLoggerEnabled() const = 0;
+
     virtual void setFileLoggerEnabled(bool value) = 0;
+
     virtual Path fileLoggerPath() const = 0;
+
     virtual void setFileLoggerPath(const Path &path) = 0;
+
     virtual bool isFileLoggerBackup() const = 0;
+
     virtual void setFileLoggerBackup(bool value) = 0;
+
     virtual bool isFileLoggerDeleteOld() const = 0;
+
     virtual void setFileLoggerDeleteOld(bool value) = 0;
+
     virtual int fileLoggerMaxSize() const = 0;
+
     virtual void setFileLoggerMaxSize(int bytes) = 0;
+
     virtual int fileLoggerAge() const = 0;
+
     virtual void setFileLoggerAge(int value) = 0;
+
     virtual int fileLoggerAgeType() const = 0;
+
     virtual void setFileLoggerAgeType(int value) = 0;
 
     virtual int memoryWorkingSetLimit() const = 0;
+
     virtual void setMemoryWorkingSetLimit(int size) = 0;
 
 #ifdef Q_OS_WIN
+
     virtual MemoryPriority processMemoryPriority() const = 0;
+
     virtual void setProcessMemoryPriority(MemoryPriority priority) = 0;
+
 #endif
 
 #ifndef DISABLE_WEBUI
+
     virtual WebUI *webUI() const = 0;
+
 #endif
 };

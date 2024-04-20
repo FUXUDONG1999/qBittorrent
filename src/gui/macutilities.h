@@ -33,16 +33,21 @@
 #include "base/pathfwd.h"
 
 class QPixmap;
+
 class QSize;
+
 class QString;
 
-namespace MacUtils
-{
+namespace MacUtils {
     QPixmap pixmapForExtension(const QString &ext, const QSize &size);
+
     void overrideDockClickHandler(bool (*dockClickHandler)(id, SEL, ...));
+
     void displayNotification(const QString &title, const QString &message);
+
     void openFiles(const PathList &pathList);
 
     QString badgeLabelText();
+
     void setBadgeLabelText(const QString &text);
 }

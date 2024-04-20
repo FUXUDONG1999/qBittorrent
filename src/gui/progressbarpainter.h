@@ -32,8 +32,7 @@
 
 class QStyleOptionViewItem;
 
-class ProgressBarPainter
-{
+class ProgressBarPainter {
 public:
     ProgressBarPainter();
 

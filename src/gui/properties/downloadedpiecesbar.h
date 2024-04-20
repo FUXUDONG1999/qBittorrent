@@ -35,10 +35,10 @@
 
 class QWidget;
 
-class DownloadedPiecesBar final : public PiecesBar
-{
+class DownloadedPiecesBar final : public PiecesBar {
     using base = PiecesBar;
-    Q_OBJECT
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(DownloadedPiecesBar)
 
 public:
@@ -52,7 +52,9 @@ public:
 private:
     // scale bitfield vector to float vector
     QVector<float> bitfieldToFloatVector(const QBitArray &vecin, int reqSize);
+
     bool updateImage(QImage &image) override;
+
     QString simpleToolTipText() const override;
 
     // incomplete piece color

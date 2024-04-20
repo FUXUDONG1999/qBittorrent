@@ -33,33 +33,34 @@
 #include <QTreeView>
 
 class QHostAddress;
+
 class QStandardItem;
+
 class QStandardItemModel;
 
 class PeerListSortModel;
+
 class PropertiesWidget;
 
 struct PeerEndpoint;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
+
     class PeerInfo;
 }
 
-namespace Net
-{
+namespace Net {
     class ReverseResolution;
 }
 
-class PeerListWidget final : public QTreeView
-{
-    Q_OBJECT
+class PeerListWidget final : public QTreeView {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PeerListWidget)
 
 public:
-    enum PeerListColumns
-    {
+    enum PeerListColumns {
         COUNTRY,
         IP,
         PORT,
@@ -80,25 +81,38 @@ public:
     };
 
     explicit PeerListWidget(PropertiesWidget *parent);
+
     ~PeerListWidget() override;
 
     void loadPeers(const BitTorrent::Torrent *torrent);
+
     void updatePeerHostNameResolutionState();
+
     void updatePeerCountryResolutionState();
+
     void clear();
 
 private slots:
+
     bool loadSettings();
+
     void saveSettings() const;
+
     void displayColumnHeaderMenu();
+
     void showPeerListMenu();
+
     void banSelectedPeers();
+
     void copySelectedPeers();
+
     void handleSortColumnChanged(int col);
+
     void handleResolved(const QHostAddress &ip, const QString &hostname) const;
 
 private:
     void updatePeer(int row, const BitTorrent::Torrent *torrent, const BitTorrent::PeerInfo &peer, bool hideZeroValues);
+
     int visibleColumnsCount() const;
 
     void wheelEvent(QWheelEvent *event) override;

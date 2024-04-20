@@ -54,28 +54,24 @@ const QString PARAM_SEEDINGTIMELIMIT = u"seeding_time_limit"_s;
 const QString PARAM_INACTIVESEEDINGTIMELIMIT = u"inactive_seeding_time_limit"_s;
 const QString PARAM_RATIOLIMIT = u"ratio_limit"_s;
 
-namespace
-{
-    TagSet parseTagSet(const QJsonArray &jsonArr)
-    {
+namespace {
+    TagSet parseTagSet(const QJsonArray &jsonArr) {
         TagSet tags;
-        for (const QJsonValue &jsonVal : jsonArr)
+        for (const QJsonValue &jsonVal: jsonArr)
             tags.insert(jsonVal.toString());
 
         return tags;
     }
 
-    QJsonArray serializeTagSet(const TagSet &tags)
-    {
+    QJsonArray serializeTagSet(const TagSet &tags) {
         QJsonArray arr;
-        for (const QString &tag : tags)
+        for (const QString &tag: tags)
             arr.append(tag);
 
         return arr;
     }
 
-    std::optional<bool> getOptionalBool(const QJsonObject &jsonObj, const QString &key)
-    {
+    std::optional<bool> getOptionalBool(const QJsonObject &jsonObj, const QString &key) {
         const QJsonValue jsonVal = jsonObj.value(key);
         if (jsonVal.isUndefined() || jsonVal.isNull())
             return std::nullopt;
@@ -83,9 +79,8 @@ namespace
         return jsonVal.toBool();
     }
 
-    template <typename Enum>
-    std::optional<Enum> getOptionalEnum(const QJsonObject &jsonObj, const QString &key)
-    {
+    template<typename Enum>
+    std::optional<Enum> getOptionalEnum(const QJsonObject &jsonObj, const QString &key) {
         const QJsonValue jsonVal = jsonObj.value(key);
         if (jsonVal.isUndefined() || jsonVal.isNull())
             return std::nullopt;
@@ -93,34 +88,31 @@ namespace
         return Utils::String::toEnum<Enum>(jsonVal.toString(), {});
     }
 
-    template <typename Enum>
-    Enum getEnum(const QJsonObject &jsonObj, const QString &key)
-    {
+    template<typename Enum>
+    Enum getEnum(const QJsonObject &jsonObj, const QString &key) {
         const QJsonValue jsonVal = jsonObj.value(key);
         return Utils::String::toEnum<Enum>(jsonVal.toString(), {});
     }
 }
 
-bool BitTorrent::operator==(const AddTorrentParams &lhs, const AddTorrentParams &rhs)
-{
-        return std::tie(lhs.name, lhs.category, lhs.tags,
-                lhs.savePath, lhs.useDownloadPath, lhs.downloadPath,
-                lhs.sequential, lhs.firstLastPiecePriority, lhs.addForced,
-                lhs.addToQueueTop, lhs.addPaused, lhs.stopCondition,
-                lhs.filePaths, lhs.filePriorities, lhs.skipChecking,
-                lhs.contentLayout, lhs.useAutoTMM, lhs.uploadLimit,
-                lhs.downloadLimit, lhs.seedingTimeLimit, lhs.inactiveSeedingTimeLimit, lhs.ratioLimit)
-            == std::tie(rhs.name, rhs.category, rhs.tags,
-                rhs.savePath, rhs.useDownloadPath, rhs.downloadPath,
-                rhs.sequential, rhs.firstLastPiecePriority, rhs.addForced,
-                rhs.addToQueueTop, rhs.addPaused, rhs.stopCondition,
-                rhs.filePaths, rhs.filePriorities, rhs.skipChecking,
-                rhs.contentLayout, rhs.useAutoTMM, rhs.uploadLimit,
-                rhs.downloadLimit, rhs.seedingTimeLimit, rhs.inactiveSeedingTimeLimit, rhs.ratioLimit);
+bool BitTorrent::operator==(const AddTorrentParams &lhs, const AddTorrentParams &rhs) {
+    return std::tie(lhs.name, lhs.category, lhs.tags,
+                    lhs.savePath, lhs.useDownloadPath, lhs.downloadPath,
+                    lhs.sequential, lhs.firstLastPiecePriority, lhs.addForced,
+                    lhs.addToQueueTop, lhs.addPaused, lhs.stopCondition,
+                    lhs.filePaths, lhs.filePriorities, lhs.skipChecking,
+                    lhs.contentLayout, lhs.useAutoTMM, lhs.uploadLimit,
+                    lhs.downloadLimit, lhs.seedingTimeLimit, lhs.inactiveSeedingTimeLimit, lhs.ratioLimit)
+           == std::tie(rhs.name, rhs.category, rhs.tags,
+                       rhs.savePath, rhs.useDownloadPath, rhs.downloadPath,
+                       rhs.sequential, rhs.firstLastPiecePriority, rhs.addForced,
+                       rhs.addToQueueTop, rhs.addPaused, rhs.stopCondition,
+                       rhs.filePaths, rhs.filePriorities, rhs.skipChecking,
+                       rhs.contentLayout, rhs.useAutoTMM, rhs.uploadLimit,
+                       rhs.downloadLimit, rhs.seedingTimeLimit, rhs.inactiveSeedingTimeLimit, rhs.ratioLimit);
 }
 
-BitTorrent::AddTorrentParams BitTorrent::parseAddTorrentParams(const QJsonObject &jsonObj)
-{
+BitTorrent::AddTorrentParams BitTorrent::parseAddTorrentParams(const QJsonObject &jsonObj) {
     AddTorrentParams params;
     params.category = jsonObj.value(PARAM_CATEGORY).toString();
     params.tags = parseTagSet(jsonObj.value(PARAM_TAGS).toArray());
@@ -143,21 +135,20 @@ BitTorrent::AddTorrentParams BitTorrent::parseAddTorrentParams(const QJsonObject
     return params;
 }
 
-QJsonObject BitTorrent::serializeAddTorrentParams(const AddTorrentParams &params)
-{
-    QJsonObject jsonObj {
-        {PARAM_CATEGORY, params.category},
-        {PARAM_TAGS, serializeTagSet(params.tags)},
-        {PARAM_SAVEPATH, params.savePath.data()},
-        {PARAM_DOWNLOADPATH, params.downloadPath.data()},
-        {PARAM_OPERATINGMODE, Utils::String::fromEnum(params.addForced
-                                                          ? TorrentOperatingMode::Forced : TorrentOperatingMode::AutoManaged)},
-        {PARAM_SKIPCHECKING, params.skipChecking},
-        {PARAM_UPLOADLIMIT, params.uploadLimit},
-        {PARAM_DOWNLOADLIMIT, params.downloadLimit},
-        {PARAM_SEEDINGTIMELIMIT, params.seedingTimeLimit},
-        {PARAM_INACTIVESEEDINGTIMELIMIT, params.inactiveSeedingTimeLimit},
-        {PARAM_RATIOLIMIT, params.ratioLimit}
+QJsonObject BitTorrent::serializeAddTorrentParams(const AddTorrentParams &params) {
+    QJsonObject jsonObj{
+            {PARAM_CATEGORY,                 params.category},
+            {PARAM_TAGS,                     serializeTagSet(params.tags)},
+            {PARAM_SAVEPATH,                 params.savePath.data()},
+            {PARAM_DOWNLOADPATH,             params.downloadPath.data()},
+            {PARAM_OPERATINGMODE,            Utils::String::fromEnum(params.addForced
+                                                                     ? TorrentOperatingMode::Forced : TorrentOperatingMode::AutoManaged)},
+            {PARAM_SKIPCHECKING,             params.skipChecking},
+            {PARAM_UPLOADLIMIT,              params.uploadLimit},
+            {PARAM_DOWNLOADLIMIT,            params.downloadLimit},
+            {PARAM_SEEDINGTIMELIMIT,         params.seedingTimeLimit},
+            {PARAM_INACTIVESEEDINGTIMELIMIT, params.inactiveSeedingTimeLimit},
+            {PARAM_RATIOLIMIT,               params.ratioLimit}
     };
 
     if (params.addToQueueTop)

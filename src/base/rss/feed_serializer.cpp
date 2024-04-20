@@ -43,13 +43,10 @@
 
 const int ARTICLEDATALIST_TYPEID = qRegisterMetaType<QVector<QVariantHash>>();
 
-void RSS::Private::FeedSerializer::load(const Path &dataFileName, const QString &url)
-{
+void RSS::Private::FeedSerializer::load(const Path &dataFileName, const QString &url) {
     const auto readResult = Utils::IO::readFile(dataFileName, -1);
-    if (!readResult)
-    {
-        if (readResult.error().status == Utils::IO::ReadError::NotExist)
-        {
+    if (!readResult) {
+        if (readResult.error().status == Utils::IO::ReadError::NotExist) {
             emit loadingFinished({});
             return;
         }
@@ -61,11 +58,9 @@ void RSS::Private::FeedSerializer::load(const Path &dataFileName, const QString 
     emit loadingFinished(loadArticles(readResult.value(), url));
 }
 
-void RSS::Private::FeedSerializer::store(const Path &dataFileName, const QVector<QVariantHash> &articlesData)
-{
+void RSS::Private::FeedSerializer::store(const Path &dataFileName, const QVector<QVariantHash> &articlesData) {
     QJsonArray arr;
-    for (const QVariantHash &data : articlesData)
-    {
+    for (const QVariantHash &data: articlesData) {
         auto jsonObj = QJsonObject::fromVariantHash(data);
         // JSON object doesn't support DateTime so we need to convert it
         jsonObj[Article::KeyDate] = data[Article::KeyDate].toDateTime().toString(Qt::RFC2822Date);
@@ -74,26 +69,20 @@ void RSS::Private::FeedSerializer::store(const Path &dataFileName, const QVector
     }
 
     const nonstd::expected<void, QString> result = Utils::IO::saveToFile(dataFileName, QJsonDocument(arr).toJson());
-    if (!result)
-    {
-       LogMsg(tr("Failed to save RSS feed in '%1', Reason: %2").arg(dataFileName.toString(), result.error())
-              , Log::WARNING);
+    if (!result) {
+        LogMsg(tr("Failed to save RSS feed in '%1', Reason: %2").arg(dataFileName.toString(), result.error()), Log::WARNING);
     }
 }
 
-QVector<QVariantHash> RSS::Private::FeedSerializer::loadArticles(const QByteArray &data, const QString &url)
-{
+QVector<QVariantHash> RSS::Private::FeedSerializer::loadArticles(const QByteArray &data, const QString &url) {
     QJsonParseError jsonError;
     const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
-    if (jsonError.error != QJsonParseError::NoError)
-    {
-        LogMsg(tr("Couldn't parse RSS Session data. Error: %1").arg(jsonError.errorString())
-               , Log::WARNING);
+    if (jsonError.error != QJsonParseError::NoError) {
+        LogMsg(tr("Couldn't parse RSS Session data. Error: %1").arg(jsonError.errorString()), Log::WARNING);
         return {};
     }
 
-    if (!jsonDoc.isArray())
-    {
+    if (!jsonDoc.isArray()) {
         LogMsg(tr("Couldn't load RSS Session data. Invalid data format."), Log::WARNING);
         return {};
     }
@@ -101,13 +90,11 @@ QVector<QVariantHash> RSS::Private::FeedSerializer::loadArticles(const QByteArra
     QVector<QVariantHash> result;
     const QJsonArray jsonArr = jsonDoc.array();
     result.reserve(jsonArr.size());
-    for (int i = 0; i < jsonArr.size(); ++i)
-    {
+    for (int i = 0; i < jsonArr.size(); ++i) {
         const QJsonValue jsonVal = jsonArr[i];
-        if (!jsonVal.isObject())
-        {
+        if (!jsonVal.isObject()) {
             LogMsg(tr("Couldn't load RSS article '%1#%2'. Invalid data format.")
-                   .arg(url, QString::number(i)), Log::WARNING);
+                           .arg(url, QString::number(i)), Log::WARNING);
             continue;
         }
 
@@ -120,8 +107,7 @@ QVector<QVariantHash> RSS::Private::FeedSerializer::loadArticles(const QByteArra
         result.push_back(varHash);
     }
 
-    std::sort(result.begin(), result.end(), [](const QVariantHash &left, const QVariantHash &right)
-    {
+    std::sort(result.begin(), result.end(), [](const QVariantHash &left, const QVariantHash &right) {
         return (left.value(Article::KeyDate).toDateTime() > right.value(Article::KeyDate).toDateTime());
     });
 

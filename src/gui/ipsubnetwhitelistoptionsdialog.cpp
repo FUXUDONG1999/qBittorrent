@@ -41,16 +41,13 @@
 #define SETTINGS_KEY(name) u"IPSubnetWhitelistOptionsDialog/" name
 
 IPSubnetWhitelistOptionsDialog::IPSubnetWhitelistOptionsDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::IPSubnetWhitelistOptionsDialog)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
-{
+        : QDialog(parent), m_ui(new Ui::IPSubnetWhitelistOptionsDialog), m_storeDialogSize(SETTINGS_KEY(u"Size"_s)) {
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QStringList authSubnetWhitelistStringList;
-    for (const Utils::Net::Subnet &subnet : asConst(Preferences::instance()->getWebUIAuthSubnetWhitelist()))
+    for (const Utils::Net::Subnet &subnet: asConst(Preferences::instance()->getWebUIAuthSubnetWhitelist()))
         authSubnetWhitelistStringList << Utils::Net::subnetToString(subnet);
     m_model = new QStringListModel(authSubnetWhitelistStringList, this);
 
@@ -66,16 +63,13 @@ IPSubnetWhitelistOptionsDialog::IPSubnetWhitelistOptionsDialog(QWidget *parent)
         resize(dialogSize);
 }
 
-IPSubnetWhitelistOptionsDialog::~IPSubnetWhitelistOptionsDialog()
-{
+IPSubnetWhitelistOptionsDialog::~IPSubnetWhitelistOptionsDialog() {
     m_storeDialogSize = size();
     delete m_ui;
 }
 
-void IPSubnetWhitelistOptionsDialog::on_buttonBox_accepted()
-{
-    if (m_modified)
-    {
+void IPSubnetWhitelistOptionsDialog::on_buttonBox_accepted() {
+    if (m_modified) {
         // save to session
         QStringList subnets;
         // Operate on the m_sortFilter to grab the strings in sorted order
@@ -83,18 +77,14 @@ void IPSubnetWhitelistOptionsDialog::on_buttonBox_accepted()
             subnets.append(m_sortFilter->index(i, 0).data().toString());
         Preferences::instance()->setWebUIAuthSubnetWhitelist(subnets);
         QDialog::accept();
-    }
-    else
-    {
+    } else {
         QDialog::reject();
     }
 }
 
-void IPSubnetWhitelistOptionsDialog::on_buttonWhitelistIPSubnet_clicked()
-{
+void IPSubnetWhitelistOptionsDialog::on_buttonWhitelistIPSubnet_clicked() {
     const std::optional<Utils::Net::Subnet> subnet = Utils::Net::parseSubnet(m_ui->txtIPSubnet->text());
-    if (!subnet)
-    {
+    if (!subnet) {
         QMessageBox::critical(this, tr("Error"), tr("The entered subnet is invalid."));
         return;
     }
@@ -105,15 +95,13 @@ void IPSubnetWhitelistOptionsDialog::on_buttonWhitelistIPSubnet_clicked()
     m_modified = true;
 }
 
-void IPSubnetWhitelistOptionsDialog::on_buttonDeleteIPSubnet_clicked()
-{
-    for (const auto &i : asConst(m_ui->whitelistedIPSubnetList->selectionModel()->selectedIndexes()))
+void IPSubnetWhitelistOptionsDialog::on_buttonDeleteIPSubnet_clicked() {
+    for (const auto &i: asConst(m_ui->whitelistedIPSubnetList->selectionModel()->selectedIndexes()))
         m_sortFilter->removeRow(i.row());
 
     m_modified = true;
 }
 
-void IPSubnetWhitelistOptionsDialog::on_txtIPSubnet_textChanged(const QString &subnetStr)
-{
+void IPSubnetWhitelistOptionsDialog::on_txtIPSubnet_textChanged(const QString &subnetStr) {
     m_ui->buttonWhitelistIPSubnet->setEnabled(Utils::Net::parseSubnet(subnetStr).has_value());
 }

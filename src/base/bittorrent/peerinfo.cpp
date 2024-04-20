@@ -39,136 +39,109 @@
 using namespace BitTorrent;
 
 PeerInfo::PeerInfo(const lt::peer_info &nativeInfo, const QBitArray &allPieces)
-    : m_nativeInfo(nativeInfo)
-    , m_relevance(calcRelevance(allPieces))
-{
+        : m_nativeInfo(nativeInfo), m_relevance(calcRelevance(allPieces)) {
     determineFlags();
 }
 
-bool PeerInfo::fromDHT() const
-{
+bool PeerInfo::fromDHT() const {
     return static_cast<bool>(m_nativeInfo.source & lt::peer_info::dht);
 }
 
-bool PeerInfo::fromPeX() const
-{
+bool PeerInfo::fromPeX() const {
     return static_cast<bool>(m_nativeInfo.source & lt::peer_info::pex);
 }
 
-bool PeerInfo::fromLSD() const
-{
+bool PeerInfo::fromLSD() const {
     return static_cast<bool>(m_nativeInfo.source & lt::peer_info::lsd);
 }
 
-QString PeerInfo::country() const
-{
+QString PeerInfo::country() const {
     if (m_country.isEmpty())
         m_country = Net::GeoIPManager::instance()->lookup(address().ip);
     return m_country;
 }
 
-bool PeerInfo::isInteresting() const
-{
+bool PeerInfo::isInteresting() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::interesting);
 }
 
-bool PeerInfo::isChocked() const
-{
+bool PeerInfo::isChocked() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::choked);
 }
 
-bool PeerInfo::isRemoteInterested() const
-{
+bool PeerInfo::isRemoteInterested() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::remote_interested);
 }
 
-bool PeerInfo::isRemoteChocked() const
-{
+bool PeerInfo::isRemoteChocked() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::remote_choked);
 }
 
-bool PeerInfo::isSupportsExtensions() const
-{
+bool PeerInfo::isSupportsExtensions() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::supports_extensions);
 }
 
-bool PeerInfo::isLocalConnection() const
-{
+bool PeerInfo::isLocalConnection() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::local_connection);
 }
 
-bool PeerInfo::isHandshake() const
-{
+bool PeerInfo::isHandshake() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::handshake);
 }
 
-bool PeerInfo::isConnecting() const
-{
+bool PeerInfo::isConnecting() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::connecting);
 }
 
-bool PeerInfo::isOnParole() const
-{
+bool PeerInfo::isOnParole() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::on_parole);
 }
 
-bool PeerInfo::isSeed() const
-{
+bool PeerInfo::isSeed() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::seed);
 }
 
-bool PeerInfo::optimisticUnchoke() const
-{
+bool PeerInfo::optimisticUnchoke() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::optimistic_unchoke);
 }
 
-bool PeerInfo::isSnubbed() const
-{
+bool PeerInfo::isSnubbed() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::snubbed);
 }
 
-bool PeerInfo::isUploadOnly() const
-{
+bool PeerInfo::isUploadOnly() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::upload_only);
 }
 
-bool PeerInfo::isEndgameMode() const
-{
+bool PeerInfo::isEndgameMode() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::endgame_mode);
 }
 
-bool PeerInfo::isHolepunched() const
-{
+bool PeerInfo::isHolepunched() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::holepunched);
 }
 
-bool PeerInfo::useI2PSocket() const
-{
+bool PeerInfo::useI2PSocket() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::i2p_socket);
 }
 
-bool PeerInfo::useUTPSocket() const
-{
+bool PeerInfo::useUTPSocket() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::utp_socket);
 }
 
-bool PeerInfo::useSSLSocket() const
-{
+bool PeerInfo::useSSLSocket() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::ssl_socket);
 }
 
-bool PeerInfo::isRC4Encrypted() const
-{
+bool PeerInfo::isRC4Encrypted() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::rc4_encrypted);
 }
 
-bool PeerInfo::isPlaintextEncrypted() const
-{
+bool PeerInfo::isPlaintextEncrypted() const {
     return static_cast<bool>(m_nativeInfo.flags & lt::peer_info::plaintext_encrypted);
 }
 
-PeerAddress PeerInfo::address() const
-{
+PeerAddress PeerInfo::address() const {
     if (useI2PSocket())
         return {};
 
@@ -179,14 +152,12 @@ PeerAddress PeerInfo::address() const
     //    , m_nativeInfo.ip.port()};
 }
 
-QString PeerInfo::I2PAddress() const
-{
+QString PeerInfo::I2PAddress() const {
     if (!useI2PSocket())
         return {};
 
 #if defined(QBT_USES_LIBTORRENT2) && TORRENT_USE_I2P
-    if (m_I2PAddress.isEmpty())
-    {
+    if (m_I2PAddress.isEmpty()) {
         const lt::sha256_hash destHash = m_nativeInfo.i2p_destination();
         const QByteArray base32Dest = Utils::ByteArray::toBase32({destHash.data(), destHash.size()}).replace('=', "").toLower();
         m_I2PAddress = QString::fromLatin1(base32Dest) + u".b32.i2p";
@@ -196,13 +167,11 @@ QString PeerInfo::I2PAddress() const
     return m_I2PAddress;
 }
 
-QString PeerInfo::client() const
-{
+QString PeerInfo::client() const {
     return QString::fromStdString(m_nativeInfo.client);
 }
 
-QString PeerInfo::peerIdClient() const
-{
+QString PeerInfo::peerIdClient() const {
     // when peer ID is not known yet it contains only zero bytes,
     // do not create string in such case, return empty string instead
     if (m_nativeInfo.pid.is_all_zeros())
@@ -211,8 +180,7 @@ QString PeerInfo::peerIdClient() const
     QString result;
 
     // interesting part of a typical peer ID is first 8 chars
-    for (int i = 0; i < 8; ++i)
-    {
+    for (int i = 0; i < 8; ++i) {
         const std::uint8_t c = m_nativeInfo.pid[i];
 
         // ensure that the peer ID slice consists only of printable ASCII characters,
@@ -226,48 +194,40 @@ QString PeerInfo::peerIdClient() const
     return result;
 }
 
-qreal PeerInfo::progress() const
-{
+qreal PeerInfo::progress() const {
     return m_nativeInfo.progress;
 }
 
-int PeerInfo::payloadUpSpeed() const
-{
+int PeerInfo::payloadUpSpeed() const {
     return m_nativeInfo.payload_up_speed;
 }
 
-int PeerInfo::payloadDownSpeed() const
-{
+int PeerInfo::payloadDownSpeed() const {
     return m_nativeInfo.payload_down_speed;
 }
 
-qlonglong PeerInfo::totalUpload() const
-{
+qlonglong PeerInfo::totalUpload() const {
     return m_nativeInfo.total_upload;
 }
 
-qlonglong PeerInfo::totalDownload() const
-{
+qlonglong PeerInfo::totalDownload() const {
     return m_nativeInfo.total_download;
 }
 
-QBitArray PeerInfo::pieces() const
-{
+QBitArray PeerInfo::pieces() const {
     return LT::toQBitArray(m_nativeInfo.pieces);
 }
 
-QString PeerInfo::connectionType() const
-{
+QString PeerInfo::connectionType() const {
     if (m_nativeInfo.flags & lt::peer_info::utp_socket)
         return C_UTP;
 
     return (m_nativeInfo.connection_type == lt::peer_info::standard_bittorrent)
-        ? u"BT"_s
-        : u"Web"_s;
+           ? u"BT"_s
+           : u"Web"_s;
 }
 
-qreal PeerInfo::calcRelevance(const QBitArray &allPieces) const
-{
+qreal PeerInfo::calcRelevance(const QBitArray &allPieces) const {
     const int localMissing = allPieces.count(false);
     if (localMissing <= 0)
         return 0;
@@ -277,42 +237,31 @@ qreal PeerInfo::calcRelevance(const QBitArray &allPieces) const
     return static_cast<qreal>(remoteHaves) / localMissing;
 }
 
-qreal PeerInfo::relevance() const
-{
+qreal PeerInfo::relevance() const {
     return m_relevance;
 }
 
-void PeerInfo::determineFlags()
-{
-    const auto updateFlags = [this](const QChar specifier, const QString &explanation)
-    {
+void PeerInfo::determineFlags() {
+    const auto updateFlags = [this](const QChar specifier, const QString &explanation) {
         m_flags += (specifier + u' ');
         m_flagsDescription += u"%1 = %2\n"_s.arg(specifier, explanation);
     };
 
-    if (isInteresting())
-    {
-        if (isRemoteChocked())
-        {
+    if (isInteresting()) {
+        if (isRemoteChocked()) {
             // d = Your client wants to download, but peer doesn't want to send (interested and choked)
             updateFlags(u'd', tr("Interested (local) and choked (peer)"));
-        }
-        else
-        {
+        } else {
             // D = Currently downloading (interested and not choked)
             updateFlags(u'D', tr("Interested (local) and unchoked (peer)"));
         }
     }
 
-    if (isRemoteInterested())
-    {
-        if (isChocked())
-        {
+    if (isRemoteInterested()) {
+        if (isChocked()) {
             // u = Peer wants your client to upload, but your client doesn't want to (interested and choked)
             updateFlags(u'u', tr("Interested (peer) and choked (local)"));
-        }
-        else
-        {
+        } else {
             // U = Currently uploading (interested and not choked)
             updateFlags(u'U', tr("Interested (peer) and unchoked (local)"));
         }
@@ -366,17 +315,14 @@ void PeerInfo::determineFlags()
     m_flagsDescription.chop(1);
 }
 
-QString PeerInfo::flags() const
-{
+QString PeerInfo::flags() const {
     return m_flags;
 }
 
-QString PeerInfo::flagsDescription() const
-{
+QString PeerInfo::flagsDescription() const {
     return m_flagsDescription;
 }
 
-int PeerInfo::downloadingPieceIndex() const
-{
+int PeerInfo::downloadingPieceIndex() const {
     return static_cast<int>(m_nativeInfo.downloading_piece_index);
 }

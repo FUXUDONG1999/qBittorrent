@@ -34,24 +34,34 @@
 #include <QHostAddress>
 
 class QSslCertificate;
+
 class QSslKey;
+
 class QString;
 
-namespace Utils::Net
-{
+namespace Utils::Net {
     // alias for `QHostAddress::parseSubnet()` return type
     using Subnet = QPair<QHostAddress, int>;
 
     bool isValidIP(const QString &ip);
+
     std::optional<Subnet> parseSubnet(const QString &subnetStr);
+
     bool isLoopbackAddress(const QHostAddress &addr);
+
     bool isIPInSubnets(const QHostAddress &addr, const QVector<Subnet> &subnets);
+
     QString subnetToString(const Subnet &subnet);
+
     QHostAddress canonicalIPv6Addr(const QHostAddress &addr);
 
     inline const int MAX_SSL_FILE_SIZE = 1024 * 1024;
+
     QList<QSslCertificate> loadSSLCertificate(const QByteArray &data);
+
     bool isSSLCertificatesValid(const QByteArray &data);
+
     QSslKey loadSSLKey(const QByteArray &data);
+
     bool isSSLKeyValid(const QByteArray &data);
 }

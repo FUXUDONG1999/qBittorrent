@@ -32,7 +32,6 @@
 
 class QBitArray;
 
-namespace BitTorrent::LT
-{
+namespace BitTorrent::LT {
     QBitArray toQBitArray(const lt::bitfield &bits);
 }

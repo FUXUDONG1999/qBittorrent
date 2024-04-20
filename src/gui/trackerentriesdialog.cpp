@@ -40,10 +40,7 @@
 #define SETTINGS_KEY(name) u"TrackerEntriesDialog/" name
 
 TrackerEntriesDialog::TrackerEntriesDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::TrackerEntriesDialog)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
-{
+        : QDialog(parent), m_ui(new Ui::TrackerEntriesDialog), m_storeDialogSize(SETTINGS_KEY(u"Size"_s)) {
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -52,20 +49,17 @@ TrackerEntriesDialog::TrackerEntriesDialog(QWidget *parent)
     loadSettings();
 }
 
-TrackerEntriesDialog::~TrackerEntriesDialog()
-{
+TrackerEntriesDialog::~TrackerEntriesDialog() {
     saveSettings();
 
     delete m_ui;
 }
 
-void TrackerEntriesDialog::setTrackers(const QVector<BitTorrent::TrackerEntry> &trackers)
-{
+void TrackerEntriesDialog::setTrackers(const QVector<BitTorrent::TrackerEntry> &trackers) {
     int maxTier = -1;
     QHash<int, QString> tiers;  // <tier, tracker URLs>
 
-    for (const BitTorrent::TrackerEntry &entry : trackers)
-    {
+    for (const BitTorrent::TrackerEntry &entry: trackers) {
         tiers[entry.tier] += (entry.url + u'\n');
         maxTier = std::max(maxTier, entry.tier);
     }
@@ -78,18 +72,15 @@ void TrackerEntriesDialog::setTrackers(const QVector<BitTorrent::TrackerEntry> &
     m_ui->plainTextEdit->setPlainText(text);
 }
 
-QVector<BitTorrent::TrackerEntry> TrackerEntriesDialog::trackers() const
-{
+QVector<BitTorrent::TrackerEntry> TrackerEntriesDialog::trackers() const {
     return BitTorrent::parseTrackerEntries(m_ui->plainTextEdit->toPlainText());
 }
 
-void TrackerEntriesDialog::saveSettings()
-{
+void TrackerEntriesDialog::saveSettings() {
     m_storeDialogSize = size();
 }
 
-void TrackerEntriesDialog::loadSettings()
-{
+void TrackerEntriesDialog::loadSettings() {
     if (const QSize dialogSize = m_storeDialogSize; dialogSize.isValid())
         resize(dialogSize);
 }

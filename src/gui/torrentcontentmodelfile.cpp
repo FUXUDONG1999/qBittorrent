@@ -32,22 +32,18 @@
 
 TorrentContentModelFile::TorrentContentModelFile(const QString &fileName, qulonglong fileSize,
                                                  TorrentContentModelFolder *parent, int fileIndex)
-    : TorrentContentModelItem(parent)
-    , m_fileIndex(fileIndex)
-{
+        : TorrentContentModelItem(parent), m_fileIndex(fileIndex) {
     Q_ASSERT(parent);
 
     m_name = fileName;
     m_size = fileSize;
 }
 
-int TorrentContentModelFile::fileIndex() const
-{
+int TorrentContentModelFile::fileIndex() const {
     return m_fileIndex;
 }
 
-void TorrentContentModelFile::setPriority(BitTorrent::DownloadPriority newPriority, bool updateParent)
-{
+void TorrentContentModelFile::setPriority(BitTorrent::DownloadPriority newPriority, bool updateParent) {
     Q_ASSERT(newPriority != BitTorrent::DownloadPriority::Mixed);
 
     if (m_priority == newPriority)
@@ -60,20 +56,17 @@ void TorrentContentModelFile::setPriority(BitTorrent::DownloadPriority newPriori
         m_parentItem->updatePriority();
 }
 
-void TorrentContentModelFile::setProgress(qreal progress)
-{
+void TorrentContentModelFile::setProgress(qreal progress) {
     m_progress = progress;
     m_remaining = static_cast<qulonglong>(m_size * (1.0 - m_progress));
     Q_ASSERT(m_progress <= 1.);
 }
 
-void TorrentContentModelFile::setAvailability(const qreal availability)
-{
+void TorrentContentModelFile::setAvailability(const qreal availability) {
     m_availability = availability;
     Q_ASSERT(m_availability <= 1.);
 }
 
-TorrentContentModelItem::ItemType TorrentContentModelFile::itemType() const
-{
+TorrentContentModelItem::ItemType TorrentContentModelFile::itemType() const {
     return FileType;
 }

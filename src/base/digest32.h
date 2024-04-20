@@ -37,46 +37,42 @@
 #include <QSharedDataPointer>
 #include <QString>
 
-template <int N>
-class Digest32
-{
+template<int N>
+class Digest32 {
 public:
     using UnderlyingType = lt::digest32<N>;
 
     Digest32() = default;
+
     Digest32(const Digest32 &other) = default;
+
     Digest32(Digest32 &&other) noexcept = default;
 
     Digest32(const UnderlyingType &nativeDigest)
-        : m_dataPtr {new Data(nativeDigest)}
-    {
+            : m_dataPtr{new Data(nativeDigest)} {
     }
 
-    static constexpr int length()
-    {
+    static constexpr int length() {
         return UnderlyingType::size();
     }
 
-    bool isValid() const
-    {
+    bool isValid() const {
         return m_dataPtr->isValid();
     }
 
     Digest32 &operator=(const Digest32 &other) = default;
+
     Digest32 &operator=(Digest32 &&other) noexcept = default;
 
-    operator UnderlyingType() const
-    {
+    operator UnderlyingType() const {
         return m_dataPtr->nativeDigest();
     }
 
-    QString toString() const
-    {
+    QString toString() const {
         return m_dataPtr->hashString();
     }
 
-    static Digest32 fromString(const QString &digestString)
-    {
+    static Digest32 fromString(const QString &digestString) {
         return Digest32(QSharedDataPointer<Data>(new Data(digestString)));
     }
 
@@ -84,27 +80,22 @@ private:
     class Data;
 
     explicit Digest32(QSharedDataPointer<Data> dataPtr)
-        : m_dataPtr {std::move(dataPtr)}
-    {
+            : m_dataPtr{std::move(dataPtr)} {
     }
 
-    QSharedDataPointer<Data> m_dataPtr {new Data};
+    QSharedDataPointer<Data> m_dataPtr{new Data};
 };
 
-template <int N>
-class Digest32<N>::Data : public QSharedData
-{
+template<int N>
+class Digest32<N>::Data : public QSharedData {
 public:
     Data() = default;
 
     explicit Data(UnderlyingType nativeDigest)
-        : m_isValid {true}
-        , m_nativeDigest {nativeDigest}
-    {
+            : m_isValid{true}, m_nativeDigest{nativeDigest} {
     }
 
-    explicit Data(const QString &digestString)
-    {
+    explicit Data(const QString &digestString) {
         if (digestString.size() != (length() * 2))
             return;
 
@@ -118,12 +109,11 @@ public:
     }
 
     bool isValid() const { return m_isValid; }
+
     UnderlyingType nativeDigest() const { return m_nativeDigest; }
 
-    QString hashString() const
-    {
-        if (m_hashString.isEmpty() && isValid())
-        {
+    QString hashString() const {
+        if (m_hashString.isEmpty() && isValid()) {
             const QByteArray raw = QByteArray::fromRawData(m_nativeDigest.data(), length());
             m_hashString = QString::fromLatin1(raw.toHex());
         }
@@ -137,32 +127,30 @@ private:
     mutable QString m_hashString;
 };
 
-template <int N>
-bool operator==(const Digest32<N> &left, const Digest32<N> &right)
-{
+template<int N>
+bool operator==(const Digest32<N> &left, const Digest32<N> &right) {
     return (static_cast<typename Digest32<N>::UnderlyingType>(left)
             == static_cast<typename Digest32<N>::UnderlyingType>(right));
 }
 
-template <int N>
-bool operator!=(const Digest32<N> &left, const Digest32<N> &right)
-{
+template<int N>
+bool operator!=(const Digest32<N> &left, const Digest32<N> &right) {
     return !(left == right);
 }
 
-template <int N>
-bool operator<(const Digest32<N> &left, const Digest32<N> &right)
-{
+template<int N>
+bool operator<(const Digest32<N> &left, const Digest32<N> &right) {
     return static_cast<typename Digest32<N>::UnderlyingType>(left)
-            < static_cast<typename Digest32<N>::UnderlyingType>(right);
+           < static_cast<typename Digest32<N>::UnderlyingType>(right);
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-template <int N>
-std::size_t qHash(const Digest32<N> &key, const std::size_t seed = 0)
-{
+
+template<int N>
+std::size_t qHash(const Digest32<N> &key, const std::size_t seed = 0) {
     return ::qHash(static_cast<typename Digest32<N>::UnderlyingType>(key), seed);
 }
+
 #else
 template <int N>
 uint qHash(const Digest32<N> &key, const uint seed = 0)

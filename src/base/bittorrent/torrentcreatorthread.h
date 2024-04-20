@@ -33,19 +33,16 @@
 
 #include "base/path.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
 #ifdef QBT_USES_LIBTORRENT2
-    enum class TorrentFormat
-    {
+    enum class TorrentFormat {
         V1,
         V2,
         Hybrid
     };
 #endif
 
-    struct TorrentCreatorParams
-    {
+    struct TorrentCreatorParams {
         bool isPrivate = false;
 #ifdef QBT_USES_LIBTORRENT2
         TorrentFormat torrentFormat = TorrentFormat::Hybrid;
@@ -62,32 +59,40 @@ namespace BitTorrent
         QStringList urlSeeds;
     };
 
-    class TorrentCreatorThread final : public QThread
-    {
-        Q_OBJECT
+    class TorrentCreatorThread final : public QThread {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(TorrentCreatorThread)
 
     public:
         explicit TorrentCreatorThread(QObject *parent = nullptr);
+
         ~TorrentCreatorThread() override;
 
         void create(const TorrentCreatorParams &params);
 
 #ifdef QBT_USES_LIBTORRENT2
+
         static int calculateTotalPieces(const Path &inputPath, int pieceSize, TorrentFormat torrentFormat);
+
 #else
         static int calculateTotalPieces(const Path &inputPath
             , const int pieceSize, const bool isAlignmentOptimized, int paddedFileSizeLimit);
 #endif
 
     signals:
+
         void creationFailure(const QString &msg);
+
         void creationSuccess(const Path &path, const Path &branchPath);
+
         void updateProgress(int progress);
 
     private:
         void run() override;
+
         void sendProgressSignal(int currentPieceIdx, int totalPieces);
+
         void checkInterruptionRequested() const;
 
         TorrentCreatorParams m_params;

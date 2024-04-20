@@ -35,68 +35,94 @@
 #include "base/pathfwd.h"
 
 class QPushButton;
+
 class QTreeView;
 
 class DownloadedPiecesBar;
+
 class LineEdit;
+
 class PeerListWidget;
+
 class PieceAvailabilityBar;
+
 class PropTabBar;
+
 class TrackerListWidget;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
 }
 
-namespace Ui
-{
+namespace Ui {
     class PropertiesWidget;
 }
 
-class PropertiesWidget : public QWidget
-{
-    Q_OBJECT
+class PropertiesWidget : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PropertiesWidget)
 
 public:
-    enum SlideState
-    {
+    enum SlideState {
         REDUCED,
         VISIBLE
     };
 
     explicit PropertiesWidget(QWidget *parent);
+
     ~PropertiesWidget() override;
 
     BitTorrent::Torrent *getCurrentTorrent() const;
+
     TrackerListWidget *getTrackerList() const;
+
     PeerListWidget *getPeerList() const;
+
     QTreeView *getFilesList() const;
 
 public slots:
+
     void setVisibility(bool visible);
+
     void loadTorrentInfos(BitTorrent::Torrent *torrent);
+
     void loadDynamicData();
+
     void clear();
+
     void readSettings();
+
     void saveSettings();
+
     void reloadPreferences();
+
     void loadTrackers(BitTorrent::Torrent *torrent);
 
 protected slots:
+
     void updateTorrentInfos(BitTorrent::Torrent *torrent);
+
     void loadUrlSeeds();
+
     void askWebSeed();
+
     void deleteSelectedUrlSeeds();
+
     void copySelectedWebSeedsToClipboard() const;
+
     void editWebSeed();
+
     void displayWebSeedListMenu();
+
     void showPiecesDownloaded(bool show);
+
     void showPiecesAvailability(bool show);
 
 private slots:
+
     void configure();
+
     void updateSavePath(BitTorrent::Torrent *torrent);
 
 private:

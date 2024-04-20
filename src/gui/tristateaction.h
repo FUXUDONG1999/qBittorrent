@@ -31,6 +31,7 @@
 #include <QWidgetAction>
 
 class QString;
+
 class QWidget;
 
 class TriStateWidget;
@@ -38,8 +39,7 @@ class TriStateWidget;
 // TriStateWidget is responsible for checkbox state (tri-state) and paint events while
 // TriStateAction will keep in sync with it. This allows connecting with the usual
 // QAction::triggered or QAction::toggled slots.
-class TriStateAction : public QWidgetAction
-{
+class TriStateAction : public QWidgetAction {
 public:
     TriStateAction(const QString &text, QWidget *parent);
 

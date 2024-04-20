@@ -35,27 +35,30 @@
 #include <QSslKey>
 #include <QTcpServer>
 
-namespace Http
-{
+namespace Http {
     class IRequestHandler;
+
     class Connection;
 
-    class Server final : public QTcpServer
-    {
-        Q_OBJECT
+    class Server final : public QTcpServer {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Server)
 
     public:
         explicit Server(IRequestHandler *requestHandler, QObject *parent = nullptr);
 
         bool setupHttps(const QByteArray &certificates, const QByteArray &privateKey);
+
         void disableHttps();
 
     private slots:
+
         void dropTimedOutConnection();
 
     private:
         void incomingConnection(qintptr socketDescriptor) override;
+
         void removeConnection(Connection *connection);
 
         IRequestHandler *m_requestHandler = nullptr;

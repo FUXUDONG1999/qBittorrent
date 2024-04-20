@@ -48,34 +48,28 @@
 #include "downloadhandlerimpl.h"
 #include "proxyconfigurationmanager.h"
 
-namespace
-{
+namespace {
     // Disguise as Firefox to avoid web server banning
     const char DEFAULT_USER_AGENT[] = "Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0";
 }
 
-class Net::DownloadManager::NetworkCookieJar final : public QNetworkCookieJar
-{
+class Net::DownloadManager::NetworkCookieJar final : public QNetworkCookieJar {
 public:
     explicit NetworkCookieJar(QObject *parent = nullptr)
-        : QNetworkCookieJar(parent)
-    {
+            : QNetworkCookieJar(parent) {
         const QDateTime now = QDateTime::currentDateTime();
         QList<QNetworkCookie> cookies = Preferences::instance()->getNetworkCookies();
-        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie)
-        {
+        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie) {
             return cookie.isSessionCookie() || (cookie.expirationDate() <= now);
         }), cookies.end());
 
         setAllCookies(cookies);
     }
 
-    ~NetworkCookieJar() override
-    {
+    ~NetworkCookieJar() override {
         const QDateTime now = QDateTime::currentDateTime();
         QList<QNetworkCookie> cookies = allCookies();
-        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie)
-        {
+        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie) {
             return cookie.isSessionCookie() || (cookie.expirationDate() <= now);
         }), cookies.end());
 
@@ -85,24 +79,20 @@ public:
     using QNetworkCookieJar::allCookies;
     using QNetworkCookieJar::setAllCookies;
 
-    QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const override
-    {
+    QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const override {
         const QDateTime now = QDateTime::currentDateTime();
         QList<QNetworkCookie> cookies = QNetworkCookieJar::cookiesForUrl(url);
-        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie)
-        {
+        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie) {
             return !cookie.isSessionCookie() && (cookie.expirationDate() <= now);
         }), cookies.end());
 
         return cookies;
     }
 
-    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) override
-    {
+    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) override {
         const QDateTime now = QDateTime::currentDateTime();
         QList<QNetworkCookie> cookies = cookieList;
-        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie)
-        {
+        cookies.erase(std::remove_if(cookies.begin(), cookies.end(), [&now](const QNetworkCookie &cookie) {
             return !cookie.isSessionCookie() && (cookie.expirationDate() <= now);
         }), cookies.end());
 
@@ -113,16 +103,11 @@ public:
 Net::DownloadManager *Net::DownloadManager::m_instance = nullptr;
 
 Net::DownloadManager::DownloadManager(QObject *parent)
-    : QObject(parent)
-    , m_networkCookieJar {new NetworkCookieJar(this)}
-    , m_networkManager {new QNetworkAccessManager(this)}
-{
+        : QObject(parent), m_networkCookieJar{new NetworkCookieJar(this)}, m_networkManager{new QNetworkAccessManager(this)} {
     m_networkManager->setCookieJar(m_networkCookieJar);
-    connect(m_networkManager, &QNetworkAccessManager::sslErrors, this
-            , [](QNetworkReply *reply, const QList<QSslError> &errors)
-    {
+    connect(m_networkManager, &QNetworkAccessManager::sslErrors, this, [](QNetworkReply *reply, const QList<QSslError> &errors) {
         QStringList errorList;
-        for (const QSslError &error : errors)
+        for (const QSslError &error: errors)
             errorList += error.errorString();
         LogMsg(tr("Ignoring SSL error, URL: \"%1\", errors: \"%2\"").arg(reply->url().toString(), errorList.join(u". ")), Log::WARNING);
 
@@ -130,48 +115,39 @@ Net::DownloadManager::DownloadManager(QObject *parent)
         reply->ignoreSslErrors();
     });
 
-    connect(ProxyConfigurationManager::instance(), &ProxyConfigurationManager::proxyConfigurationChanged
-            , this, &DownloadManager::applyProxySettings);
+    connect(ProxyConfigurationManager::instance(), &ProxyConfigurationManager::proxyConfigurationChanged, this, &DownloadManager::applyProxySettings);
     connect(Preferences::instance(), &Preferences::changed, this, &DownloadManager::applyProxySettings);
     applyProxySettings();
 }
 
-void Net::DownloadManager::initInstance()
-{
+void Net::DownloadManager::initInstance() {
     if (!m_instance)
         m_instance = new DownloadManager;
 }
 
-void Net::DownloadManager::freeInstance()
-{
+void Net::DownloadManager::freeInstance() {
     delete m_instance;
     m_instance = nullptr;
 }
 
-Net::DownloadManager *Net::DownloadManager::instance()
-{
+Net::DownloadManager *Net::DownloadManager::instance() {
     return m_instance;
 }
 
-Net::DownloadHandler *Net::DownloadManager::download(const DownloadRequest &downloadRequest, const bool useProxy)
-{
+Net::DownloadHandler *Net::DownloadManager::download(const DownloadRequest &downloadRequest, const bool useProxy) {
     // Process download request
     const ServiceID id = ServiceID::fromURL(downloadRequest.url());
     const bool isSequentialService = m_sequentialServices.contains(id);
 
     auto *downloadHandler = new DownloadHandlerImpl(this, downloadRequest, useProxy);
     connect(downloadHandler, &DownloadHandler::finished, downloadHandler, &QObject::deleteLater);
-    connect(downloadHandler, &QObject::destroyed, this, [this, id, downloadHandler]()
-    {
+    connect(downloadHandler, &QObject::destroyed, this, [this, id, downloadHandler]() {
         m_waitingJobs[id].removeOne(downloadHandler);
     });
 
-    if (isSequentialService && m_busyServices.contains(id))
-    {
+    if (isSequentialService && m_busyServices.contains(id)) {
         m_waitingJobs[id].enqueue(downloadHandler);
-    }
-    else
-    {
+    } else {
         qDebug("Downloading %s...", qUtf8Printable(downloadRequest.url()));
         if (isSequentialService)
             m_busyServices.insert(id);
@@ -181,47 +157,38 @@ Net::DownloadHandler *Net::DownloadManager::download(const DownloadRequest &down
     return downloadHandler;
 }
 
-void Net::DownloadManager::registerSequentialService(const Net::ServiceID &serviceID)
-{
+void Net::DownloadManager::registerSequentialService(const Net::ServiceID &serviceID) {
     m_sequentialServices.insert(serviceID);
 }
 
-QList<QNetworkCookie> Net::DownloadManager::cookiesForUrl(const QUrl &url) const
-{
+QList<QNetworkCookie> Net::DownloadManager::cookiesForUrl(const QUrl &url) const {
     return m_networkCookieJar->cookiesForUrl(url);
 }
 
-bool Net::DownloadManager::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url)
-{
+bool Net::DownloadManager::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) {
     return m_networkCookieJar->setCookiesFromUrl(cookieList, url);
 }
 
-QList<QNetworkCookie> Net::DownloadManager::allCookies() const
-{
+QList<QNetworkCookie> Net::DownloadManager::allCookies() const {
     return m_networkCookieJar->allCookies();
 }
 
-void Net::DownloadManager::setAllCookies(const QList<QNetworkCookie> &cookieList)
-{
+void Net::DownloadManager::setAllCookies(const QList<QNetworkCookie> &cookieList) {
     m_networkCookieJar->setAllCookies(cookieList);
 }
 
-bool Net::DownloadManager::deleteCookie(const QNetworkCookie &cookie)
-{
+bool Net::DownloadManager::deleteCookie(const QNetworkCookie &cookie) {
     return m_networkCookieJar->deleteCookie(cookie);
 }
 
-bool Net::DownloadManager::hasSupportedScheme(const QString &url)
-{
+bool Net::DownloadManager::hasSupportedScheme(const QString &url) {
     const QStringList schemes = QNetworkAccessManager().supportedSchemes();
-    return std::any_of(schemes.cbegin(), schemes.cend(), [&url](const QString &scheme)
-    {
+    return std::any_of(schemes.cbegin(), schemes.cend(), [&url](const QString &scheme) {
         return url.startsWith((scheme + u':'), Qt::CaseInsensitive);
     });
 }
 
-void Net::DownloadManager::applyProxySettings()
-{
+void Net::DownloadManager::applyProxySettings() {
     const auto *proxyManager = ProxyConfigurationManager::instance();
     const ProxyConfiguration proxyConfig = proxyManager->proxyConfiguration();
 
@@ -231,13 +198,10 @@ void Net::DownloadManager::applyProxySettings()
         return;
 
     // Proxy enabled
-    if (proxyConfig.type == ProxyType::SOCKS5)
-    {
+    if (proxyConfig.type == ProxyType::SOCKS5) {
         qDebug() << Q_FUNC_INFO << "using SOCKS proxy";
         m_proxy.setType(QNetworkProxy::Socks5Proxy);
-    }
-    else
-    {
+    } else {
         qDebug() << Q_FUNC_INFO << "using HTTP proxy";
         m_proxy.setType(QNetworkProxy::HttpProxy);
     }
@@ -246,8 +210,7 @@ void Net::DownloadManager::applyProxySettings()
     m_proxy.setPort(proxyConfig.port);
 
     // Authentication?
-    if (proxyConfig.authEnabled)
-    {
+    if (proxyConfig.authEnabled) {
         qDebug("Proxy requires authentication, authenticating...");
         m_proxy.setUser(proxyConfig.username);
         m_proxy.setPassword(proxyConfig.password);
@@ -259,12 +222,10 @@ void Net::DownloadManager::applyProxySettings()
         m_proxy.setCapabilities(m_proxy.capabilities() & ~QNetworkProxy::HostNameLookupCapability);
 }
 
-void Net::DownloadManager::handleDownloadFinished(DownloadHandlerImpl *finishedHandler)
-{
+void Net::DownloadManager::handleDownloadFinished(DownloadHandlerImpl *finishedHandler) {
     const ServiceID id = ServiceID::fromURL(finishedHandler->url());
     const auto waitingJobsIter = m_waitingJobs.find(id);
-    if ((waitingJobsIter == m_waitingJobs.end()) || waitingJobsIter.value().isEmpty())
-    {
+    if ((waitingJobsIter == m_waitingJobs.end()) || waitingJobsIter.value().isEmpty()) {
         // No more waiting jobs for given ServiceID
         m_busyServices.remove(id);
         return;
@@ -276,12 +237,11 @@ void Net::DownloadManager::handleDownloadFinished(DownloadHandlerImpl *finishedH
     handler->disconnect(this);
 }
 
-void Net::DownloadManager::processRequest(DownloadHandlerImpl *downloadHandler)
-{
+void Net::DownloadManager::processRequest(DownloadHandlerImpl *downloadHandler) {
     m_networkManager->setProxy((downloadHandler->useProxy() == true) ? m_proxy : QNetworkProxy(QNetworkProxy::NoProxy));
 
     const DownloadRequest downloadRequest = downloadHandler->downloadRequest();
-    QNetworkRequest request {downloadRequest.url()};
+    QNetworkRequest request{downloadRequest.url()};
 
     if (downloadRequest.userAgent().isEmpty())
         request.setRawHeader("User-Agent", DEFAULT_USER_AGENT);
@@ -300,83 +260,71 @@ void Net::DownloadManager::processRequest(DownloadHandlerImpl *downloadHandler)
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
 
     QNetworkReply *reply = m_networkManager->get(request);
-    connect(reply, &QNetworkReply::finished, this, [this, downloadHandler]
-    {
+    connect(reply, &QNetworkReply::finished, this, [this, downloadHandler] {
         handleDownloadFinished(downloadHandler);
     });
     downloadHandler->assignNetworkReply(reply);
 }
 
 Net::DownloadRequest::DownloadRequest(const QString &url)
-    : m_url {url}
-{
+        : m_url{url} {
 }
 
-QString Net::DownloadRequest::url() const
-{
+QString Net::DownloadRequest::url() const {
     return m_url;
 }
 
-Net::DownloadRequest &Net::DownloadRequest::url(const QString &value)
-{
+Net::DownloadRequest &Net::DownloadRequest::url(const QString &value) {
     m_url = value;
     return *this;
 }
 
-QString Net::DownloadRequest::userAgent() const
-{
+QString Net::DownloadRequest::userAgent() const {
     return m_userAgent;
 }
 
-Net::DownloadRequest &Net::DownloadRequest::userAgent(const QString &value)
-{
+Net::DownloadRequest &Net::DownloadRequest::userAgent(const QString &value) {
     m_userAgent = value;
     return *this;
 }
 
-qint64 Net::DownloadRequest::limit() const
-{
+qint64 Net::DownloadRequest::limit() const {
     return m_limit;
 }
 
-Net::DownloadRequest &Net::DownloadRequest::limit(const qint64 value)
-{
+Net::DownloadRequest &Net::DownloadRequest::limit(const qint64 value) {
     m_limit = value;
     return *this;
 }
 
-bool Net::DownloadRequest::saveToFile() const
-{
+bool Net::DownloadRequest::saveToFile() const {
     return m_saveToFile;
 }
 
-Net::DownloadRequest &Net::DownloadRequest::saveToFile(const bool value)
-{
+Net::DownloadRequest &Net::DownloadRequest::saveToFile(const bool value) {
     m_saveToFile = value;
     return *this;
 }
 
-Path Net::DownloadRequest::destFileName() const
-{
+Path Net::DownloadRequest::destFileName() const {
     return m_destFileName;
 }
 
-Net::DownloadRequest &Net::DownloadRequest::destFileName(const Path &value)
-{
+Net::DownloadRequest &Net::DownloadRequest::destFileName(const Path &value) {
     m_destFileName = value;
     return *this;
 }
 
-Net::ServiceID Net::ServiceID::fromURL(const QUrl &url)
-{
+Net::ServiceID Net::ServiceID::fromURL(const QUrl &url) {
     return {url.host(), url.port(80)};
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-std::size_t Net::qHash(const ServiceID &serviceID, const std::size_t seed)
-{
+
+std::size_t Net::qHash(const ServiceID &serviceID, const std::size_t seed) {
     return qHashMulti(seed, serviceID.hostName, serviceID.port);
 }
+
 #else
 uint Net::qHash(const ServiceID &serviceID, const uint seed)
 {
@@ -384,7 +332,6 @@ uint Net::qHash(const ServiceID &serviceID, const uint seed)
 }
 #endif
 
-bool Net::operator==(const ServiceID &lhs, const ServiceID &rhs)
-{
+bool Net::operator==(const ServiceID &lhs, const ServiceID &rhs) {
     return ((lhs.hostName == rhs.hostName) && (lhs.port == rhs.port));
 }

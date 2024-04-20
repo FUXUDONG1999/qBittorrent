@@ -30,8 +30,7 @@
 
 #include <QThread>
 
-void Utils::Thread::GracefulDeleter::operator()(QThread *thread) const
-{
+void Utils::Thread::GracefulDeleter::operator()(QThread *thread) const {
     thread->quit();
     thread->wait();
     delete thread;

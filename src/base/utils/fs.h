@@ -40,32 +40,48 @@
 
 class QDateTime;
 
-namespace Utils::Fs
-{
+namespace Utils::Fs {
     qint64 computePathSize(const Path &path);
+
     qint64 freeDiskSpaceOnPath(const Path &path);
 
     bool isRegularFile(const Path &path);
+
     bool isDir(const Path &path);
+
     bool isReadable(const Path &path);
+
     bool isWritable(const Path &path);
+
     bool isNetworkFileSystem(const Path &path);
+
     QDateTime lastModified(const Path &path);
+
     bool sameFiles(const Path &path1, const Path &path2);
 
     QString toValidFileName(const QString &name, const QString &pad = u" "_s);
+
     Path toValidPath(const QString &name, const QString &pad = u" "_s);
+
     Path toCanonicalPath(const Path &path);
 
     bool copyFile(const Path &from, const Path &to);
+
     bool renameFile(const Path &from, const Path &to);
+
     bool removeFile(const Path &path);
+
     bool mkdir(const Path &dirPath);
+
     bool mkpath(const Path &dirPath);
+
     bool rmdir(const Path &dirPath);
+
     void removeDirRecursively(const Path &path);
+
     bool smartRemoveEmptyFolderTree(const Path &path);
 
     Path homePath();
+
     Path tempPath();
 }

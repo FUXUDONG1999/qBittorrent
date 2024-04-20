@@ -37,18 +37,21 @@
 #include "infohash.h"
 #include "trackerentry.h"
 
-namespace BitTorrent
-{
-    class MagnetUri
-    {
+namespace BitTorrent {
+    class MagnetUri {
     public:
         explicit MagnetUri(const QString &source = {});
 
         bool isValid() const;
+
         InfoHash infoHash() const;
+
         QString name() const;
+
         QVector<TrackerEntry> trackers() const;
+
         QVector<QUrl> urlSeeds() const;
+
         QString url() const;
 
         lt::add_torrent_params addTorrentParams() const;

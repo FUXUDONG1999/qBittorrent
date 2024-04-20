@@ -32,10 +32,8 @@
 
 class QThread;
 
-namespace Utils::Thread
-{
-    struct GracefulDeleter
-    {
+namespace Utils::Thread {
+    struct GracefulDeleter {
         void operator()(QThread *thread) const;
     };
 

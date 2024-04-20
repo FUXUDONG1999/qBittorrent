@@ -41,13 +41,10 @@
 #include "speedplotview.h"
 
 ComboBoxMenuButton::ComboBoxMenuButton(QWidget *parent, QMenu *menu)
-    : QComboBox(parent)
-    , m_menu(menu)
-{
+        : QComboBox(parent), m_menu(menu) {
 }
 
-void ComboBoxMenuButton::showPopup()
-{
+void ComboBoxMenuButton::showPopup() {
     const QPoint p = mapToGlobal(QPoint(0, height()));
     m_menu->popup(p);
 
@@ -55,8 +52,7 @@ void ComboBoxMenuButton::showPopup()
 }
 
 SpeedWidget::SpeedWidget(PropertiesWidget *parent)
-    : QWidget(parent)
-{
+        : QWidget(parent) {
     m_layout = new QVBoxLayout(this);
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->setSpacing(3);
@@ -75,8 +71,7 @@ SpeedWidget::SpeedWidget(PropertiesWidget *parent)
     m_periodCombobox->addItem(tr("12 Hours"));
     m_periodCombobox->addItem(tr("24 Hours"));
 
-    connect(m_periodCombobox, qOverload<int>(&QComboBox::currentIndexChanged)
-        , this, &SpeedWidget::onPeriodChange);
+    connect(m_periodCombobox, qOverload<int>(&QComboBox::currentIndexChanged), this, &SpeedWidget::onPeriodChange);
 
     m_graphsMenu = new QMenu(this);
     m_graphsMenu->addAction(tr("Total Upload"));
@@ -92,8 +87,7 @@ SpeedWidget::SpeedWidget(PropertiesWidget *parent)
 
     m_graphsMenuActions = m_graphsMenu->actions();
 
-    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id)
-    {
+    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id) {
         QAction *action = m_graphsMenuActions.at(id);
         action->setCheckable(true);
         action->setChecked(true);
@@ -119,15 +113,13 @@ SpeedWidget::SpeedWidget(PropertiesWidget *parent)
     m_plot->show();
 }
 
-SpeedWidget::~SpeedWidget()
-{
+SpeedWidget::~SpeedWidget() {
     qDebug("SpeedWidget::~SpeedWidget() ENTER");
     saveSettings();
     qDebug("SpeedWidget::~SpeedWidget() EXIT");
 }
 
-void SpeedWidget::update()
-{
+void SpeedWidget::update() {
     const BitTorrent::SessionStatus &btStatus = BitTorrent::Session::instance()->status();
 
     SpeedPlotView::SampleData sampleData;
@@ -145,27 +137,23 @@ void SpeedWidget::update()
     m_plot->pushPoint(sampleData);
 }
 
-void SpeedWidget::onPeriodChange(int period)
-{
+void SpeedWidget::onPeriodChange(int period) {
     m_plot->setPeriod(static_cast<SpeedPlotView::TimePeriod>(period));
 }
 
-void SpeedWidget::onGraphChange(int id)
-{
+void SpeedWidget::onGraphChange(int id) {
     QAction *action = m_graphsMenuActions.at(id);
     m_plot->setGraphEnable(static_cast<SpeedPlotView::GraphID>(id), action->isChecked());
 }
 
-void SpeedWidget::loadSettings()
-{
+void SpeedWidget::loadSettings() {
     Preferences *preferences = Preferences::instance();
 
     int periodIndex = preferences->getSpeedWidgetPeriod();
     m_periodCombobox->setCurrentIndex(periodIndex);
     onPeriodChange(static_cast<SpeedPlotView::TimePeriod>(periodIndex));
 
-    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id)
-    {
+    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id) {
         QAction *action = m_graphsMenuActions.at(id);
         bool enable = preferences->getSpeedWidgetGraphEnable(id);
 
@@ -174,14 +162,12 @@ void SpeedWidget::loadSettings()
     }
 }
 
-void SpeedWidget::saveSettings() const
-{
+void SpeedWidget::saveSettings() const {
     Preferences *preferences = Preferences::instance();
 
     preferences->setSpeedWidgetPeriod(m_periodCombobox->currentIndex());
 
-    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id)
-    {
+    for (int id = SpeedPlotView::UP; id < SpeedPlotView::NB_GRAPHS; ++id) {
         QAction *action = m_graphsMenuActions.at(id);
         preferences->setSpeedWidgetGraphEnable(id, action->isChecked());
     }

@@ -37,13 +37,11 @@ class QVariant;
 
 class TorrentContentModelFolder;
 
-class TorrentContentModelItem
-{
-    Q_DECLARE_TR_FUNCTIONS(TorrentContentModelItem)
+class TorrentContentModelItem {
+Q_DECLARE_TR_FUNCTIONS(TorrentContentModelItem)
 
 public:
-    enum TreeItemColumns
-    {
+    enum TreeItemColumns {
         COL_NAME,
         COL_SIZE,
         COL_PROGRESS,
@@ -53,34 +51,43 @@ public:
         NB_COL
     };
 
-    enum ItemType
-    {
+    enum ItemType {
         FileType,
         FolderType
     };
 
     explicit TorrentContentModelItem(TorrentContentModelFolder *parent);
+
     virtual ~TorrentContentModelItem();
 
     bool isRootItem() const;
+
     TorrentContentModelFolder *parent() const;
+
     virtual ItemType itemType() const = 0;
 
     QString name() const;
+
     void setName(const QString &name);
 
     qulonglong size() const;
+
     qreal progress() const;
+
     qulonglong remaining() const;
 
     qreal availability() const;
 
     BitTorrent::DownloadPriority priority() const;
+
     virtual void setPriority(BitTorrent::DownloadPriority newPriority, bool updateParent = true) = 0;
 
     int columnCount() const;
+
     QString displayData(int column) const;
+
     QVariant underlyingData(int column) const;
+
     int row() const;
 
 protected:

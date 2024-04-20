@@ -38,13 +38,11 @@
 
 #include "base/interfaces/istringable.h"
 
-namespace Utils
-{
+namespace Utils {
     // This class provides a default implementation of `isValid()` that should work for most cases
     // It is ultimately up to the user to decide whether the version numbers are useful/meaningful
-    template <int N, int Mandatory = N>
-    class Version final : public IStringable
-    {
+    template<int N, int Mandatory = N>
+    class Version final : public IStringable {
         static_assert((N > 0), "The number of version components may not be smaller than 1");
         static_assert((Mandatory > 0), "The number of mandatory components may not be smaller than 1");
         static_assert((N >= Mandatory),
@@ -55,20 +53,16 @@ namespace Utils
 
         constexpr Version() = default;
 
-        template <typename ... Ts
-                , typename std::enable_if_t<std::conjunction_v<std::is_convertible<Ts, int>...>, int> = 0>
+        template<typename ... Ts, typename std::enable_if_t<std::conjunction_v<std::is_convertible<Ts, int>...>, int> = 0>
         constexpr Version(Ts ... params)
-            : m_components {{params ...}}
-        {
+                : m_components{{params ...}} {
             static_assert((sizeof...(Ts) <= N), "Too many parameters provided");
             static_assert((sizeof...(Ts) >= Mandatory), "Not enough parameters provided");
         }
 
-        constexpr bool isValid() const
-        {
+        constexpr bool isValid() const {
             bool hasValid = false;
-            for (const int i : m_components)
-            {
+            for (const int i: m_components) {
                 if (i < 0)
                     return false;
                 if (i > 0)
@@ -77,39 +71,33 @@ namespace Utils
             return hasValid;
         }
 
-        constexpr int majorNumber() const
-        {
+        constexpr int majorNumber() const {
             return m_components[0];
         }
 
-        constexpr int minorNumber() const
-        {
+        constexpr int minorNumber() const {
             static_assert((N >= 2), "The number of version components is too small");
 
             return m_components[1];
         }
 
-        constexpr int revisionNumber() const
-        {
+        constexpr int revisionNumber() const {
             static_assert((N >= 3), "The number of version components is too small");
 
             return m_components[2];
         }
 
-        constexpr int patchNumber() const
-        {
+        constexpr int patchNumber() const {
             static_assert((N >= 4), "The number of version components is too small");
 
             return m_components[3];
         }
 
-        constexpr int operator[](const int i) const
-        {
+        constexpr int operator[](const int i) const {
             return m_components.at(i);
         }
 
-        QString toString() const override
-        {
+        QString toString() const override {
             // find the last one non-zero component
             int lastSignificantIndex = N - 1;
             while ((lastSignificantIndex > 0) && (m_components[lastSignificantIndex] == 0))
@@ -125,18 +113,15 @@ namespace Utils
         }
 
         // TODO: remove manually defined operators and use compiler generated `operator<=>()` in C++20
-        friend bool operator==(const ThisType &left, const ThisType &right)
-        {
+        friend bool operator==(const ThisType &left, const ThisType &right) {
             return (left.m_components == right.m_components);
         }
 
-        friend bool operator<(const ThisType &left, const ThisType &right)
-        {
+        friend bool operator<(const ThisType &left, const ThisType &right) {
             return (left.m_components < right.m_components);
         }
 
-        static Version fromString(const QStringView string, const Version &defaultVersion = {})
-        {
+        static Version fromString(const QStringView string, const Version &defaultVersion = {}) {
             const QList<QStringView> stringParts = string.split(u'.');
             const int count = stringParts.size();
 
@@ -144,8 +129,7 @@ namespace Utils
                 return defaultVersion;
 
             Version version;
-            for (int i = 0; i < count; ++i)
-            {
+            for (int i = 0; i < count; ++i) {
                 bool ok = false;
                 version.m_components[i] = stringParts[i].toInt(&ok);
                 if (!ok)
@@ -156,30 +140,26 @@ namespace Utils
         }
 
     private:
-        std::array<int, N> m_components {{}};
+        std::array<int, N> m_components{{}};
     };
 
-    template <int N, int Mandatory>
-    constexpr bool operator!=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right)
-    {
+    template<int N, int Mandatory>
+    constexpr bool operator!=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right) {
         return !(left == right);
     }
 
-    template <int N, int Mandatory>
-    constexpr bool operator>(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right)
-    {
+    template<int N, int Mandatory>
+    constexpr bool operator>(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right) {
         return (right < left);
     }
 
-    template <int N, int Mandatory>
-    constexpr bool operator<=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right)
-    {
+    template<int N, int Mandatory>
+    constexpr bool operator<=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right) {
         return !(left > right);
     }
 
-    template <int N, int Mandatory>
-    constexpr bool operator>=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right)
-    {
+    template<int N, int Mandatory>
+    constexpr bool operator>=(const Version<N, Mandatory> &left, const Version<N, Mandatory> &right) {
         return !(left < right);
     }
 }

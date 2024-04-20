@@ -39,32 +39,36 @@
 #include <QString>
 
 #ifndef QT_NO_OPENSSL
+
 class QSslSocket;
+
 #else
 class QTcpSocket;
 #endif
+
 class QTextCodec;
 
-namespace Net
-{
-    class Smtp : public QObject
-    {
-        Q_OBJECT
+namespace Net {
+    class Smtp : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Smtp)
 
     public:
         Smtp(QObject *parent = nullptr);
+
         ~Smtp();
 
         void sendMail(const QString &from, const QString &to, const QString &subject, const QString &body);
 
     private slots:
+
         void readyRead();
+
         void error(QAbstractSocket::SocketError socketError);
 
     private:
-        enum States
-        {
+        enum States {
             Rcpt,
             EhloSent,
             HeloSent,
@@ -82,23 +86,32 @@ namespace Net
             Close
         };
 
-        enum AuthType
-        {
+        enum AuthType {
             AuthPlain,
             AuthLogin,
             AuthCramMD5
         };
 
         QByteArray encodeMimeHeader(const QString &key, const QString &value, const QByteArray &prefix = {});
+
         void ehlo();
+
         void helo();
+
         void parseEhloResponse(const QByteArray &code, bool continued, const QString &line);
+
         void authenticate();
+
         void startTLS();
+
         void authCramMD5(const QByteArray &challenge = {});
+
         void authPlain();
+
         void authLogin();
+
         void logError(const QString &msg);
+
         QString getCurrentDateTime() const;
 
         QByteArray m_message;

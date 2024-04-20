@@ -44,10 +44,8 @@
 
 using namespace std::chrono_literals;
 
-namespace
-{
-    enum SearchResultColumn
-    {
+namespace {
+    enum SearchResultColumn {
         PL_DL_LINK,
         PL_NAME,
         PL_SIZE,
@@ -60,24 +58,18 @@ namespace
 }
 
 SearchHandler::SearchHandler(const QString &pattern, const QString &category, const QStringList &usedPlugins, SearchPluginManager *manager)
-    : QObject {manager}
-    , m_pattern {pattern}
-    , m_category {category}
-    , m_usedPlugins {usedPlugins}
-    , m_manager {manager}
-    , m_searchProcess {new QProcess {this}}
-    , m_searchTimeout {new QTimer {this}}
-{
+        : QObject{manager}, m_pattern{pattern}, m_category{category}, m_usedPlugins{usedPlugins}, m_manager{manager}, m_searchProcess{new QProcess{this}},
+          m_searchTimeout{new QTimer{this}} {
     // Load environment variables (proxy)
     m_searchProcess->setEnvironment(QProcess::systemEnvironment());
 
     const QStringList params
-    {
-        Utils::ForeignApps::PYTHON_ISOLATE_MODE_FLAG,
-        (SearchPluginManager::engineLocation() / Path(u"nova2.py"_s)).toString(),
-        m_usedPlugins.join(u','),
-        m_category
-    };
+            {
+                    Utils::ForeignApps::PYTHON_ISOLATE_MODE_FLAG,
+                    (SearchPluginManager::engineLocation() / Path(u"nova2.py"_s)).toString(),
+                    m_usedPlugins.join(u','),
+                    m_category
+            };
 
     // Launch search
     m_searchProcess->setProgram(Utils::ForeignApps::pythonInfo().executableName);
@@ -85,25 +77,21 @@ SearchHandler::SearchHandler(const QString &pattern, const QString &category, co
 
     connect(m_searchProcess, &QProcess::errorOccurred, this, &SearchHandler::processFailed);
     connect(m_searchProcess, &QProcess::readyReadStandardOutput, this, &SearchHandler::readSearchOutput);
-    connect(m_searchProcess, qOverload<int, QProcess::ExitStatus>(&QProcess::finished)
-            , this, &SearchHandler::processFinished);
+    connect(m_searchProcess, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &SearchHandler::processFinished);
 
     m_searchTimeout->setSingleShot(true);
     connect(m_searchTimeout, &QTimer::timeout, this, &SearchHandler::cancelSearch);
     m_searchTimeout->start(3min);
 
     // deferred start allows clients to handle starting-related signals
-    QMetaObject::invokeMethod(this, [this]() { m_searchProcess->start(QIODevice::ReadOnly); }
-        , Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, [this]() { m_searchProcess->start(QIODevice::ReadOnly); }, Qt::QueuedConnection);
 }
 
-bool SearchHandler::isActive() const
-{
+bool SearchHandler::isActive() const {
     return (m_searchProcess->state() != QProcess::NotRunning);
 }
 
-void SearchHandler::cancelSearch()
-{
+void SearchHandler::cancelSearch() {
     if ((m_searchProcess->state() == QProcess::NotRunning) || m_searchCancelled)
         return;
 
@@ -119,23 +107,21 @@ void SearchHandler::cancelSearch()
 // Slot called when QProcess is Finished
 // QProcess can be finished for 3 reasons:
 // Error | Stopped by user | Finished normally
-void SearchHandler::processFinished(const int exitcode)
-{
+void SearchHandler::processFinished(const int exitcode) {
     m_searchTimeout->stop();
 
     if (m_searchCancelled)
-        emit searchFinished(true);
+            emit searchFinished(true);
     else if ((m_searchProcess->exitStatus() == QProcess::NormalExit) && (exitcode == 0))
-        emit searchFinished(false);
+            emit searchFinished(false);
     else
-        emit searchFailed();
+            emit searchFailed();
 }
 
 // search QProcess return output as soon as it gets new
 // stuff to read. We split it into lines and parse each
 // line to SearchResult calling parseSearchResult().
-void SearchHandler::readSearchOutput()
-{
+void SearchHandler::readSearchOutput() {
     QByteArray output = m_searchProcess->readAllStandardOutput();
     output.replace('\r', "");
 
@@ -147,32 +133,28 @@ void SearchHandler::readSearchOutput()
     QVector<SearchResult> searchResultList;
     searchResultList.reserve(lines.size());
 
-    for (const QByteArray &line : asConst(lines))
-    {
+    for (const QByteArray &line: asConst(lines)) {
         SearchResult searchResult;
         if (parseSearchResult(QString::fromUtf8(line), searchResult))
             searchResultList << searchResult;
     }
 
-    if (!searchResultList.isEmpty())
-    {
-        for (const SearchResult &result : searchResultList)
+    if (!searchResultList.isEmpty()) {
+        for (const SearchResult &result: searchResultList)
             m_results.append(result);
         emit newSearchResults(searchResultList);
     }
 }
 
-void SearchHandler::processFailed()
-{
+void SearchHandler::processFailed() {
     if (!m_searchCancelled)
-        emit searchFailed();
+            emit searchFailed();
 }
 
 // Parse one line of search results list
 // Line is in the following form:
 // file url | file name | file size | nb seeds | nb leechers | Search engine url
-bool SearchHandler::parseSearchResult(const QStringView line, SearchResult &searchResult)
-{
+bool SearchHandler::parseSearchResult(const QStringView line, SearchResult &searchResult) {
     const QList<QStringView> parts = line.split(u'|');
     const int nbFields = parts.size();
 
@@ -200,17 +182,14 @@ bool SearchHandler::parseSearchResult(const QStringView line, SearchResult &sear
     return true;
 }
 
-SearchPluginManager *SearchHandler::manager() const
-{
+SearchPluginManager *SearchHandler::manager() const {
     return m_manager;
 }
 
-QList<SearchResult> SearchHandler::results() const
-{
+QList<SearchResult> SearchHandler::results() const {
     return m_results;
 }
 
-QString SearchHandler::pattern() const
-{
+QString SearchHandler::pattern() const {
     return m_pattern;
 }

@@ -40,26 +40,24 @@
 #include "base/settingvalue.h"
 
 class LineEdit;
+
 class TorrentFileGuard;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class InfoHash;
 }
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-namespace Ui
-{
+namespace Ui {
     class AddNewTorrentDialog;
 }
 
-class AddNewTorrentDialog final : public QDialog
-{
-    Q_OBJECT
+class AddNewTorrentDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(AddNewTorrentDialog)
 
 public:
@@ -69,32 +67,53 @@ public:
     ~AddNewTorrentDialog() override;
 
     static bool isEnabled();
+
     static void setEnabled(bool value);
+
     static bool isTopLevel();
+
     static void setTopLevel(bool value);
+
     static int savePathHistoryLength();
+
     static void setSavePathHistoryLength(int value);
+
 #ifndef Q_OS_MACOS
+
     static bool isAttached();
+
     static void setAttached(bool value);
+
 #endif
 
     static void show(const QString &source, const BitTorrent::AddTorrentParams &inParams, QWidget *parent);
+
     static void show(const QString &source, QWidget *parent);
 
 private slots:
+
     void updateDiskSpaceLabel();
+
     void onSavePathChanged(const Path &newPath);
+
     void onDownloadPathChanged(const Path &newPath);
+
     void onUseDownloadPathChanged(bool checked);
+
     void updateMetadata(const BitTorrent::TorrentInfo &metadata);
+
     void handleDownloadFinished(const Net::DownloadResult &downloadResult);
+
     void TMMChanged(int index);
+
     void categoryChanged(int index);
+
     void contentLayoutChanged();
+
     void doNotDeleteTorrentClicked(bool checked);
 
     void accept() override;
+
     void reject() override;
 
 private:
@@ -103,14 +122,23 @@ private:
     explicit AddNewTorrentDialog(const BitTorrent::AddTorrentParams &inParams, QWidget *parent);
 
     bool loadTorrentFile(const QString &source);
+
     bool loadTorrentImpl();
+
     bool loadMagnet(const BitTorrent::MagnetUri &magnetUri);
+
     void populateSavePaths();
+
     void loadState();
+
     void saveState();
+
     void setMetadataProgressIndicator(bool visibleIndicator, const QString &labelText = {});
+
     void setupTreeview();
+
     void saveTorrentFile();
+
     bool hasMetadata() const;
 
     void showEvent(QShowEvent *event) override;

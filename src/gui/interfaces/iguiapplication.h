@@ -34,19 +34,22 @@
 #include "gui/windowstate.h"
 
 class DesktopIntegration;
+
 class MainWindow;
 
-class IGUIApplication : public IApplication
-{
+class IGUIApplication : public IApplication {
 public:
     virtual ~IGUIApplication() = default;
 
     virtual DesktopIntegration *desktopIntegration() = 0;
+
     virtual MainWindow *mainWindow() = 0;
 
     virtual WindowState startUpWindowState() const = 0;
+
     virtual void setStartUpWindowState(WindowState windowState) = 0;
 
     virtual bool isTorrentAddedNotificationsEnabled() const = 0;
+
     virtual void setTorrentAddedNotificationsEnabled(bool value) = 0;
 };

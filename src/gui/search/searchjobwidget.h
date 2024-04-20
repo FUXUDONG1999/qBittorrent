@@ -37,36 +37,40 @@
 #define URL_COLUMN 5
 
 class QHeaderView;
+
 class QModelIndex;
+
 class QStandardItemModel;
 
 class LineEdit;
+
 class SearchHandler;
+
 class SearchSortModel;
+
 struct SearchResult;
 
-template <typename T> class SettingValue;
+template<typename T>
+class SettingValue;
 
-namespace Ui
-{
+namespace Ui {
     class SearchJobWidget;
 }
 
-class SearchJobWidget final : public QWidget
-{
-    Q_OBJECT
+class SearchJobWidget final : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(SearchJobWidget)
 
 public:
-    enum class NameFilteringMode
-    {
+    enum class NameFilteringMode {
         Everywhere,
         OnlyNames
     };
+
     Q_ENUM(NameFilteringMode)
 
-    enum class Status
-    {
+    enum class Status {
         Ongoing,
         Finished,
         Error,
@@ -75,57 +79,85 @@ public:
     };
 
     explicit SearchJobWidget(SearchHandler *searchHandler, QWidget *parent = nullptr);
+
     ~SearchJobWidget() override;
 
     Status status() const;
+
     int visibleResultsCount() const;
+
     LineEdit *lineEditSearchResultsFilter() const;
 
     void cancelSearch();
 
 signals:
+
     void resultsCountUpdated();
+
     void statusChanged();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
+
     void displayColumnHeaderMenu();
 
 private:
-    enum class AddTorrentOption
-    {
+    enum class AddTorrentOption {
         Default,
         ShowDialog,
         SkipDialog,
     };
 
     void loadSettings();
+
     void saveSettings() const;
+
     void updateFilter();
+
     void filterSearchResults(const QString &name);
+
     void showFilterContextMenu();
+
     void contextMenuEvent(QContextMenuEvent *event) override;
+
     void onItemDoubleClicked(const QModelIndex &index);
+
     void searchFinished(bool cancelled);
+
     void searchFailed();
+
     void appendSearchResults(const QVector<SearchResult> &results);
+
     void updateResultsCount();
+
     void setStatus(Status value);
+
     void downloadTorrent(const QModelIndex &rowIndex, AddTorrentOption option = AddTorrentOption::Default);
+
     void addTorrentToSession(const QString &source, AddTorrentOption option = AddTorrentOption::Default);
+
     void fillFilterComboBoxes();
+
     NameFilteringMode filteringMode() const;
+
     QHeaderView *header() const;
+
     void setRowColor(int row, const QColor &color);
+
     int visibleColumnsCount() const;
 
     void downloadTorrents(AddTorrentOption option = AddTorrentOption::Default);
+
     void openTorrentPages() const;
+
     void copyTorrentURLs() const;
+
     void copyTorrentDownloadLinks() const;
+
     void copyTorrentNames() const;
+
     void copyField(int column) const;
 
     static QString statusText(Status st);

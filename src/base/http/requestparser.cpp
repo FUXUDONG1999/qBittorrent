@@ -46,23 +46,19 @@ using namespace Http;
 using namespace Utils::ByteArray;
 using QStringPair = QPair<QString, QString>;
 
-namespace
-{
+namespace {
     const QByteArray EOH = QByteArray(CRLF).repeated(2);
 
-    const QByteArray viewWithoutEndingWith(const QByteArray &in, const QByteArray &str)
-    {
+    const QByteArray viewWithoutEndingWith(const QByteArray &in, const QByteArray &str) {
         if (in.endsWith(str))
             return QByteArray::fromRawData(in.constData(), (in.size() - str.size()));
         return in;
     }
 
-    bool parseHeaderLine(const QStringView line, HeaderMap &out)
-    {
+    bool parseHeaderLine(const QStringView line, HeaderMap &out) {
         // [rfc7230] 3.2. Header Fields
         const int i = line.indexOf(u':');
-        if (i <= 0)
-        {
+        if (i <= 0) {
             qWarning() << Q_FUNC_INFO << "invalid http header:" << line;
             return false;
         }
@@ -75,25 +71,21 @@ namespace
     }
 }
 
-RequestParser::ParseResult RequestParser::parse(const QByteArray &data)
-{
+RequestParser::ParseResult RequestParser::parse(const QByteArray &data) {
     // Warning! Header names are converted to lowercase
     return RequestParser().doParse(data);
 }
 
-RequestParser::ParseResult RequestParser::doParse(const QByteArray &data)
-{
+RequestParser::ParseResult RequestParser::doParse(const QByteArray &data) {
     // we don't handle malformed requests which use double `LF` as delimiter
     const int headerEnd = data.indexOf(EOH);
-    if (headerEnd < 0)
-    {
+    if (headerEnd < 0) {
         qDebug() << Q_FUNC_INFO << "incomplete request";
         return {ParseStatus::Incomplete, Request(), 0};
     }
 
     const QString httpHeaders = QString::fromLatin1(data.constData(), headerEnd);
-    if (!parseStartLines(httpHeaders))
-    {
+    if (!parseStartLines(httpHeaders)) {
         qWarning() << Q_FUNC_INFO << "header parsing error";
         return {ParseStatus::BadRequest, Request(), 0};
     }
@@ -104,10 +96,8 @@ RequestParser::ParseResult RequestParser::doParse(const QByteArray &data)
     if ((m_request.method == HEADER_REQUEST_METHOD_GET) || (m_request.method == HEADER_REQUEST_METHOD_HEAD))
         return {ParseStatus::OK, m_request, headerLength};
 
-    if (m_request.method == HEADER_REQUEST_METHOD_POST)
-    {
-        const auto parseContentLength = [this]() -> int
-        {
+    if (m_request.method == HEADER_REQUEST_METHOD_POST) {
+        const auto parseContentLength = [this]() -> int {
             // [rfc7230] 3.3.2. Content-Length
 
             const QString rawValue = m_request.headers.value(HEADER_CONTENT_LENGTH);
@@ -117,28 +107,23 @@ RequestParser::ParseResult RequestParser::doParse(const QByteArray &data)
         };
 
         const int contentLength = parseContentLength();
-        if (contentLength < 0)
-        {
+        if (contentLength < 0) {
             qWarning() << Q_FUNC_INFO << "bad request: content-length invalid";
             return {ParseStatus::BadRequest, Request(), 0};
         }
-        if (contentLength > MAX_CONTENT_SIZE)
-        {
+        if (contentLength > MAX_CONTENT_SIZE) {
             qWarning() << Q_FUNC_INFO << "bad request: message too long";
             return {ParseStatus::BadRequest, Request(), 0};
         }
 
-        if (contentLength > 0)
-        {
+        if (contentLength > 0) {
             const QByteArray httpBodyView = midView(data, headerLength, contentLength);
-            if (httpBodyView.length() < contentLength)
-            {
+            if (httpBodyView.length() < contentLength) {
                 qDebug() << Q_FUNC_INFO << "incomplete request";
                 return {ParseStatus::Incomplete, Request(), 0};
             }
 
-            if (!parsePostMessage(httpBodyView))
-            {
+            if (!parsePostMessage(httpBodyView)) {
                 qWarning() << Q_FUNC_INFO << "message body parsing error";
                 return {ParseStatus::BadRequest, Request(), 0};
             }
@@ -150,22 +135,17 @@ RequestParser::ParseResult RequestParser::doParse(const QByteArray &data)
     return {ParseStatus::BadMethod, m_request, 0};
 }
 
-bool RequestParser::parseStartLines(const QStringView data)
-{
+bool RequestParser::parseStartLines(const QStringView data) {
     // we don't handle malformed request which uses `LF` for newline
     const QList<QStringView> lines = data.split(QString::fromLatin1(CRLF), Qt::SkipEmptyParts);
 
     // [rfc7230] 3.2.2. Field Order
     QStringList requestLines;
-    for (const auto &line : lines)
-    {
-        if (line.at(0).isSpace() && !requestLines.isEmpty())
-        {
+    for (const auto &line: lines) {
+        if (line.at(0).isSpace() && !requestLines.isEmpty()) {
             // continuation of previous line
             requestLines.last() += line.toString();
-        }
-        else
-        {
+        } else {
             requestLines += line.toString();
         }
     }
@@ -176,8 +156,7 @@ bool RequestParser::parseStartLines(const QStringView data)
     if (!parseRequestLine(requestLines[0]))
         return false;
 
-    for (auto i = ++(requestLines.begin()); i != requestLines.end(); ++i)
-    {
+    for (auto i = ++(requestLines.begin()); i != requestLines.end(); ++i) {
         if (!parseHeaderLine(*i, m_request.headers))
             return false;
     }
@@ -185,15 +164,13 @@ bool RequestParser::parseStartLines(const QStringView data)
     return true;
 }
 
-bool RequestParser::parseRequestLine(const QString &line)
-{
+bool RequestParser::parseRequestLine(const QString &line) {
     // [rfc7230] 3.1.1. Request Line
 
     static const QRegularExpression re(u"^([A-Z]+)\\s+(\\S+)\\s+HTTP\\/(\\d\\.\\d)$"_s);
     const QRegularExpressionMatch match = re.match(line);
 
-    if (!match.hasMatch())
-    {
+    if (!match.hasMatch()) {
         qWarning() << Q_FUNC_INFO << "invalid http header:" << line;
         return false;
     }
@@ -202,20 +179,18 @@ bool RequestParser::parseRequestLine(const QString &line)
     m_request.method = match.captured(1);
 
     // Request Target
-    const QByteArray url {match.captured(2).toLatin1()};
+    const QByteArray url{match.captured(2).toLatin1()};
     const int sepPos = url.indexOf('?');
     const QByteArray pathComponent = ((sepPos == -1) ? url : midView(url, 0, sepPos));
 
     m_request.path = QString::fromUtf8(QByteArray::fromPercentEncoding(pathComponent));
 
-    if (sepPos >= 0)
-    {
+    if (sepPos >= 0) {
         const QByteArray query = midView(url, (sepPos + 1));
 
         // [rfc3986] 2.4 When to Encode or Decode
         // URL components should be separated before percent-decoding
-        for (const QByteArray &param : asConst(splitToViews(query, "&")))
-        {
+        for (const QByteArray &param: asConst(splitToViews(query, "&"))) {
             const int eqCharPos = param.indexOf('=');
             if (eqCharPos <= 0) continue;  // ignores params without name
 
@@ -223,8 +198,8 @@ bool RequestParser::parseRequestLine(const QString &line)
             const QByteArray valueComponent = midView(param, (eqCharPos + 1));
             const QString paramName = QString::fromUtf8(QByteArray::fromPercentEncoding(nameComponent).replace('+', ' '));
             const QByteArray paramValue = valueComponent.isNull()
-                ? QByteArray("")
-                : QByteArray::fromPercentEncoding(valueComponent).replace('+', ' ');
+                                          ? QByteArray("")
+                                          : QByteArray::fromPercentEncoding(valueComponent).replace('+', ' ');
 
             m_request.query[paramName] = paramValue;
         }
@@ -236,21 +211,18 @@ bool RequestParser::parseRequestLine(const QString &line)
     return true;
 }
 
-bool RequestParser::parsePostMessage(const QByteArray &data)
-{
+bool RequestParser::parsePostMessage(const QByteArray &data) {
     // parse POST message-body
     const QString contentType = m_request.headers[HEADER_CONTENT_TYPE];
     const QString contentTypeLower = contentType.toLower();
 
     // application/x-www-form-urlencoded
-    if (contentTypeLower.startsWith(CONTENT_TYPE_FORM_ENCODED))
-    {
+    if (contentTypeLower.startsWith(CONTENT_TYPE_FORM_ENCODED)) {
         // [URL Standard] 5.1 application/x-www-form-urlencoded parsing
         const QByteArray processedData = QByteArray(data).replace('+', ' ');
 
         QListIterator<QStringPair> i(QUrlQuery(QString::fromUtf8(processedData)).queryItems(QUrl::FullyDecoded));
-        while (i.hasNext())
-        {
+        while (i.hasNext()) {
             const QStringPair pair = i.next();
             m_request.posts[pair.first] = pair.second;
         }
@@ -259,22 +231,19 @@ bool RequestParser::parsePostMessage(const QByteArray &data)
     }
 
     // multipart/form-data
-    if (contentTypeLower.startsWith(CONTENT_TYPE_FORM_DATA))
-    {
+    if (contentTypeLower.startsWith(CONTENT_TYPE_FORM_DATA)) {
         // [rfc2046] 5.1.1. Common Syntax
 
         // find boundary delimiter
         const QString boundaryFieldName = u"boundary="_s;
         const int idx = contentType.indexOf(boundaryFieldName);
-        if (idx < 0)
-        {
+        if (idx < 0) {
             qWarning() << Q_FUNC_INFO << "Could not find boundary in multipart/form-data header!";
             return false;
         }
 
         const QByteArray delimiter = Utils::String::unquote(QStringView(contentType).mid(idx + boundaryFieldName.size())).toLatin1();
-        if (delimiter.isEmpty())
-        {
+        if (delimiter.isEmpty()) {
             qWarning() << Q_FUNC_INFO << "boundary delimiter field empty!";
             return false;
         }
@@ -282,8 +251,7 @@ bool RequestParser::parsePostMessage(const QByteArray &data)
         // split data by "dash-boundary"
         const QByteArray dashDelimiter = QByteArray("--") + delimiter + CRLF;
         QVector<QByteArray> multipart = splitToViews(data, dashDelimiter, Qt::SkipEmptyParts);
-        if (multipart.isEmpty())
-        {
+        if (multipart.isEmpty()) {
             qWarning() << Q_FUNC_INFO << "multipart empty";
             return false;
         }
@@ -292,8 +260,7 @@ bool RequestParser::parsePostMessage(const QByteArray &data)
         const QByteArray endDelimiter = QByteArray("--") + delimiter + QByteArray("--") + CRLF;
         multipart.push_back(viewWithoutEndingWith(multipart.takeLast(), endDelimiter));
 
-        return std::all_of(multipart.cbegin(), multipart.cend(), [this](const QByteArray &part)
-        {
+        return std::all_of(multipart.cbegin(), multipart.cend(), [this](const QByteArray &part) {
             return this->parseFormData(part);
         });
     }
@@ -302,12 +269,10 @@ bool RequestParser::parsePostMessage(const QByteArray &data)
     return false;
 }
 
-bool RequestParser::parseFormData(const QByteArray &data)
-{
+bool RequestParser::parseFormData(const QByteArray &data) {
     const int eohPos = data.indexOf(EOH);
 
-    if (eohPos < 0)
-    {
+    if (eohPos < 0) {
         qWarning() << Q_FUNC_INFO << "multipart/form-data format error";
         return false;
     }
@@ -317,15 +282,12 @@ bool RequestParser::parseFormData(const QByteArray &data)
 
     HeaderMap headersMap;
     const QList<QStringView> headerLines = QStringView(headers).split(QString::fromLatin1(CRLF), Qt::SkipEmptyParts);
-    for (const auto &line : headerLines)
-    {
-        if (line.trimmed().startsWith(HEADER_CONTENT_DISPOSITION, Qt::CaseInsensitive))
-        {
+    for (const auto &line: headerLines) {
+        if (line.trimmed().startsWith(HEADER_CONTENT_DISPOSITION, Qt::CaseInsensitive)) {
             // extract out filename & name
             const QList<QStringView> directives = line.split(u';', Qt::SkipEmptyParts);
 
-            for (const auto &directive : directives)
-            {
+            for (const auto &directive: directives) {
                 const int idx = directive.indexOf(u'=');
                 if (idx < 0)
                     continue;
@@ -334,9 +296,7 @@ bool RequestParser::parseFormData(const QByteArray &data)
                 const QString value = Utils::String::unquote(directive.mid(idx + 1).trimmed()).toString();
                 headersMap[name] = value;
             }
-        }
-        else
-        {
+        } else {
             if (!parseHeaderLine(line.toString(), headersMap))
                 return false;
         }
@@ -346,16 +306,11 @@ bool RequestParser::parseFormData(const QByteArray &data)
     const QString filename = u"filename"_s;
     const QString name = u"name"_s;
 
-    if (headersMap.contains(filename))
-    {
+    if (headersMap.contains(filename)) {
         m_request.files.append({headersMap[filename], headersMap[HEADER_CONTENT_TYPE], payload});
-    }
-    else if (headersMap.contains(name))
-    {
+    } else if (headersMap.contains(name)) {
         m_request.posts[headersMap[name]] = QString::fromUtf8(payload);
-    }
-    else
-    {
+    } else {
         // malformed
         qWarning() << Q_FUNC_INFO << "multipart/form-data header error";
         return false;

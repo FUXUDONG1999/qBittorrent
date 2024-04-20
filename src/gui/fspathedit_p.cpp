@@ -44,87 +44,71 @@
 
 // -------------------- FileSystemPathValidator ----------------------------------------
 Private::FileSystemPathValidator::FileSystemPathValidator(QObject *parent)
-    : QValidator(parent)
-{
+        : QValidator(parent) {
 }
 
-bool Private::FileSystemPathValidator::strictMode() const
-{
+bool Private::FileSystemPathValidator::strictMode() const {
     return m_strictMode;
 }
 
-void Private::FileSystemPathValidator::setStrictMode(const bool value)
-{
+void Private::FileSystemPathValidator::setStrictMode(const bool value) {
     m_strictMode = value;
 }
 
-bool Private::FileSystemPathValidator::existingOnly() const
-{
+bool Private::FileSystemPathValidator::existingOnly() const {
     return m_existingOnly;
 }
 
-void Private::FileSystemPathValidator::setExistingOnly(const bool value)
-{
+void Private::FileSystemPathValidator::setExistingOnly(const bool value) {
     m_existingOnly = value;
 }
 
-bool Private::FileSystemPathValidator::filesOnly() const
-{
+bool Private::FileSystemPathValidator::filesOnly() const {
     return m_filesOnly;
 }
 
-void Private::FileSystemPathValidator::setFilesOnly(const bool value)
-{
+void Private::FileSystemPathValidator::setFilesOnly(const bool value) {
     m_filesOnly = value;
 }
 
-bool Private::FileSystemPathValidator::directoriesOnly() const
-{
+bool Private::FileSystemPathValidator::directoriesOnly() const {
     return m_directoriesOnly;
 }
 
-void Private::FileSystemPathValidator::setDirectoriesOnly(const bool value)
-{
+void Private::FileSystemPathValidator::setDirectoriesOnly(const bool value) {
     m_directoriesOnly = value;
 }
 
-bool Private::FileSystemPathValidator::checkReadPermission() const
-{
+bool Private::FileSystemPathValidator::checkReadPermission() const {
     return m_checkReadPermission;
 }
 
-void Private::FileSystemPathValidator::setCheckReadPermission(const bool value)
-{
+void Private::FileSystemPathValidator::setCheckReadPermission(const bool value) {
     m_checkReadPermission = value;
 }
 
-bool Private::FileSystemPathValidator::checkWritePermission() const
-{
+bool Private::FileSystemPathValidator::checkWritePermission() const {
     return m_checkWritePermission;
 }
 
-void Private::FileSystemPathValidator::setCheckWritePermission(const bool value)
-{
+void Private::FileSystemPathValidator::setCheckWritePermission(const bool value) {
     m_checkWritePermission = value;
 }
 
 Private::FileSystemPathValidator::TestResult
-Private::FileSystemPathValidator::testPath(const Path &path) const
-{
+Private::FileSystemPathValidator::testPath(const Path &path) const {
     // `QFileInfo` will cache the query results and avoid excessive querying to filesystem
-    const QFileInfo info {path.data()};
+    const QFileInfo info{path.data()};
 
     if (!info.exists())
         return existingOnly() ? TestResult::DoesNotExist : TestResult::OK;
 
-    if (filesOnly())
-    {
+    if (filesOnly()) {
         if (!info.isFile())
             return TestResult::NotAFile;
     }
 
-    if (directoriesOnly())
-    {
+    if (directoriesOnly()) {
         if (!info.isDir())
             return TestResult::NotADir;
     }
@@ -138,92 +122,76 @@ Private::FileSystemPathValidator::testPath(const Path &path) const
     return TestResult::OK;
 }
 
-Private::FileSystemPathValidator::TestResult Private::FileSystemPathValidator::lastTestResult() const
-{
+Private::FileSystemPathValidator::TestResult Private::FileSystemPathValidator::lastTestResult() const {
     return m_lastTestResult;
 }
 
-QValidator::State Private::FileSystemPathValidator::lastValidationState() const
-{
+QValidator::State Private::FileSystemPathValidator::lastValidationState() const {
     return m_lastValidationState;
 }
 
-QValidator::State Private::FileSystemPathValidator::validate(QString &input, int &pos) const
-{
+QValidator::State Private::FileSystemPathValidator::validate(QString &input, int &pos) const {
     // ignore cursor position and validate the full path anyway
     Q_UNUSED(pos);
 
     m_lastTestResult = testPath(Path(input));
     m_lastValidationState = (m_lastTestResult == TestResult::OK)
-        ? QValidator::Acceptable
-        : (strictMode() ? QValidator::Invalid : QValidator::Intermediate);
+                            ? QValidator::Acceptable
+                            : (strictMode() ? QValidator::Invalid : QValidator::Intermediate);
 
     return m_lastValidationState;
 }
 
 Private::FileLineEdit::FileLineEdit(QWidget *parent)
-    : QLineEdit(parent)
-{
+        : QLineEdit(parent) {
     connect(this, &QLineEdit::textChanged, this, &FileLineEdit::validateText);
 }
 
-Private::FileLineEdit::~FileLineEdit()
-{
+Private::FileLineEdit::~FileLineEdit() {
     delete m_completerModel; // has to be deleted before deleting the m_iconProvider object
     delete m_iconProvider;
 }
 
-void Private::FileLineEdit::completeDirectoriesOnly(const bool completeDirsOnly)
-{
+void Private::FileLineEdit::completeDirectoriesOnly(const bool completeDirsOnly) {
     m_completeDirectoriesOnly = completeDirsOnly;
-    if (m_completerModel)
-    {
+    if (m_completerModel) {
         const QDir::Filters filters = QDir::NoDotAndDotDot
-                | (completeDirsOnly ? QDir::Dirs : QDir::AllEntries);
+                                      | (completeDirsOnly ? QDir::Dirs : QDir::AllEntries);
         m_completerModel->setFilter(filters);
     }
 }
 
-void Private::FileLineEdit::setFilenameFilters(const QStringList &filters)
-{
+void Private::FileLineEdit::setFilenameFilters(const QStringList &filters) {
     m_filenameFilters = filters;
     if (m_completerModel)
         m_completerModel->setNameFilters(m_filenameFilters);
 }
 
-void Private::FileLineEdit::setBrowseAction(QAction *action)
-{
+void Private::FileLineEdit::setBrowseAction(QAction *action) {
     m_browseAction = action;
 }
 
-void Private::FileLineEdit::setValidator(QValidator *validator)
-{
+void Private::FileLineEdit::setValidator(QValidator *validator) {
     QLineEdit::setValidator(validator);
 }
 
-Path Private::FileLineEdit::placeholder() const
-{
+Path Private::FileLineEdit::placeholder() const {
     return Path(placeholderText());
 }
 
-void Private::FileLineEdit::setPlaceholder(const Path &val)
-{
+void Private::FileLineEdit::setPlaceholder(const Path &val) {
     setPlaceholderText(val.toString());
 }
 
-QWidget *Private::FileLineEdit::widget()
-{
+QWidget *Private::FileLineEdit::widget() {
     return this;
 }
 
-void Private::FileLineEdit::keyPressEvent(QKeyEvent *e)
-{
+void Private::FileLineEdit::keyPressEvent(QKeyEvent *e) {
     QLineEdit::keyPressEvent(e);
 
-    if ((e->key() == Qt::Key_Space) && (e->modifiers() == Qt::CTRL))
-    {
-        if (!m_completer)
-        {
+    if ((e->key() == Qt::Key_Space) && (e->modifiers() == Qt::CTRL)) {
+        if (!m_completer) {
             m_iconProvider = new QFileIconProvider;
             m_iconProvider->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 
@@ -232,7 +200,7 @@ void Private::FileLineEdit::keyPressEvent(QKeyEvent *e)
             m_completerModel->setOptions(QFileSystemModel::DontWatchForChanges);
             m_completerModel->setNameFilters(m_filenameFilters);
             const QDir::Filters filters = QDir::NoDotAndDotDot
-                    | (m_completeDirectoriesOnly ? QDir::Dirs : QDir::AllEntries);
+                                          | (m_completeDirectoriesOnly ? QDir::Dirs : QDir::AllEntries);
             m_completerModel->setFilter(filters);
 
             m_completer = new QCompleter(this);
@@ -245,13 +213,11 @@ void Private::FileLineEdit::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void Private::FileLineEdit::contextMenuEvent(QContextMenuEvent *event)
-{
+void Private::FileLineEdit::contextMenuEvent(QContextMenuEvent *event) {
     QMenu *menu = createStandardContextMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    if (m_browseAction)
-    {
+    if (m_browseAction) {
         menu->addSeparator();
         menu->addAction(m_browseAction);
     }
@@ -259,14 +225,12 @@ void Private::FileLineEdit::contextMenuEvent(QContextMenuEvent *event)
     menu->popup(event->globalPos());
 }
 
-void Private::FileLineEdit::showCompletionPopup()
-{
+void Private::FileLineEdit::showCompletionPopup() {
     m_completer->setCompletionPrefix(text());
     m_completer->complete();
 }
 
-void Private::FileLineEdit::validateText()
-{
+void Private::FileLineEdit::validateText() {
     const auto *validator = qobject_cast<const FileSystemPathValidator *>(this->validator());
     if (!validator)
         return;
@@ -274,22 +238,17 @@ void Private::FileLineEdit::validateText()
     const FileSystemPathValidator::TestResult lastTestResult = validator->lastTestResult();
     const QValidator::State lastState = validator->lastValidationState();
 
-    if (lastTestResult == FileSystemPathValidator::TestResult::OK)
-    {
+    if (lastTestResult == FileSystemPathValidator::TestResult::OK) {
         delete m_warningAction;
         m_warningAction = nullptr;
-    }
-    else
-    {
-        if (!m_warningAction)
-        {
+    } else {
+        if (!m_warningAction) {
             m_warningAction = new QAction(this);
             addAction(m_warningAction, QLineEdit::TrailingPosition);
         }
     }
 
-    if (m_warningAction)
-    {
+    if (m_warningAction) {
         if (lastState == QValidator::Invalid)
             m_warningAction->setIcon(style()->standardIcon(QStyle::SP_MessageBoxCritical));
         else if (lastState == QValidator::Intermediate)
@@ -298,70 +257,59 @@ void Private::FileLineEdit::validateText()
     }
 }
 
-QString Private::FileLineEdit::warningText(const FileSystemPathValidator::TestResult result)
-{
+QString Private::FileLineEdit::warningText(const FileSystemPathValidator::TestResult result) {
     using TestResult = FileSystemPathValidator::TestResult;
-    switch (result)
-    {
-    case TestResult::DoesNotExist:
-        return tr("Path does not exist");
-    case TestResult::NotADir:
-        return tr("Path does not point to a directory");
-    case TestResult::NotAFile:
-        return tr("Path does not point to a file");
-    case TestResult::CantRead:
-        return tr("Don't have read permission to path");
-    case TestResult::CantWrite:
-        return tr("Don't have write permission to path");
-    default:
-        break;
+    switch (result) {
+        case TestResult::DoesNotExist:
+            return tr("Path does not exist");
+        case TestResult::NotADir:
+            return tr("Path does not point to a directory");
+        case TestResult::NotAFile:
+            return tr("Path does not point to a file");
+        case TestResult::CantRead:
+            return tr("Don't have read permission to path");
+        case TestResult::CantWrite:
+            return tr("Don't have write permission to path");
+        default:
+            break;
     }
     return {};
 }
 
 Private::FileComboEdit::FileComboEdit(QWidget *parent)
-    : QComboBox {parent}
-{
+        : QComboBox{parent} {
     setEditable(true);
     setLineEdit(new FileLineEdit(this));
 }
 
-void Private::FileComboEdit::completeDirectoriesOnly(bool completeDirsOnly)
-{
+void Private::FileComboEdit::completeDirectoriesOnly(bool completeDirsOnly) {
     static_cast<FileLineEdit *>(lineEdit())->completeDirectoriesOnly(completeDirsOnly);
 }
 
-void Private::FileComboEdit::setBrowseAction(QAction *action)
-{
+void Private::FileComboEdit::setBrowseAction(QAction *action) {
     static_cast<FileLineEdit *>(lineEdit())->setBrowseAction(action);
 }
 
-void Private::FileComboEdit::setValidator(QValidator *validator)
-{
+void Private::FileComboEdit::setValidator(QValidator *validator) {
     lineEdit()->setValidator(validator);
 }
 
-Path Private::FileComboEdit::placeholder() const
-{
+Path Private::FileComboEdit::placeholder() const {
     return Path(lineEdit()->placeholderText());
 }
 
-void Private::FileComboEdit::setPlaceholder(const Path &val)
-{
+void Private::FileComboEdit::setPlaceholder(const Path &val) {
     lineEdit()->setPlaceholderText(val.toString());
 }
 
-void Private::FileComboEdit::setFilenameFilters(const QStringList &filters)
-{
+void Private::FileComboEdit::setFilenameFilters(const QStringList &filters) {
     static_cast<FileLineEdit *>(lineEdit())->setFilenameFilters(filters);
 }
 
-QWidget *Private::FileComboEdit::widget()
-{
+QWidget *Private::FileComboEdit::widget() {
     return this;
 }
 
-QString Private::FileComboEdit::text() const
-{
+QString Private::FileComboEdit::text() const {
     return currentText();
 }

@@ -34,27 +34,21 @@
 
 #include "base/global.h"
 
-DBusNotificationsInterface::DBusNotificationsInterface(const QString &service
-        , const QString &path, const QDBusConnection &connection, QObject *parent)
-    : QDBusAbstractInterface(service, path, DBUS_INTERFACE_NAME, connection, parent)
-{
+DBusNotificationsInterface::DBusNotificationsInterface(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent)
+        : QDBusAbstractInterface(service, path, DBUS_INTERFACE_NAME, connection, parent) {
 }
 
-QDBusPendingReply<QStringList> DBusNotificationsInterface::getCapabilities()
-{
+QDBusPendingReply <QStringList> DBusNotificationsInterface::getCapabilities() {
     return asyncCall(u"GetCapabilities"_s);
 }
 
-QDBusPendingReply<QString, QString, QString, QString> DBusNotificationsInterface::getServerInformation()
-{
+QDBusPendingReply <QString, QString, QString, QString> DBusNotificationsInterface::getServerInformation() {
     return asyncCall(u"GetServerInformation"_s);
 }
 
-QDBusReply<QString> DBusNotificationsInterface::getServerInformation(QString &vendor, QString &version, QString &specVersion)
-{
+QDBusReply <QString> DBusNotificationsInterface::getServerInformation(QString &vendor, QString &version, QString &specVersion) {
     const QDBusMessage reply = call(QDBus::Block, u"GetServerInformation"_s);
-    if ((reply.type() == QDBusMessage::ReplyMessage) && (reply.arguments().count() == 4))
-    {
+    if ((reply.type() == QDBusMessage::ReplyMessage) && (reply.arguments().count() == 4)) {
         vendor = qdbus_cast<QString>(reply.arguments().at(1));
         version = qdbus_cast<QString>(reply.arguments().at(2));
         specVersion = qdbus_cast<QString>(reply.arguments().at(3));
@@ -63,14 +57,12 @@ QDBusReply<QString> DBusNotificationsInterface::getServerInformation(QString &ve
     return reply;
 }
 
-QDBusPendingReply<uint> DBusNotificationsInterface::notify(const QString &appName
-        , const uint id, const QString &icon, const QString &summary, const QString &body
-        , const QStringList &actions, const QVariantMap &hints, const int timeout)
-{
+QDBusPendingReply <uint>
+DBusNotificationsInterface::notify(const QString &appName, const uint id, const QString &icon, const QString &summary, const QString &body,
+                                   const QStringList &actions, const QVariantMap &hints, const int timeout) {
     return asyncCall(u"Notify"_s, appName, id, icon, summary, body, actions, hints, timeout);
 }
 
-QDBusPendingReply<> DBusNotificationsInterface::closeNotification(const uint id)
-{
+QDBusPendingReply<> DBusNotificationsInterface::closeNotification(const uint id) {
     return asyncCall(u"CloseNotification"_s, id);
 }

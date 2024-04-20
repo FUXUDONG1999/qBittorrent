@@ -34,8 +34,7 @@
 #include "base/orderedset.h"
 #include "base/utils/compare.h"
 
-class TagLessThan
-{
+class TagLessThan {
 public:
     bool operator()(const QString &left, const QString &right) const;
 

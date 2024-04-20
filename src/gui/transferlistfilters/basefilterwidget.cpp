@@ -35,9 +35,7 @@
 constexpr int ALL_ROW = 0;
 
 BaseFilterWidget::BaseFilterWidget(QWidget *parent, TransferListWidget *transferList)
-    : QListWidget(parent)
-    , m_transferList {transferList}
-{
+        : QListWidget(parent), m_transferList{transferList} {
     setFrameShape(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -55,35 +53,29 @@ BaseFilterWidget::BaseFilterWidget(QWidget *parent, TransferListWidget *transfer
     connect(this, &BaseFilterWidget::customContextMenuRequested, this, &BaseFilterWidget::showMenu);
     connect(this, &BaseFilterWidget::currentRowChanged, this, &BaseFilterWidget::applyFilter);
 
-    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentsLoaded
-            , this, &BaseFilterWidget::handleTorrentsLoaded);
-    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentAboutToBeRemoved
-            , this, &BaseFilterWidget::torrentAboutToBeDeleted);
+    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentsLoaded, this, &BaseFilterWidget::handleTorrentsLoaded);
+    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentAboutToBeRemoved, this, &BaseFilterWidget::torrentAboutToBeDeleted);
 }
 
-QSize BaseFilterWidget::sizeHint() const
-{
+QSize BaseFilterWidget::sizeHint() const {
     return {
-        // Width should be exactly the width of the content
-        sizeHintForColumn(0),
-        // Height should be exactly the height of the content
-        static_cast<int>((sizeHintForRow(0) + 2 * spacing()) * (count() + 0.5))};
+            // Width should be exactly the width of the content
+            sizeHintForColumn(0),
+            // Height should be exactly the height of the content
+            static_cast<int>((sizeHintForRow(0) + 2 * spacing()) * (count() + 0.5))};
 }
 
-QSize BaseFilterWidget::minimumSizeHint() const
-{
+QSize BaseFilterWidget::minimumSizeHint() const {
     QSize size = sizeHint();
     size.setWidth(6);
     return size;
 }
 
-TransferListWidget *BaseFilterWidget::transferList() const
-{
+TransferListWidget *BaseFilterWidget::transferList() const {
     return m_transferList;
 }
 
-void BaseFilterWidget::toggleFilter(const bool checked)
-{
+void BaseFilterWidget::toggleFilter(const bool checked) {
     setVisible(checked);
     if (checked)
         applyFilter(currentRow());

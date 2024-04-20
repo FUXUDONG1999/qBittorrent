@@ -36,24 +36,25 @@
 
 class QShortcut;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
+
     class TorrentContentHandler;
+
     class TorrentInfo;
 }
 
 class TorrentContentFilterModel;
+
 class TorrentContentModel;
 
-class TorrentContentWidget final : public QTreeView
-{
-    Q_OBJECT
+class TorrentContentWidget final : public QTreeView {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentContentWidget)
 
 public:
-    enum Column
-    {
+    enum Column {
         Name,
         Size,
         Progress,
@@ -62,14 +63,12 @@ public:
         Availability
     };
 
-    enum class DoubleClickAction
-    {
+    enum class DoubleClickAction {
         Open,
         Rename
     };
 
-    enum class ColumnsVisibilityMode
-    {
+    enum class ColumnsVisibilityMode {
         Editable,
         Locked
     };
@@ -77,44 +76,66 @@ public:
     explicit TorrentContentWidget(QWidget *parent = nullptr);
 
     void setContentHandler(BitTorrent::TorrentContentHandler *contentHandler);
+
     BitTorrent::TorrentContentHandler *contentHandler() const;
+
     void refresh();
 
     bool openByEnterKey() const;
+
     void setOpenByEnterKey(bool value);
 
     DoubleClickAction doubleClickAction() const;
+
     void setDoubleClickAction(DoubleClickAction action);
 
     ColumnsVisibilityMode columnsVisibilityMode() const;
+
     void setColumnsVisibilityMode(ColumnsVisibilityMode mode);
 
     int getFileIndex(const QModelIndex &index) const;
+
     Path getItemPath(const QModelIndex &index) const;
 
     void setFilterPattern(const QString &patternText);
 
     void checkAll();
+
     void checkNone();
 
 signals:
+
     void stateChanged();
 
 private:
     void setModel(QAbstractItemModel *model) override;
+
     void keyPressEvent(QKeyEvent *event) override;
+
     void wheelEvent(QWheelEvent *event) override;
+
     QModelIndex currentNameCell() const;
+
     void displayColumnHeaderMenu();
+
     void displayContextMenu();
+
     void openItem(const QModelIndex &index) const;
+
     void openParentFolder(const QModelIndex &index) const;
+
     void openSelectedFile();
+
     void renameSelectedFile();
+
     void applyPriorities(BitTorrent::DownloadPriority priority);
+
     void applyPrioritiesByOrder();
+
     Path getFullPath(const QModelIndex &index) const;
+
     void onItemDoubleClicked(const QModelIndex &index);
+
     // Expand single-item folders recursively.
     // This will trigger sorting and filtering so do it after all relevant data is loaded.
     void expandRecursively();

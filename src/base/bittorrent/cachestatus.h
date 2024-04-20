@@ -30,10 +30,8 @@
 
 #include <QtGlobal>
 
-namespace BitTorrent
-{
-    struct CacheStatus
-    {
+namespace BitTorrent {
+    struct CacheStatus {
         qint64 totalUsedBuffers = 0;
         qint64 jobQueueLength = 0;
         qint64 averageJobTime = 0;

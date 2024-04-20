@@ -33,29 +33,33 @@
 #include "base/settingvalue.h"
 #include "base/torrentfileswatcher.h"
 
-namespace Ui
-{
+namespace Ui {
     class WatchedFolderOptionsDialog;
 }
 
 class AddTorrentParamsWidget;
 
-class WatchedFolderOptionsDialog final : public QDialog
-{
-    Q_OBJECT
+class WatchedFolderOptionsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(WatchedFolderOptionsDialog)
 
 public:
     explicit WatchedFolderOptionsDialog(const TorrentFilesWatcher::WatchedFolderOptions &watchedFolderOptions, QWidget *parent);
+
     ~WatchedFolderOptionsDialog() override;
 
     TorrentFilesWatcher::WatchedFolderOptions watchedFolderOptions() const;
 
 private:
     void populateSavePaths();
+
     void loadState();
+
     void saveState();
+
     void onTMMChanged(int index);
+
     void onCategoryChanged(int index);
 
     Ui::WatchedFolderOptionsDialog *m_ui = nullptr;

@@ -36,100 +36,86 @@
 #include "torrentcontentmodelfolder.h"
 
 TorrentContentModelItem::TorrentContentModelItem(TorrentContentModelFolder *parent)
-    : m_parentItem(parent)
-{
+        : m_parentItem(parent) {
 }
 
 TorrentContentModelItem::~TorrentContentModelItem() = default;
 
-bool TorrentContentModelItem::isRootItem() const
-{
+bool TorrentContentModelItem::isRootItem() const {
     return !m_parentItem;
 }
 
-QString TorrentContentModelItem::name() const
-{
+QString TorrentContentModelItem::name() const {
     Q_ASSERT(!isRootItem());
     return m_name;
 }
 
-void TorrentContentModelItem::setName(const QString &name)
-{
+void TorrentContentModelItem::setName(const QString &name) {
     Q_ASSERT(!isRootItem());
     m_name = name;
 }
 
-qulonglong TorrentContentModelItem::size() const
-{
+qulonglong TorrentContentModelItem::size() const {
     Q_ASSERT(!isRootItem());
 
     return m_size;
 }
 
-qreal TorrentContentModelItem::progress() const
-{
+qreal TorrentContentModelItem::progress() const {
     Q_ASSERT(!isRootItem());
 
     return (m_size > 0) ? m_progress : 1;
 }
 
-qulonglong TorrentContentModelItem::remaining() const
-{
+qulonglong TorrentContentModelItem::remaining() const {
     Q_ASSERT(!isRootItem());
     return (m_priority == BitTorrent::DownloadPriority::Ignored) ? 0 : m_remaining;
 }
 
-qreal TorrentContentModelItem::availability() const
-{
+qreal TorrentContentModelItem::availability() const {
     Q_ASSERT(!isRootItem());
 
     return (m_size > 0) ? m_availability : 0;
 }
 
-BitTorrent::DownloadPriority TorrentContentModelItem::priority() const
-{
+BitTorrent::DownloadPriority TorrentContentModelItem::priority() const {
     Q_ASSERT(!isRootItem());
     return m_priority;
 }
 
-int TorrentContentModelItem::columnCount() const
-{
+int TorrentContentModelItem::columnCount() const {
     return NB_COL;
 }
 
-QString TorrentContentModelItem::displayData(const int column) const
-{
+QString TorrentContentModelItem::displayData(const int column) const {
     if (isRootItem())
         return m_itemData.value(column);
 
-    switch (column)
-    {
-    case COL_NAME:
-        return m_name;
-    case COL_PRIO:
-        switch (m_priority)
-        {
-        case BitTorrent::DownloadPriority::Mixed:
-            return tr("Mixed", "Mixed (priorities");
-        case BitTorrent::DownloadPriority::Ignored:
-            return tr("Not downloaded");
-        case BitTorrent::DownloadPriority::High:
-            return tr("High", "High (priority)");
-        case BitTorrent::DownloadPriority::Maximum:
-            return tr("Maximum", "Maximum (priority)");
-        default:
-            return tr("Normal", "Normal (priority)");
-        }
-    case COL_PROGRESS:
-        return (m_progress >= 1)
-               ? u"100%"_s
-               : (Utils::String::fromDouble((m_progress * 100), 1) + u'%');
-    case COL_SIZE:
-        return Utils::Misc::friendlyUnit(m_size);
-    case COL_REMAINING:
-        return Utils::Misc::friendlyUnit(remaining());
-    case COL_AVAILABILITY:
-        {
+    switch (column) {
+        case COL_NAME:
+            return m_name;
+        case COL_PRIO:
+            switch (m_priority) {
+                case BitTorrent::DownloadPriority::Mixed:
+                    return tr("Mixed", "Mixed (priorities");
+                case BitTorrent::DownloadPriority::Ignored:
+                    return tr("Not downloaded");
+                case BitTorrent::DownloadPriority::High:
+                    return tr("High", "High (priority)");
+                case BitTorrent::DownloadPriority::Maximum:
+                    return tr("Maximum", "Maximum (priority)");
+                default:
+                    return tr("Normal", "Normal (priority)");
+            }
+        case COL_PROGRESS:
+            return (m_progress >= 1)
+                   ? u"100%"_s
+                   : (Utils::String::fromDouble((m_progress * 100), 1) + u'%');
+        case COL_SIZE:
+            return Utils::Misc::friendlyUnit(m_size);
+        case COL_REMAINING:
+            return Utils::Misc::friendlyUnit(remaining());
+        case COL_AVAILABILITY: {
             const qreal avail = availability();
             if (avail < 0)
                 return tr("N/A");
@@ -139,45 +125,41 @@ QString TorrentContentModelItem::displayData(const int column) const
                                   : Utils::String::fromDouble((avail * 100), 1);
             return (value + C_THIN_SPACE + u'%');
         }
-    default:
-        Q_ASSERT(false);
-        return {};
+        default:
+            Q_ASSERT(false);
+            return {};
     }
 }
 
-QVariant TorrentContentModelItem::underlyingData(const int column) const
-{
+QVariant TorrentContentModelItem::underlyingData(const int column) const {
     if (isRootItem())
         return m_itemData.value(column);
 
-    switch (column)
-    {
-    case COL_NAME:
-        return m_name;
-    case COL_PRIO:
-        return static_cast<int>(m_priority);
-    case COL_PROGRESS:
-        return progress() * 100;
-    case COL_SIZE:
-        return m_size;
-    case COL_REMAINING:
-        return remaining();
-    case COL_AVAILABILITY:
-        return availability();
-    default:
-        Q_ASSERT(false);
-        return {};
+    switch (column) {
+        case COL_NAME:
+            return m_name;
+        case COL_PRIO:
+            return static_cast<int>(m_priority);
+        case COL_PROGRESS:
+            return progress() * 100;
+        case COL_SIZE:
+            return m_size;
+        case COL_REMAINING:
+            return remaining();
+        case COL_AVAILABILITY:
+            return availability();
+        default:
+            Q_ASSERT(false);
+            return {};
     }
 }
 
-int TorrentContentModelItem::row() const
-{
+int TorrentContentModelItem::row() const {
     if (m_parentItem)
         return m_parentItem->children().indexOf(const_cast<TorrentContentModelItem *>(this));
     return 0;
 }
 
-TorrentContentModelFolder *TorrentContentModelItem::parent() const
-{
+TorrentContentModelFolder *TorrentContentModelItem::parent() const {
     return m_parentItem;
 }

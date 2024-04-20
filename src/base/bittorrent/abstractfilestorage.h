@@ -35,22 +35,23 @@
 
 class QString;
 
-namespace BitTorrent
-{
-    class AbstractFileStorage
-    {
-        Q_DECLARE_TR_FUNCTIONS(AbstractFileStorage)
+namespace BitTorrent {
+    class AbstractFileStorage {
+    Q_DECLARE_TR_FUNCTIONS(AbstractFileStorage)
 
     public:
         virtual ~AbstractFileStorage() = default;
 
         virtual int filesCount() const = 0;
+
         virtual Path filePath(int index) const = 0;
+
         virtual qlonglong fileSize(int index) const = 0;
 
         virtual void renameFile(int index, const Path &newPath) = 0;
 
         void renameFile(const Path &oldPath, const Path &newPath);
+
         void renameFolder(const Path &oldFolderPath, const Path &newFolderPath);
     };
 }

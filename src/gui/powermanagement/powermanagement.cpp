@@ -35,7 +35,9 @@
 #endif
 
 #ifdef Q_OS_WIN
+
 #include <windows.h>
+
 #endif
 
 #ifdef QBT_USES_DBUS
@@ -43,23 +45,20 @@
 #endif
 
 PowerManagement::PowerManagement(QObject *parent)
-    : QObject(parent)
-{
+        : QObject(parent) {
 #ifdef QBT_USES_DBUS
     m_inhibitor = new PowerManagementInhibitor(this);
 #endif
 }
 
-void PowerManagement::setActivityState(const bool busy)
-{
+void PowerManagement::setActivityState(const bool busy) {
     if (busy)
         setBusy();
     else
         setIdle();
 }
 
-void PowerManagement::setBusy()
-{
+void PowerManagement::setBusy() {
     if (m_busy) return;
     m_busy = true;
 
@@ -75,8 +74,7 @@ void PowerManagement::setBusy()
 #endif
 }
 
-void PowerManagement::setIdle()
-{
+void PowerManagement::setIdle() {
     if (!m_busy) return;
     m_busy = false;
 

@@ -37,11 +37,9 @@
 #include "torrent.h"
 #include "torrentcontentlayout.h"
 
-namespace BitTorrent
-{
-    struct LoadTorrentParams
-    {
-        lt::add_torrent_params ltAddTorrentParams {};
+namespace BitTorrent {
+    struct LoadTorrentParams {
+        lt::add_torrent_params ltAddTorrentParams{};
 
         QString name;
         QString category;

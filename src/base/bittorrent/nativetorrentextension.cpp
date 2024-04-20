@@ -31,13 +31,10 @@
 #include <libtorrent/torrent_status.hpp>
 
 NativeTorrentExtension::NativeTorrentExtension(const lt::torrent_handle &torrentHandle, ExtensionData *data)
-    : m_torrentHandle {torrentHandle}
-    , m_data {data}
-{
+        : m_torrentHandle{torrentHandle}, m_data{data} {
     // NOTE: `data` may not exist if a torrent is added behind the scenes to download metadata
 
-    if (m_data)
-    {
+    if (m_data) {
         m_data->status = m_torrentHandle.status();
         m_data->trackers = m_torrentHandle.trackers();
         m_data->urlSeeds = m_torrentHandle.url_seeds();
@@ -46,16 +43,13 @@ NativeTorrentExtension::NativeTorrentExtension(const lt::torrent_handle &torrent
     on_state(m_data ? m_data->status.state : m_torrentHandle.status({}).state);
 }
 
-NativeTorrentExtension::~NativeTorrentExtension()
-{
+NativeTorrentExtension::~NativeTorrentExtension() {
     delete m_data;
 }
 
-void NativeTorrentExtension::on_state(const lt::torrent_status::state_t state)
-{
+void NativeTorrentExtension::on_state(const lt::torrent_status::state_t state) {
     if ((m_state == lt::torrent_status::downloading_metadata)
-            || (m_state == lt::torrent_status::checking_files))
-    {
+        || (m_state == lt::torrent_status::checking_files)) {
         m_torrentHandle.unset_flags(lt::torrent_flags::auto_managed);
         m_torrentHandle.pause();
     }

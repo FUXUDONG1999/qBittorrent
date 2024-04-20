@@ -42,78 +42,112 @@
 
 class AsyncFileStorage;
 
-namespace Net
-{
+namespace Net {
     class DownloadHandler;
+
     struct DownloadResult;
 }
 
-namespace RSS
-{
+namespace RSS {
     class Article;
+
     class Session;
 
-    namespace Private
-    {
+    namespace Private {
         class FeedSerializer;
+
         class Parser;
+
         struct ParsingResult;
     }
 
-    class Feed final : public Item
-    {
-        Q_OBJECT
+    class Feed final : public Item {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Feed)
 
         friend class Session;
 
         Feed(const QUuid &uid, const QString &url, const QString &path, Session *session);
+
         ~Feed() override;
 
     public:
         QList<Article *> articles() const override;
+
         int unreadCount() const override;
+
         void markAsRead() override;
+
         void refresh() override;
 
         QUuid uid() const;
+
         QString url() const;
+
         QString title() const;
+
         QString lastBuildDate() const;
+
         bool hasError() const;
+
         bool isLoading() const;
+
         Article *articleByGUID(const QString &guid) const;
+
         Path iconPath() const;
 
         QJsonValue toJsonValue(bool withData = false) const override;
 
     signals:
+
         void iconLoaded(Feed *feed = nullptr);
+
         void titleChanged(Feed *feed = nullptr);
+
         void stateChanged(Feed *feed = nullptr);
+
         void urlChanged(const QString &oldURL);
 
     private slots:
+
         void handleSessionProcessingEnabledChanged(bool enabled);
+
         void handleMaxArticlesPerFeedChanged(int n);
+
         void handleIconDownloadFinished(const Net::DownloadResult &result);
+
         void handleDownloadFinished(const Net::DownloadResult &result);
+
         void handleParsingFinished(const Private::ParsingResult &result);
+
         void handleArticleRead(Article *article);
+
         void handleArticleLoadFinished(QVector<QVariantHash> articles);
 
     private:
         void timerEvent(QTimerEvent *event) override;
+
         void cleanup() override;
+
         void load();
+
         void store();
+
         void storeDeferred();
+
         bool addArticle(const QVariantHash &articleData);
+
         void removeOldestArticle();
+
         void increaseUnreadCount();
+
         void decreaseUnreadCount();
+
         void downloadIcon();
+
         int updateArticles(const QList<QVariantHash> &loadedArticles);
+
         void setURL(const QString &url);
 
         Session *m_session = nullptr;

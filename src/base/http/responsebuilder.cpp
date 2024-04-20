@@ -30,38 +30,31 @@
 
 using namespace Http;
 
-void ResponseBuilder::status(const uint code, const QString &text)
-{
+void ResponseBuilder::status(const uint code, const QString &text) {
     m_response.status = {code, text};
 }
 
-void ResponseBuilder::setHeader(const Header &header)
-{
+void ResponseBuilder::setHeader(const Header &header) {
     m_response.headers[header.name] = header.value;
 }
 
-void ResponseBuilder::print(const QString &text, const QString &type)
-{
+void ResponseBuilder::print(const QString &text, const QString &type) {
     print_impl(text.toUtf8(), type);
 }
 
-void ResponseBuilder::print(const QByteArray &data, const QString &type)
-{
+void ResponseBuilder::print(const QByteArray &data, const QString &type) {
     print_impl(data, type);
 }
 
-void ResponseBuilder::clear()
-{
+void ResponseBuilder::clear() {
     m_response = Response();
 }
 
-Response ResponseBuilder::response() const
-{
+Response ResponseBuilder::response() const {
     return m_response;
 }
 
-void ResponseBuilder::print_impl(const QByteArray &data, const QString &type)
-{
+void ResponseBuilder::print_impl(const QByteArray &data, const QString &type) {
     if (!m_response.headers.contains(HEADER_CONTENT_TYPE))
         m_response.headers[HEADER_CONTENT_TYPE] = type;
 

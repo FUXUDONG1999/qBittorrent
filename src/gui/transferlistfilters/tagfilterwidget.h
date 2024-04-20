@@ -30,9 +30,9 @@
 
 #include <QTreeView>
 
-class TagFilterWidget final : public QTreeView
-{
-    Q_OBJECT
+class TagFilterWidget final : public QTreeView {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TagFilterWidget)
 
 public:
@@ -41,22 +41,35 @@ public:
     QString currentTag() const;
 
 signals:
+
     void tagChanged(const QString &tag);
+
     void actionResumeTorrentsTriggered();
+
     void actionPauseTorrentsTriggered();
+
     void actionDeleteTorrentsTriggered();
 
 private slots:
+
     void onCurrentRowChanged(const QModelIndex &current, const QModelIndex &previous);
+
     void showMenu();
+
     void callUpdateGeometry();
+
     void addTag();
+
     void removeTag();
+
     void removeUnusedTags();
 
 private:
     QSize sizeHint() const override;
+
     QSize minimumSizeHint() const override;
+
     void rowsInserted(const QModelIndex &parent, int start, int end) override;
+
     QString askTagName();
 };

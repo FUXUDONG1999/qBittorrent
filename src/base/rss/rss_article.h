@@ -35,13 +35,12 @@
 #include <QString>
 #include <QVariantHash>
 
-namespace RSS
-{
+namespace RSS {
     class Feed;
 
-    class Article final : public QObject
-    {
-        Q_OBJECT
+    class Article final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Article)
 
         friend class Feed;
@@ -59,14 +58,23 @@ namespace RSS
         static const QString KeyIsRead;
 
         Feed *feed() const;
+
         QString guid() const;
+
         QDateTime date() const;
+
         QString title() const;
+
         QString author() const;
+
         QString description() const;
+
         QString torrentUrl() const;
+
         QString link() const;
+
         bool isRead() const;
+
         QVariantHash data() const;
 
         void markAsRead();
@@ -74,6 +82,7 @@ namespace RSS
         static bool articleDateRecentThan(const Article *article, const QDateTime &date);
 
     signals:
+
         void read(Article *article = nullptr);
 
     private:

@@ -31,39 +31,33 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN
+
 #include <windows.h>
 
 #include <QDebug>
 #include <QSharedMemory>
+
 #endif
 
 #include "base/path.h"
 #include "qtlocalpeer/qtlocalpeer.h"
 
 ApplicationInstanceManager::ApplicationInstanceManager(const Path &instancePath, QObject *parent)
-    : QObject {parent}
-    , m_peer {new QtLocalPeer(instancePath.data(), this)}
-    , m_isFirstInstance {!m_peer->isClient()}
-{
+        : QObject{parent}, m_peer{new QtLocalPeer(instancePath.data(), this)}, m_isFirstInstance{!m_peer->isClient()} {
     connect(m_peer, &QtLocalPeer::messageReceived, this, &ApplicationInstanceManager::messageReceived);
 
 #ifdef Q_OS_WIN
     const QString sharedMemoryKey = instancePath.data() + u"/shared-memory";
     auto sharedMem = new QSharedMemory(sharedMemoryKey, this);
-    if (m_isFirstInstance)
-    {
+    if (m_isFirstInstance) {
         // First instance creates shared memory and store PID
-        if (sharedMem->create(sizeof(DWORD)) && sharedMem->lock())
-        {
+        if (sharedMem->create(sizeof(DWORD)) && sharedMem->lock()) {
             *(static_cast<DWORD *>(sharedMem->data())) = ::GetCurrentProcessId();
             sharedMem->unlock();
         }
-    }
-    else
-    {
+    } else {
         // Later instances attach to shared memory and retrieve PID
-        if (sharedMem->attach() && sharedMem->lock())
-        {
+        if (sharedMem->attach() && sharedMem->lock()) {
             ::AllowSetForegroundWindow(*(static_cast<DWORD *>(sharedMem->data())));
             sharedMem->unlock();
         }
@@ -74,12 +68,10 @@ ApplicationInstanceManager::ApplicationInstanceManager(const Path &instancePath,
 #endif
 }
 
-bool ApplicationInstanceManager::isFirstInstance() const
-{
+bool ApplicationInstanceManager::isFirstInstance() const {
     return m_isFirstInstance;
 }
 
-bool ApplicationInstanceManager::sendMessage(const QString &message, const int timeout)
-{
+bool ApplicationInstanceManager::sendMessage(const QString &message, const int timeout) {
     return m_peer->sendMessage(message, timeout);
 }

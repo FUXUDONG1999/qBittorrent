@@ -40,8 +40,7 @@
 #include "gui/uithememanager.h"
 
 StatusFilterWidget::StatusFilterWidget(QWidget *parent, TransferListWidget *transferList)
-    : BaseFilterWidget(parent, transferList)
-{
+        : BaseFilterWidget(parent, transferList) {
     // Add status filters
     auto *all = new QListWidgetItem(this);
     all->setData(Qt::DisplayRole, tr("All (0)", "this is for the status filter"));
@@ -88,8 +87,7 @@ StatusFilterWidget::StatusFilterWidget(QWidget *parent, TransferListWidget *tran
 
     const QVector<BitTorrent::Torrent *> torrents = BitTorrent::Session::instance()->torrents();
     update(torrents);
-    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentsUpdated
-            , this, &StatusFilterWidget::update);
+    connect(BitTorrent::Session::instance(), &BitTorrent::Session::torrentsUpdated, this, &StatusFilterWidget::update);
 
     const Preferences *const pref = Preferences::instance();
     connect(pref, &Preferences::changed, this, &StatusFilterWidget::configure);
@@ -103,42 +101,34 @@ StatusFilterWidget::StatusFilterWidget(QWidget *parent, TransferListWidget *tran
     toggleFilter(pref->getStatusFilterState());
 }
 
-StatusFilterWidget::~StatusFilterWidget()
-{
+StatusFilterWidget::~StatusFilterWidget() {
     Preferences::instance()->setTransSelFilter(currentRow());
 }
 
-QSize StatusFilterWidget::sizeHint() const
-{
+QSize StatusFilterWidget::sizeHint() const {
     int numVisibleItems = 0;
-    for (int i = 0; i < count(); ++i)
-    {
+    for (int i = 0; i < count(); ++i) {
         if (!item(i)->isHidden())
             ++numVisibleItems;
     }
 
     return {
-        // Width should be exactly the width of the content
-        sizeHintForColumn(0),
-        // Height should be exactly the height of the content
-        static_cast<int>((sizeHintForRow(0) + 2 * spacing()) * (numVisibleItems + 0.5))};
+            // Width should be exactly the width of the content
+            sizeHintForColumn(0),
+            // Height should be exactly the height of the content
+            static_cast<int>((sizeHintForRow(0) + 2 * spacing()) * (numVisibleItems + 0.5))};
 }
 
-void StatusFilterWidget::updateTorrentStatus(const BitTorrent::Torrent *torrent)
-{
+void StatusFilterWidget::updateTorrentStatus(const BitTorrent::Torrent *torrent) {
     TorrentFilterBitset &torrentStatus = m_torrentsStatus[torrent];
 
-    const auto update = [torrent, &torrentStatus](const TorrentFilter::Type status, int &counter)
-    {
+    const auto update = [torrent, &torrentStatus](const TorrentFilter::Type status, int &counter) {
         const bool hasStatus = torrentStatus[status];
         const bool needStatus = TorrentFilter(status).match(torrent);
-        if (needStatus && !hasStatus)
-        {
+        if (needStatus && !hasStatus) {
             ++counter;
             torrentStatus.set(status);
-        }
-        else if (!needStatus && hasStatus)
-        {
+        } else if (!needStatus && hasStatus) {
             --counter;
             torrentStatus.reset(status);
         }
@@ -160,8 +150,7 @@ void StatusFilterWidget::updateTorrentStatus(const BitTorrent::Torrent *torrent)
     m_nbStalled = m_nbStalledUploading + m_nbStalledDownloading;
 }
 
-void StatusFilterWidget::updateTexts()
-{
+void StatusFilterWidget::updateTexts() {
     const qsizetype torrentsCount = BitTorrent::Session::instance()->torrentsCount();
     item(TorrentFilter::All)->setData(Qt::DisplayRole, tr("All (%1)").arg(torrentsCount));
     item(TorrentFilter::Downloading)->setData(Qt::DisplayRole, tr("Downloading (%1)").arg(m_nbDownloading));
@@ -179,8 +168,7 @@ void StatusFilterWidget::updateTexts()
     item(TorrentFilter::Errored)->setData(Qt::DisplayRole, tr("Errored (%1)").arg(m_nbErrored));
 }
 
-void StatusFilterWidget::hideZeroItems()
-{
+void StatusFilterWidget::hideZeroItems() {
     item(TorrentFilter::Downloading)->setHidden(m_nbDownloading == 0);
     item(TorrentFilter::Seeding)->setHidden(m_nbSeeding == 0);
     item(TorrentFilter::Completed)->setHidden(m_nbCompleted == 0);
@@ -199,50 +187,43 @@ void StatusFilterWidget::hideZeroItems()
         setCurrentRow(TorrentFilter::All, QItemSelectionModel::SelectCurrent);
 }
 
-void StatusFilterWidget::update(const QVector<BitTorrent::Torrent *> &torrents)
-{
-    for (const BitTorrent::Torrent *torrent : torrents)
+void StatusFilterWidget::update(const QVector<BitTorrent::Torrent *> &torrents) {
+    for (const BitTorrent::Torrent *torrent: torrents)
         updateTorrentStatus(torrent);
 
     updateTexts();
 
-    if (Preferences::instance()->getHideZeroStatusFilters())
-    {
+    if (Preferences::instance()->getHideZeroStatusFilters()) {
         hideZeroItems();
         updateGeometry();
     }
 }
 
-void StatusFilterWidget::showMenu()
-{
+void StatusFilterWidget::showMenu() {
     QMenu *menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    menu->addAction(UIThemeManager::instance()->getIcon(u"torrent-start"_s, u"media-playback-start"_s), tr("Resume torrents")
-        , transferList(), &TransferListWidget::startVisibleTorrents);
-    menu->addAction(UIThemeManager::instance()->getIcon(u"torrent-stop"_s, u"media-playback-pause"_s), tr("Pause torrents")
-        , transferList(), &TransferListWidget::pauseVisibleTorrents);
-    menu->addAction(UIThemeManager::instance()->getIcon(u"list-remove"_s), tr("Remove torrents")
-        , transferList(), &TransferListWidget::deleteVisibleTorrents);
+    menu->addAction(UIThemeManager::instance()->getIcon(u"torrent-start"_s, u"media-playback-start"_s), tr("Resume torrents"), transferList(),
+                    &TransferListWidget::startVisibleTorrents);
+    menu->addAction(UIThemeManager::instance()->getIcon(u"torrent-stop"_s, u"media-playback-pause"_s), tr("Pause torrents"), transferList(),
+                    &TransferListWidget::pauseVisibleTorrents);
+    menu->addAction(UIThemeManager::instance()->getIcon(u"list-remove"_s), tr("Remove torrents"), transferList(), &TransferListWidget::deleteVisibleTorrents);
 
     menu->popup(QCursor::pos());
 }
 
-void StatusFilterWidget::applyFilter(int row)
-{
+void StatusFilterWidget::applyFilter(int row) {
     transferList()->applyStatusFilter(row);
 }
 
-void StatusFilterWidget::handleTorrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents)
-{
-    for (const BitTorrent::Torrent *torrent : torrents)
+void StatusFilterWidget::handleTorrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents) {
+    for (const BitTorrent::Torrent *torrent: torrents)
         updateTorrentStatus(torrent);
 
     updateTexts();
 }
 
-void StatusFilterWidget::torrentAboutToBeDeleted(BitTorrent::Torrent *const torrent)
-{
+void StatusFilterWidget::torrentAboutToBeDeleted(BitTorrent::Torrent *const torrent) {
     const TorrentFilterBitset status = m_torrentsStatus.take(torrent);
 
     if (status[TorrentFilter::Downloading])
@@ -275,14 +256,10 @@ void StatusFilterWidget::torrentAboutToBeDeleted(BitTorrent::Torrent *const torr
     updateTexts();
 }
 
-void StatusFilterWidget::configure()
-{
-    if (Preferences::instance()->getHideZeroStatusFilters())
-    {
+void StatusFilterWidget::configure() {
+    if (Preferences::instance()->getHideZeroStatusFilters()) {
         hideZeroItems();
-    }
-    else
-    {
+    } else {
         for (int i = 0; i < count(); ++i)
             item(i)->setHidden(false);
     }

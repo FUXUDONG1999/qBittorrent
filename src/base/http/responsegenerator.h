@@ -31,13 +31,15 @@
 #pragma once
 
 class QByteArray;
+
 class QString;
 
-namespace Http
-{
+namespace Http {
     struct Response;
 
     QByteArray toByteArray(Response response);
+
     QString httpDate();
+
     void compressContent(Response &response);
 }

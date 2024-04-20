@@ -33,26 +33,31 @@
 #include "base/settingvalue.h"
 
 class QSortFilterProxyModel;
+
 class QStringListModel;
 
-namespace Ui
-{
+namespace Ui {
     class IPSubnetWhitelistOptionsDialog;
 }
 
-class IPSubnetWhitelistOptionsDialog final : public QDialog
-{
-    Q_OBJECT
+class IPSubnetWhitelistOptionsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(IPSubnetWhitelistOptionsDialog)
 
 public:
     explicit IPSubnetWhitelistOptionsDialog(QWidget *parent = nullptr);
+
     ~IPSubnetWhitelistOptionsDialog() override;
 
 private slots:
+
     void on_buttonBox_accepted();
+
     void on_buttonWhitelistIPSubnet_clicked();
+
     void on_buttonDeleteIPSubnet_clicked();
+
     void on_txtIPSubnet_textChanged(const QString &subnetStr);
 
 private:

@@ -32,24 +32,26 @@
 
 #include "base/settingvalue.h"
 
-namespace Ui
-{
+namespace Ui {
     class DownloadFromURLDialog;
 }
 
-class DownloadFromURLDialog final : public QDialog
-{
-    Q_OBJECT
+class DownloadFromURLDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(DownloadFromURLDialog)
 
 public:
     explicit DownloadFromURLDialog(QWidget *parent);
+
     ~DownloadFromURLDialog() override;
 
 signals:
+
     void urlsReadyToBeDownloaded(const QStringList &torrentURLs);
 
 private slots:
+
     void onSubmit();
 
 private:

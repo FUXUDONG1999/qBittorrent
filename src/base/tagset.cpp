@@ -28,8 +28,7 @@
 
 #include "tagset.h"
 
-bool TagLessThan::operator()(const QString &left, const QString &right) const
-{
+bool TagLessThan::operator()(const QString &left, const QString &right) const {
     const int result = m_compare(left, right);
     if (result != 0)
         return (result < 0);

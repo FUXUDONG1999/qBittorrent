@@ -36,27 +36,23 @@
 #include "gui/uithememanager.h"
 
 ArticleListWidget::ArticleListWidget(QWidget *parent)
-    : QListWidget(parent)
-{
+        : QListWidget(parent) {
     setContextMenuPolicy(Qt::CustomContextMenu);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     checkInvariant();
 }
 
-RSS::Article *ArticleListWidget::getRSSArticle(QListWidgetItem *item) const
-{
+RSS::Article *ArticleListWidget::getRSSArticle(QListWidgetItem *item) const {
     Q_ASSERT(item);
     return item->data(Qt::UserRole).value<RSS::Article *>();
 }
 
-QListWidgetItem *ArticleListWidget::mapRSSArticle(RSS::Article *rssArticle) const
-{
+QListWidgetItem *ArticleListWidget::mapRSSArticle(RSS::Article *rssArticle) const {
     return m_rssArticleToListItemMapping.value(rssArticle);
 }
 
-void ArticleListWidget::setRSSItem(RSS::Item *rssItem, bool unreadOnly)
-{
+void ArticleListWidget::setRSSItem(RSS::Item *rssItem, bool unreadOnly) {
     // Clear the list first
     clear();
     m_rssArticleToListItemMapping.clear();
@@ -65,16 +61,13 @@ void ArticleListWidget::setRSSItem(RSS::Item *rssItem, bool unreadOnly)
 
     m_unreadOnly = unreadOnly;
     m_rssItem = rssItem;
-    if (m_rssItem)
-    {
+    if (m_rssItem) {
         connect(m_rssItem, &RSS::Item::newArticle, this, &ArticleListWidget::handleArticleAdded);
         connect(m_rssItem, &RSS::Item::articleRead, this, &ArticleListWidget::handleArticleRead);
         connect(m_rssItem, &RSS::Item::articleAboutToBeRemoved, this, &ArticleListWidget::handleArticleAboutToBeRemoved);
 
-        for (auto *article : asConst(rssItem->articles()))
-        {
-            if (!(m_unreadOnly && article->isRead()))
-            {
+        for (auto *article: asConst(rssItem->articles())) {
+            if (!(m_unreadOnly && article->isRead())) {
                 auto *item = createItem(article);
                 addItem(item);
                 m_rssArticleToListItemMapping.insert(article, item);
@@ -85,10 +78,8 @@ void ArticleListWidget::setRSSItem(RSS::Item *rssItem, bool unreadOnly)
     checkInvariant();
 }
 
-void ArticleListWidget::handleArticleAdded(RSS::Article *rssArticle)
-{
-    if (!(m_unreadOnly && rssArticle->isRead()))
-    {
+void ArticleListWidget::handleArticleAdded(RSS::Article *rssArticle) {
+    if (!(m_unreadOnly && rssArticle->isRead())) {
         auto *item = createItem(rssArticle);
         insertItem(0, item);
         m_rssArticleToListItemMapping.insert(rssArticle, item);
@@ -97,45 +88,38 @@ void ArticleListWidget::handleArticleAdded(RSS::Article *rssArticle)
     checkInvariant();
 }
 
-void ArticleListWidget::handleArticleRead(RSS::Article *rssArticle)
-{
+void ArticleListWidget::handleArticleRead(RSS::Article *rssArticle) {
     auto *item = mapRSSArticle(rssArticle);
     if (!item) return;
 
-    const QBrush foregroundBrush {UIThemeManager::instance()->getColor(u"RSS.ReadArticle"_s)};
+    const QBrush foregroundBrush{UIThemeManager::instance()->getColor(u"RSS.ReadArticle"_s)};
     item->setData(Qt::ForegroundRole, foregroundBrush);
     item->setData(Qt::DecorationRole, UIThemeManager::instance()->getIcon(u"rss_read_article"_s, u"sphere"_s));
 
     checkInvariant();
 }
 
-void ArticleListWidget::handleArticleAboutToBeRemoved(RSS::Article *rssArticle)
-{
+void ArticleListWidget::handleArticleAboutToBeRemoved(RSS::Article *rssArticle) {
     delete m_rssArticleToListItemMapping.take(rssArticle);
     checkInvariant();
 }
 
-void ArticleListWidget::checkInvariant() const
-{
+void ArticleListWidget::checkInvariant() const {
     Q_ASSERT(count() == m_rssArticleToListItemMapping.count());
 }
 
-QListWidgetItem *ArticleListWidget::createItem(RSS::Article *article) const
-{
+QListWidgetItem *ArticleListWidget::createItem(RSS::Article *article) const {
     Q_ASSERT(article);
     auto *item = new QListWidgetItem;
 
     item->setData(Qt::DisplayRole, article->title());
     item->setData(Qt::UserRole, QVariant::fromValue(article));
-    if (article->isRead())
-    {
-        const QBrush foregroundBrush {UIThemeManager::instance()->getColor(u"RSS.ReadArticle"_s)};
+    if (article->isRead()) {
+        const QBrush foregroundBrush{UIThemeManager::instance()->getColor(u"RSS.ReadArticle"_s)};
         item->setData(Qt::ForegroundRole, foregroundBrush);
         item->setData(Qt::DecorationRole, UIThemeManager::instance()->getIcon(u"rss_read_article"_s, u"sphere"_s));
-    }
-    else
-    {
-        const QBrush foregroundBrush {UIThemeManager::instance()->getColor(u"RSS.UnreadArticle"_s)};
+    } else {
+        const QBrush foregroundBrush{UIThemeManager::instance()->getColor(u"RSS.UnreadArticle"_s)};
         item->setData(Qt::ForegroundRole, foregroundBrush);
         item->setData(Qt::DecorationRole, UIThemeManager::instance()->getIcon(u"rss_unread_article"_s, u"sphere"_s));
     }

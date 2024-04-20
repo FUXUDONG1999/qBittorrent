@@ -37,33 +37,37 @@
 
 class QXmlStreamReader;
 
-namespace RSS::Private
-{
-    struct ParsingResult
-    {
+namespace RSS::Private {
+    struct ParsingResult {
         QString error;
         QString lastBuildDate;
         QString title;
         QList<QVariantHash> articles;
     };
 
-    class Parser final : public QObject
-    {
-        Q_OBJECT
+    class Parser final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Parser)
 
     public:
         explicit Parser(const QString &lastBuildDate);
+
         void parse(const QByteArray &feedData);
 
     signals:
+
         void finished(const RSS::Private::ParsingResult &result);
 
     private:
         void parseRssArticle(QXmlStreamReader &xml);
+
         void parseRSSChannel(QXmlStreamReader &xml);
+
         void parseAtomArticle(QXmlStreamReader &xml);
+
         void parseAtomChannel(QXmlStreamReader &xml);
+
         void addArticle(QVariantHash article);
 
         QString m_baseUrl;

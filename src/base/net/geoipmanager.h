@@ -32,22 +32,24 @@
 #include <QObject>
 
 class QHostAddress;
+
 class QString;
 
 class GeoIPDatabase;
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 
-    class GeoIPManager final : public QObject
-    {
-        Q_OBJECT
+    class GeoIPManager final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(GeoIPManager)
 
     public:
         static void initInstance();
+
         static void freeInstance();
+
         static GeoIPManager *instance();
 
         QString lookup(const QHostAddress &hostAddr) const;
@@ -55,15 +57,20 @@ namespace Net
         static QString CountryName(const QString &countryISOCode);
 
     private slots:
+
         void configure();
+
         void downloadFinished(const DownloadResult &result);
 
     private:
         GeoIPManager();
+
         ~GeoIPManager() override;
 
         void loadDatabase();
+
         void manageDatabaseUpdate();
+
         void downloadDatabaseFile();
 
         bool m_enabled = false;

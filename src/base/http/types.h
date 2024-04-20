@@ -35,8 +35,7 @@
 
 #include "base/global.h"
 
-namespace Http
-{
+namespace Http {
     inline const QString METHOD_GET = u"GET"_s;
     inline const QString METHOD_POST = u"POST"_s;
 
@@ -47,7 +46,7 @@ namespace Http
     inline const QString HEADER_CONTENT_LENGTH = u"content-length"_s;
     inline const QString HEADER_CONTENT_SECURITY_POLICY = u"content-security-policy"_s;
     inline const QString HEADER_CONTENT_TYPE = u"content-type"_s;
-    inline const QString HEADER_CROSS_ORIGIN_OPENER_POLICY  = u"cross-origin-opener-policy"_s;
+    inline const QString HEADER_CROSS_ORIGIN_OPENER_POLICY = u"cross-origin-opener-policy"_s;
     inline const QString HEADER_DATE = u"date"_s;
     inline const QString HEADER_HOST = u"host"_s;
     inline const QString HEADER_ORIGIN = u"origin"_s;
@@ -77,8 +76,7 @@ namespace Http
     // portability: "\r\n" doesn't guarantee mapping to the correct symbol
     inline const char CRLF[] = {0x0D, 0x0A, '\0'};
 
-    struct Environment
-    {
+    struct Environment {
         QHostAddress localAddress;
         quint16 localPort = 0;
 
@@ -86,23 +84,20 @@ namespace Http
         quint16 clientPort = 0;
     };
 
-    struct UploadedFile
-    {
+    struct UploadedFile {
         QString filename;
         QString type;  // MIME type
         QByteArray data;
     };
 
-    struct Header
-    {
+    struct Header {
         QString name;
         QString value;
     };
 
     using HeaderMap = QMap<QString, QString>;  // <Header name, Header value>
 
-    struct Request
-    {
+    struct Request {
         QString version;
         QString method;
         QString path;
@@ -112,21 +107,18 @@ namespace Http
         QVector<UploadedFile> files;
     };
 
-    struct ResponseStatus
-    {
+    struct ResponseStatus {
         uint code;
         QString text;
     };
 
-    struct Response
-    {
+    struct Response {
         ResponseStatus status;
         HeaderMap headers;
         QByteArray content;
 
         Response(uint code = 200, const QString &text = u"OK"_s)
-            : status {code, text}
-        {
+                : status{code, text} {
         }
     };
 }

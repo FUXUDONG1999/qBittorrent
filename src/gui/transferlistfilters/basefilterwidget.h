@@ -36,26 +36,32 @@
 
 class TransferListWidget;
 
-class BaseFilterWidget : public QListWidget
-{
-    Q_OBJECT
+class BaseFilterWidget : public QListWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(BaseFilterWidget)
 
 public:
     BaseFilterWidget(QWidget *parent, TransferListWidget *transferList);
 
     QSize sizeHint() const override;
+
     QSize minimumSizeHint() const override;
 
     TransferListWidget *transferList() const;
 
 public slots:
+
     void toggleFilter(bool checked);
 
 private slots:
+
     virtual void showMenu() = 0;
+
     virtual void applyFilter(int row) = 0;
+
     virtual void handleTorrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents) = 0;
+
     virtual void torrentAboutToBeDeleted(BitTorrent::Torrent *) = 0;
 
 private:

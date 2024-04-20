@@ -37,47 +37,62 @@
 #include "gui/guiapplicationcomponent.h"
 
 class QEvent;
+
 class QObject;
+
 class QTabWidget;
 
 class MainWindow;
+
 class SearchJobWidget;
 
-namespace Ui
-{
+namespace Ui {
     class SearchWidget;
 }
 
-class SearchWidget : public QWidget, public GUIApplicationComponent
-{
-    Q_OBJECT
+class SearchWidget : public QWidget, public GUIApplicationComponent {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(SearchWidget)
 
 public:
     explicit SearchWidget(IGUIApplication *app, MainWindow *mainWindow);
+
     ~SearchWidget() override;
 
     void giveFocusToSearchInput();
 
 private slots:
+
     void on_searchButton_clicked();
+
     void on_pluginsButton_clicked();
 
 private:
     bool eventFilter(QObject *object, QEvent *event) override;
+
     void tabChanged(int index);
+
     void closeTab(int index);
+
     void closeAllTabs();
+
     void tabStatusChanged(QWidget *tab);
+
     void selectMultipleBox(int index);
+
     void toggleFocusBetweenLineEdits();
 
     void fillCatCombobox();
+
     void fillPluginComboBox();
+
     void selectActivePage();
+
     void searchTextEdited(const QString &);
 
     QString selectedCategory() const;
+
     QString selectedPlugin() const;
 
     Ui::SearchWidget *m_ui = nullptr;

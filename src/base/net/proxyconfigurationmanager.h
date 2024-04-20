@@ -33,21 +33,19 @@
 #include "base/global.h"
 #include "base/settingvalue.h"
 
-namespace Net
-{
+namespace Net {
     Q_NAMESPACE
 
-    enum class ProxyType
-    {
+    enum class ProxyType {
         None = 0,
         HTTP = 1,
         SOCKS5 = 2,
         SOCKS4 = 5
     };
+
     Q_ENUM_NS(ProxyType)
 
-    struct ProxyConfiguration
-    {
+    struct ProxyConfiguration {
         ProxyType type = ProxyType::None;
         QString ip;
         ushort port = 8080;
@@ -56,26 +54,33 @@ namespace Net
         QString password;
         bool hostnameLookupEnabled = true;
     };
+
     bool operator==(const ProxyConfiguration &left, const ProxyConfiguration &right);
+
     bool operator!=(const ProxyConfiguration &left, const ProxyConfiguration &right);
 
-    class ProxyConfigurationManager final : public QObject
-    {
-        Q_OBJECT
+    class ProxyConfigurationManager final : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(ProxyConfigurationManager)
 
         explicit ProxyConfigurationManager(QObject *parent = nullptr);
+
         ~ProxyConfigurationManager() = default;
 
     public:
         static void initInstance();
+
         static void freeInstance();
+
         static ProxyConfigurationManager *instance();
 
         ProxyConfiguration proxyConfiguration() const;
+
         void setProxyConfiguration(const ProxyConfiguration &config);
 
     signals:
+
         void proxyConfigurationChanged();
 
     private:

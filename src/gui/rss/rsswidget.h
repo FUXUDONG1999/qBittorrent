@@ -33,53 +33,79 @@
 #include <QWidget>
 
 class QListWidgetItem;
+
 class QTreeWidgetItem;
 
 class ArticleListWidget;
+
 class FeedListWidget;
 
-namespace Ui
-{
+namespace Ui {
     class RSSWidget;
 }
 
-class RSSWidget : public QWidget
-{
-    Q_OBJECT
+class RSSWidget : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(RSSWidget)
 
 public:
     RSSWidget(QWidget *parent);
+
     ~RSSWidget();
 
 public slots:
+
     void deleteSelectedItems();
+
     void updateRefreshInterval(int val) const;
 
 signals:
+
     void unreadCountUpdated(int count);
 
 private slots:
+
     void on_newFeedButton_clicked();
+
     void refreshAllFeeds();
+
     void on_markReadButton_clicked();
+
     void displayRSSListMenu(const QPoint &pos);
+
     void displayItemsListMenu();
+
     void renameSelectedRSSItem();
+
     void editSelectedRSSFeedURL();
+
     void refreshSelectedItems();
+
     void copySelectedFeedsURL();
+
     void handleCurrentFeedItemChanged(QTreeWidgetItem *currentItem);
+
     void handleCurrentArticleItemChanged(QListWidgetItem *currentItem, QListWidgetItem *previousItem);
+
     void openSelectedArticlesUrls();
+
     void downloadSelectedTorrents();
+
     void saveSlidersPosition();
+
     void restoreSlidersPosition();
+
     void askNewFolder();
+
     void saveFoldersOpenState();
+
     void loadFoldersOpenState();
+
     void on_rssDownloaderBtn_clicked();
+
     void handleSessionProcessingStateChanged(bool enabled);
+
     void handleUnreadCountChanged();
 
 private:

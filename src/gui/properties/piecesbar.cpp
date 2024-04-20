@@ -42,40 +42,34 @@
 #include "base/path.h"
 #include "base/utils/misc.h"
 
-namespace
-{
+namespace {
     using ImageRange = IndexRange<int>;
 
     // Computes approximate mapping from image scale (measured in pixels) onto the torrent contents scale (in pieces)
     // However, taking the size of a screen to be ~ 1000 px and the torrent size larger than 10 MiB, the pointing error
     // is well below 0.5 px and thus is negligible.
-    class PieceIndexToImagePos
-    {
+    class PieceIndexToImagePos {
     public:
         PieceIndexToImagePos(const BitTorrent::TorrentInfo &torrentInfo, const QImage &image)
-            : m_bytesPerPixel {((image.width() > 0) && (torrentInfo.totalSize() >= image.width()))
-                               ? torrentInfo.totalSize() / image.width() : -1}
-            , m_torrentInfo {torrentInfo}
-        {
+                : m_bytesPerPixel{((image.width() > 0) && (torrentInfo.totalSize() >= image.width()))
+                                  ? torrentInfo.totalSize() / image.width() : -1}, m_torrentInfo{torrentInfo} {
             if ((m_bytesPerPixel > 0) && (m_bytesPerPixel < 10))
                 qDebug() << "PieceIndexToImagePos: torrent size is too small for correct computaions."
                          << "Torrent size =" << torrentInfo.totalSize() << "Image width = " << image.width();
         }
 
-        ImageRange imagePos(const BitTorrent::TorrentInfo::PieceRange &pieces) const
-        {
+        ImageRange imagePos(const BitTorrent::TorrentInfo::PieceRange &pieces) const {
             if (m_bytesPerPixel < 0)
                 return {0, 0};
 
             // the type conversion is used to prevent integer overflow with torrents of 2+ GiB size
             const qlonglong pieceLength = m_torrentInfo.pieceLength();
             return makeInterval<ImageRange::IndexType>(
-                (pieces.first() * pieceLength) / m_bytesPerPixel,
-                (pieces.last() * pieceLength + m_torrentInfo.pieceLength(pieces.last()) - 1) / m_bytesPerPixel);
+                    (pieces.first() * pieceLength) / m_bytesPerPixel,
+                    (pieces.last() * pieceLength + m_torrentInfo.pieceLength(pieces.last()) - 1) / m_bytesPerPixel);
         }
 
-        int pieceIndex(int imagePos) const
-        {
+        int pieceIndex(int imagePos) const {
             return m_bytesPerPixel < 0 ? 0 : (imagePos * m_bytesPerPixel + m_bytesPerPixel / 2) / m_torrentInfo.pieceLength();
         }
 
@@ -84,28 +78,24 @@ namespace
         const BitTorrent::TorrentInfo m_torrentInfo;
     };
 
-    class DetailedTooltipRenderer
-    {
+    class DetailedTooltipRenderer {
     public:
         DetailedTooltipRenderer(QString &string, const QString &header)
-            : m_string(string)
-        {
+                : m_string(string) {
             m_string += header
-                + uR"(<table style="width:100%; padding: 3px; vertical-align: middle;">)";
+                        + uR"(<table style="width:100%; padding: 3px; vertical-align: middle;">)";
         }
 
-        ~DetailedTooltipRenderer()
-        {
+        ~DetailedTooltipRenderer() {
             m_string += u"</table>";
         }
 
-        void operator()(const QString &size, const Path &path)
-        {
+        void operator()(const QString &size, const Path &path) {
             m_string += uR"(<tr><td style="white-space:nowrap">)"
-                + size
-                + u"</td><td>"
-                + path.toString()
-                + u"</td></tr>";
+                        + size
+                        + u"</td><td>"
+                        + path.toString()
+                        + u"</td></tr>";
         }
 
     private:
@@ -114,29 +104,24 @@ namespace
 }
 
 PiecesBar::PiecesBar(QWidget *parent)
-    : QWidget {parent}
-{
+        : QWidget{parent} {
     updatePieceColors();
     setMouseTracking(true);
 }
 
-void PiecesBar::setTorrent(const BitTorrent::Torrent *torrent)
-{
+void PiecesBar::setTorrent(const BitTorrent::Torrent *torrent) {
     m_torrent = torrent;
     if (!m_torrent)
         clear();
 }
 
-void PiecesBar::clear()
-{
+void PiecesBar::clear() {
     m_image = QImage();
     update();
 }
 
-bool PiecesBar::event(QEvent *e)
-{
-    if (e->type() == QEvent::ToolTip)
-    {
+bool PiecesBar::event(QEvent *e) {
+    if (e->type() == QEvent::ToolTip) {
         showToolTip(static_cast<QHelpEvent *>(e));
         return true;
     }
@@ -145,6 +130,7 @@ bool PiecesBar::event(QEvent *e)
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
 void PiecesBar::enterEvent(QEnterEvent *e)
 #else
 void PiecesBar::enterEvent(QEvent *e)
@@ -154,43 +140,36 @@ void PiecesBar::enterEvent(QEvent *e)
     base::enterEvent(e);
 }
 
-void PiecesBar::leaveEvent(QEvent *e)
-{
+void PiecesBar::leaveEvent(QEvent *e) {
     m_hovered = false;
     m_highlightedRegion = {};
     requestImageUpdate();
     base::leaveEvent(e);
 }
 
-void PiecesBar::mouseMoveEvent(QMouseEvent *e)
-{
+void PiecesBar::mouseMoveEvent(QMouseEvent *e) {
     // if user pointed to a piece which is a part of a single large file,
     // we highlight the space, occupied by this file
     highlightFile(e->pos().x() - borderWidth);
     base::mouseMoveEvent(e);
 }
 
-void PiecesBar::paintEvent(QPaintEvent *)
-{
+void PiecesBar::paintEvent(QPaintEvent *) {
     QPainter painter(this);
     QRect imageRect(borderWidth, borderWidth, width() - 2 * borderWidth, height() - 2 * borderWidth);
-    if (m_image.isNull())
-    {
+    if (m_image.isNull()) {
         painter.setBrush(backgroundColor());
         painter.drawRect(imageRect);
-    }
-    else
-    {
+    } else {
         if (m_image.width() != imageRect.width())
             updateImage(m_image);
         painter.drawImage(imageRect, m_image);
     }
 
-    if (!m_highlightedRegion.isNull())
-    {
-        QColor highlightColor {this->palette().color(QPalette::Active, QPalette::Highlight)};
+    if (!m_highlightedRegion.isNull()) {
+        QColor highlightColor{this->palette().color(QPalette::Active, QPalette::Highlight)};
         highlightColor.setAlphaF(0.35f);
-        QRect targetHighlightRect {m_highlightedRegion.adjusted(borderWidth, borderWidth, borderWidth, height() - 2 * borderWidth)};
+        QRect targetHighlightRect{m_highlightedRegion.adjusted(borderWidth, borderWidth, borderWidth, height() - 2 * borderWidth)};
         painter.fillRect(targetHighlightRect, highlightColor);
     }
 
@@ -200,39 +179,32 @@ void PiecesBar::paintEvent(QPaintEvent *)
     painter.drawPath(border);
 }
 
-void PiecesBar::requestImageUpdate()
-{
+void PiecesBar::requestImageUpdate() {
     if (updateImage(m_image))
         update();
 }
 
-QColor PiecesBar::backgroundColor() const
-{
+QColor PiecesBar::backgroundColor() const {
     return palette().color(QPalette::Base);
 }
 
-QColor PiecesBar::borderColor() const
-{
+QColor PiecesBar::borderColor() const {
     return palette().color(QPalette::Dark);
 }
 
-QColor PiecesBar::pieceColor() const
-{
+QColor PiecesBar::pieceColor() const {
     return palette().color(QPalette::Highlight);
 }
 
-QColor PiecesBar::colorBoxBorderColor() const
-{
+QColor PiecesBar::colorBoxBorderColor() const {
     return palette().color(QPalette::ToolTipText);
 }
 
-const QVector<QRgb> &PiecesBar::pieceColors() const
-{
+const QVector<QRgb> &PiecesBar::pieceColors() const {
     return m_pieceColors;
 }
 
-QRgb PiecesBar::mixTwoColors(QRgb rgb1, QRgb rgb2, float ratio)
-{
+QRgb PiecesBar::mixTwoColors(QRgb rgb1, QRgb rgb2, float ratio) {
     int r1 = qRed(rgb1);
     int g1 = qGreen(rgb1);
     int b1 = qBlue(rgb1);
@@ -249,21 +221,18 @@ QRgb PiecesBar::mixTwoColors(QRgb rgb1, QRgb rgb2, float ratio)
     return qRgb(r, g, b);
 }
 
-void PiecesBar::showToolTip(const QHelpEvent *e)
-{
+void PiecesBar::showToolTip(const QHelpEvent *e) {
     if (!m_torrent)
         return;
 
     QString toolTipText;
 
     const bool showDetailedInformation = QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
-    if (showDetailedInformation && m_torrent->hasMetadata())
-    {
+    if (showDetailedInformation && m_torrent->hasMetadata()) {
         const BitTorrent::TorrentInfo torrentInfo = m_torrent->info();
         const int imagePos = e->pos().x() - borderWidth;
-        if ((imagePos >= 0) && (imagePos < m_image.width()))
-        {
-            const PieceIndexToImagePos transform {torrentInfo, m_image};
+        if ((imagePos >= 0) && (imagePos < m_image.width())) {
+            const PieceIndexToImagePos transform{torrentInfo, m_image};
             const int pieceIndex = transform.pieceIndex(imagePos);
             const QVector<int> fileIndexes = torrentInfo.fileIndicesForPiece(pieceIndex);
 
@@ -278,18 +247,15 @@ void PiecesBar::showToolTip(const QHelpEvent *e)
             toolTipText.reserve(fileIndexes.size() * 128);
             toolTipText += u"<html><body>";
 
-            DetailedTooltipRenderer renderer {toolTipText, tooltipTitle};
+            DetailedTooltipRenderer renderer{toolTipText, tooltipTitle};
 
-            for (const int index : fileIndexes)
-            {
+            for (const int index: fileIndexes) {
                 const Path filePath = m_torrent->filePath(index);
                 renderer(Utils::Misc::friendlyUnit(torrentInfo.fileSize(index)), filePath);
             }
             toolTipText += u"</body></html>";
         }
-    }
-    else
-    {
+    } else {
         toolTipText += simpleToolTipText();
         if (showDetailedInformation) // metadata are not available at this point
             toolTipText += u'\n' + tr("Wait until metadata become available to see detailed information");
@@ -300,40 +266,33 @@ void PiecesBar::showToolTip(const QHelpEvent *e)
     QToolTip::showText(e->globalPos(), toolTipText, this);
 }
 
-void PiecesBar::highlightFile(int imagePos)
-{
+void PiecesBar::highlightFile(int imagePos) {
     if (!m_torrent || !m_torrent->hasMetadata() || (imagePos < 0) || (imagePos >= m_image.width()))
         return;
 
     const BitTorrent::TorrentInfo torrentInfo = m_torrent->info();
-    PieceIndexToImagePos transform {torrentInfo, m_image};
+    PieceIndexToImagePos transform{torrentInfo, m_image};
 
     int pieceIndex = transform.pieceIndex(imagePos);
-    QVector<int> fileIndices {torrentInfo.fileIndicesForPiece(pieceIndex)};
-    if (fileIndices.count() == 1)
-    {
+    QVector<int> fileIndices{torrentInfo.fileIndicesForPiece(pieceIndex)};
+    if (fileIndices.count() == 1) {
         BitTorrent::TorrentInfo::PieceRange filePieces = torrentInfo.filePieces(fileIndices.first());
 
         ImageRange imageRange = transform.imagePos(filePieces);
-        QRect newHighlightedRegion {imageRange.first(), 0, imageRange.size(), m_image.height()};
-        if (newHighlightedRegion != m_highlightedRegion)
-        {
+        QRect newHighlightedRegion{imageRange.first(), 0, imageRange.size(), m_image.height()};
+        if (newHighlightedRegion != m_highlightedRegion) {
             m_highlightedRegion = newHighlightedRegion;
             update();
         }
-    }
-    else if (!m_highlightedRegion.isEmpty())
-    {
+    } else if (!m_highlightedRegion.isEmpty()) {
         m_highlightedRegion = {};
         update();
     }
 }
 
-void PiecesBar::updatePieceColors()
-{
+void PiecesBar::updatePieceColors() {
     m_pieceColors = QVector<QRgb>(256);
-    for (int i = 0; i < 256; ++i)
-    {
+    for (int i = 0; i < 256; ++i) {
         float ratio = (i / 255.0);
         m_pieceColors[i] = mixTwoColors(backgroundColor().rgb(), pieceColor().rgb(), ratio);
     }

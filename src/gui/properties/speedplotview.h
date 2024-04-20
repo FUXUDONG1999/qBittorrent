@@ -33,7 +33,9 @@
 #include <chrono>
 
 #ifndef Q_MOC_RUN
+
 #include <boost/circular_buffer.hpp>
+
 #endif
 
 #include <QElapsedTimer>
@@ -45,14 +47,13 @@ class QPen;
 using std::chrono::milliseconds;
 using namespace std::chrono_literals;
 
-class SpeedPlotView final : public QGraphicsView
-{
-    Q_OBJECT
+class SpeedPlotView final : public QGraphicsView {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(SpeedPlotView)
 
 public:
-    enum GraphID
-    {
+    enum GraphID {
         UP = 0,
         DOWN,
         PAYLOAD_UP,
@@ -67,8 +68,7 @@ public:
         NB_GRAPHS
     };
 
-    enum TimePeriod
-    {
+    enum TimePeriod {
         MIN1 = 0,
         MIN5,
         MIN30,
@@ -83,6 +83,7 @@ public:
     explicit SpeedPlotView(QWidget *parent = nullptr);
 
     void setGraphEnable(GraphID id, bool enable);
+
     void setPeriod(TimePeriod period);
 
     void pushPoint(const SampleData &point);
@@ -91,16 +92,14 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    struct Sample
-    {
+    struct Sample {
         milliseconds duration;
         SampleData data;
     };
 
     using DataCircularBuffer = boost::circular_buffer<Sample>;
 
-    class Averager
-    {
+    class Averager {
     public:
         Averager(milliseconds duration, milliseconds resolution);
 
@@ -111,16 +110,16 @@ private:
     private:
         const milliseconds m_resolution;
         const milliseconds m_maxDuration;
-        milliseconds m_currentDuration {0};
+        milliseconds m_currentDuration{0};
         int m_counter = 0;
-        SampleData m_accumulator {};
-        DataCircularBuffer m_sink {};
+        SampleData m_accumulator{};
+        DataCircularBuffer m_sink{};
         QElapsedTimer m_lastSampleTime;
     };
 
-    struct GraphProperties
-    {
+    struct GraphProperties {
         GraphProperties();
+
         GraphProperties(const QString &name, const QPen &pen, bool enable = false);
 
         QString name;
@@ -129,15 +128,16 @@ private:
     };
 
     quint64 maxYValue() const;
+
     const DataCircularBuffer &currentData() const;
 
-    Averager m_averager5Min {5min, 1s};
-    Averager m_averager30Min {30min, 6s};
-    Averager m_averager6Hour {6h, 36s};
-    Averager m_averager12Hour {12h, 72s};
-    Averager m_averager24Hour {24h, 144s};
-    Averager *m_currentAverager {&m_averager5Min};
+    Averager m_averager5Min{5min, 1s};
+    Averager m_averager30Min{30min, 6s};
+    Averager m_averager6Hour{6h, 36s};
+    Averager m_averager12Hour{12h, 72s};
+    Averager m_averager24Hour{24h, 144s};
+    Averager *m_currentAverager{&m_averager5Min};
 
     QMap<GraphID, GraphProperties> m_properties;
-    milliseconds m_currentMaxDuration {0};
+    milliseconds m_currentMaxDuration{0};
 };

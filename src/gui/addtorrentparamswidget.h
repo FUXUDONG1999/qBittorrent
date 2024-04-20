@@ -32,30 +32,37 @@
 
 #include "base/bittorrent/addtorrentparams.h"
 
-namespace Ui
-{
+namespace Ui {
     class AddTorrentParamsWidget;
 }
 
-class AddTorrentParamsWidget final : public QWidget
-{
-    Q_OBJECT
+class AddTorrentParamsWidget final : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(AddTorrentParamsWidget)
 
 public:
     explicit AddTorrentParamsWidget(BitTorrent::AddTorrentParams addTorrentParams = {}, QWidget *parent = nullptr);
+
     ~AddTorrentParamsWidget() override;
 
     void setAddTorrentParams(BitTorrent::AddTorrentParams addTorrentParams);
+
     BitTorrent::AddTorrentParams addTorrentParams() const;
 
 private:
     void populate();
+
     void loadCustomSavePathOptions();
+
     void loadCustomDownloadPath();
+
     void loadCategorySavePathOptions();
+
     void populateDefaultPaths();
+
     void populateDefaultDownloadPath();
+
     void populateSavePathOptions();
 
 

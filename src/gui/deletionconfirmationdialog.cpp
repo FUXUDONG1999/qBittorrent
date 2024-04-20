@@ -36,15 +36,15 @@
 #include "utils.h"
 
 DeletionConfirmationDialog::DeletionConfirmationDialog(QWidget *parent, const int size, const QString &name, const bool defaultDeleteFiles)
-    : QDialog(parent)
-    , m_ui(new Ui::DeletionConfirmationDialog)
-{
+        : QDialog(parent), m_ui(new Ui::DeletionConfirmationDialog) {
     m_ui->setupUi(this);
 
     if (size == 1)
-        m_ui->label->setText(tr("Are you sure you want to remove '%1' from the transfer list?", "Are you sure you want to remove 'ubuntu-linux-iso' from the transfer list?").arg(name.toHtmlEscaped()));
+        m_ui->label->setText(tr("Are you sure you want to remove '%1' from the transfer list?",
+                                "Are you sure you want to remove 'ubuntu-linux-iso' from the transfer list?").arg(name.toHtmlEscaped()));
     else
-        m_ui->label->setText(tr("Are you sure you want to remove these %1 torrents from the transfer list?", "Are you sure you want to remove these 5 torrents from the transfer list?").arg(QString::number(size)));
+        m_ui->label->setText(tr("Are you sure you want to remove these %1 torrents from the transfer list?",
+                                "Are you sure you want to remove these 5 torrents from the transfer list?").arg(QString::number(size)));
 
     // Icons
     const QSize iconSize = Utils::Gui::largeIconSize();
@@ -62,23 +62,19 @@ DeletionConfirmationDialog::DeletionConfirmationDialog(QWidget *parent, const in
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-DeletionConfirmationDialog::~DeletionConfirmationDialog()
-{
+DeletionConfirmationDialog::~DeletionConfirmationDialog() {
     delete m_ui;
 }
 
-bool DeletionConfirmationDialog::isDeleteFileSelected() const
-{
+bool DeletionConfirmationDialog::isDeleteFileSelected() const {
     return m_ui->checkPermDelete->isChecked();
 }
 
-void DeletionConfirmationDialog::updateRememberButtonState()
-{
+void DeletionConfirmationDialog::updateRememberButtonState() {
     m_ui->rememberBtn->setEnabled(m_ui->checkPermDelete->isChecked() != Preferences::instance()->deleteTorrentFilesAsDefault());
 }
 
-void DeletionConfirmationDialog::on_rememberBtn_clicked()
-{
+void DeletionConfirmationDialog::on_rememberBtn_clicked() {
     Preferences::instance()->setDeleteTorrentFilesAsDefault(m_ui->checkPermDelete->isChecked());
     m_ui->rememberBtn->setEnabled(false);
 }

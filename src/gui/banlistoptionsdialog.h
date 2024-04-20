@@ -33,26 +33,31 @@
 #include "base/settingvalue.h"
 
 class QSortFilterProxyModel;
+
 class QStringListModel;
 
-namespace Ui
-{
+namespace Ui {
     class BanListOptionsDialog;
 }
 
-class BanListOptionsDialog final : public QDialog
-{
-    Q_OBJECT
+class BanListOptionsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(BanListOptionsDialog)
 
 public:
     explicit BanListOptionsDialog(QWidget *parent = nullptr);
+
     ~BanListOptionsDialog() override;
 
 private slots:
+
     void on_buttonBox_accepted();
+
     void on_buttonBanIP_clicked();
+
     void on_buttonDeleteIP_clicked();
+
     void on_txtIP_textChanged(const QString &ip);
 
 private:

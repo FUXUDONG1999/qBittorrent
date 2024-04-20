@@ -36,14 +36,15 @@
 #include <libtorrent/torrent_status.hpp>
 
 #ifdef QBT_USES_LIBTORRENT2
+
 #include <libtorrent/client_data.hpp>
+
 using LTClientData = lt::client_data_t;
 #else
 using LTClientData = void *;
 #endif
 
-struct ExtensionData
-{
+struct ExtensionData {
     lt::torrent_status status;
     std::vector<lt::announce_entry> trackers;
     std::set<std::string> urlSeeds;

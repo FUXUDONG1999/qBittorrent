@@ -34,9 +34,9 @@
 
 class QtLocalPeer;
 
-class ApplicationInstanceManager final : public QObject
-{
-    Q_OBJECT
+class ApplicationInstanceManager final : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ApplicationInstanceManager)
 
 public:
@@ -45,9 +45,11 @@ public:
     bool isFirstInstance() const;
 
 public slots:
+
     bool sendMessage(const QString &message, int timeout = 5000);
 
 signals:
+
     void messageReceived(const QString &message);
 
 private:

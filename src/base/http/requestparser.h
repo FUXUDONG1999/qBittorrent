@@ -32,21 +32,17 @@
 
 #include "types.h"
 
-namespace Http
-{
-    class RequestParser
-    {
+namespace Http {
+    class RequestParser {
     public:
-        enum class ParseStatus
-        {
+        enum class ParseStatus {
             OK,
             Incomplete,
             BadMethod,
             BadRequest
         };
 
-        struct ParseResult
-        {
+        struct ParseResult {
             // when `status != ParseStatus::OK`, `request` & `frameSize` are undefined
             ParseStatus status = ParseStatus::BadRequest;
             Request request;
@@ -61,10 +57,13 @@ namespace Http
         RequestParser() = default;
 
         ParseResult doParse(const QByteArray &data);
+
         bool parseStartLines(QStringView data);
+
         bool parseRequestLine(const QString &line);
 
         bool parsePostMessage(const QByteArray &data);
+
         bool parseFormData(const QByteArray &data);
 
         Request m_request;

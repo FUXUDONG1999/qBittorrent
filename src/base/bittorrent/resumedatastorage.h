@@ -38,19 +38,17 @@
 #include "infohash.h"
 #include "loadtorrentparams.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     using LoadResumeDataResult = nonstd::expected<LoadTorrentParams, QString>;
 
-    struct LoadedResumeData
-    {
+    struct LoadedResumeData {
         TorrentID torrentID;
         LoadResumeDataResult result;
     };
 
-    class ResumeDataStorage : public QObject
-    {
-        Q_OBJECT
+    class ResumeDataStorage : public QObject {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(ResumeDataStorage)
 
     public:
@@ -59,16 +57,23 @@ namespace BitTorrent
         Path path() const;
 
         virtual QVector<TorrentID> registeredTorrents() const = 0;
+
         virtual LoadResumeDataResult load(const TorrentID &id) const = 0;
+
         virtual void store(const TorrentID &id, const LoadTorrentParams &resumeData) const = 0;
+
         virtual void remove(const TorrentID &id) const = 0;
+
         virtual void storeQueue(const QVector<TorrentID> &queue) const = 0;
 
         void loadAll() const;
+
         QList<LoadedResumeData> fetchLoadedResumeData() const;
 
     signals:
+
         void loadStarted(const QVector<BitTorrent::TorrentID> &torrents);
+
         void loadFinished();
 
     protected:

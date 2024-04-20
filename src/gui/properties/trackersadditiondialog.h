@@ -33,37 +33,39 @@
 
 #include "base/settingvalue.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
 }
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-namespace Ui
-{
+namespace Ui {
     class TrackersAdditionDialog;
 }
 
-class TrackersAdditionDialog : public QDialog
-{
-    Q_OBJECT
+class TrackersAdditionDialog : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TrackersAdditionDialog)
 
 public:
     TrackersAdditionDialog(QWidget *parent, BitTorrent::Torrent *torrent);
+
     ~TrackersAdditionDialog();
 
 private slots:
+
     void onAccepted() const;
+
     void onDownloadButtonClicked();
+
     void onTorrentListDownloadFinished(const Net::DownloadResult &result);
 
 private:
     void saveSettings();
+
     void loadSettings();
 
     Ui::TrackersAdditionDialog *m_ui = nullptr;

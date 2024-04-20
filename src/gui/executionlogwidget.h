@@ -32,22 +32,24 @@
 
 #include "base/logger.h"
 
-namespace Ui
-{
+namespace Ui {
     class ExecutionLogWidget;
 }
 
 class BaseLogModel;
+
 class LogFilterModel;
+
 class LogListView;
 
-class ExecutionLogWidget : public QWidget
-{
-    Q_OBJECT
+class ExecutionLogWidget : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ExecutionLogWidget)
 
 public:
     ExecutionLogWidget(Log::MsgTypes types, QWidget *parent);
+
     ~ExecutionLogWidget();
 
     void setMessageTypes(Log::MsgTypes types);

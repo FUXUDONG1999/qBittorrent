@@ -30,10 +30,8 @@
 
 #include <QtGlobal>
 
-namespace BitTorrent
-{
-    struct SessionStatus
-    {
+namespace BitTorrent {
+    struct SessionStatus {
         bool hasIncomingConnections = false;
 
         // Current download rate for the BT

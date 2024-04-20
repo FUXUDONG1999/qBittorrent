@@ -30,9 +30,9 @@
 
 #include <QTreeView>
 
-class CategoryFilterWidget final : public QTreeView
-{
-    Q_OBJECT
+class CategoryFilterWidget final : public QTreeView {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(CategoryFilterWidget)
 
 public:
@@ -41,24 +41,38 @@ public:
     QString currentCategory() const;
 
 signals:
+
     void categoryChanged(const QString &categoryName);
+
     void actionResumeTorrentsTriggered();
+
     void actionPauseTorrentsTriggered();
+
     void actionDeleteTorrentsTriggered();
 
 private slots:
+
     void onCurrentRowChanged(const QModelIndex &current, const QModelIndex &previous);
+
     void showMenu();
+
     void callUpdateGeometry();
+
     void addCategory();
+
     void addSubcategory();
+
     void editCategory();
+
     void removeCategory();
+
     void removeUnusedCategories();
 
 private:
     QSize sizeHint() const override;
+
     QSize minimumSizeHint() const override;
+
     void rowsInserted(const QModelIndex &parent, int start, int end) override;
 
     int m_defaultIndentation;

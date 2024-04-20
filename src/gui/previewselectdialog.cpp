@@ -49,20 +49,17 @@
 #define SETTINGS_KEY(name) u"PreviewSelectDialog/" name
 
 PreviewSelectDialog::PreviewSelectDialog(QWidget *parent, const BitTorrent::Torrent *torrent)
-    : QDialog(parent)
-    , m_ui(new Ui::PreviewSelectDialog)
-    , m_torrent(torrent)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
+        : QDialog(parent), m_ui(new Ui::PreviewSelectDialog), m_torrent(torrent), m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    , m_storeTreeHeaderState(u"GUI/Qt6/" SETTINGS_KEY(u"HeaderState"_s))
+        , m_storeTreeHeaderState(u"GUI/Qt6/" SETTINGS_KEY(u"HeaderState"_s))
 #else
-    , m_storeTreeHeaderState(SETTINGS_KEY(u"HeaderState"_s))
+, m_storeTreeHeaderState(SETTINGS_KEY(u"HeaderState"_s))
 #endif
 {
     m_ui->setupUi(this);
 
     m_ui->label->setText(tr("The following files from torrent \"%1\" support previewing, please select one of them:")
-        .arg(m_torrent->name()));
+                                 .arg(m_torrent->name()));
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Preview"));
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &PreviewSelectDialog::previewButtonClicked);
@@ -86,11 +83,9 @@ PreviewSelectDialog::PreviewSelectDialog(QWidget *parent, const BitTorrent::Torr
 
     // Fill list in
     const QVector<qreal> fp = torrent->filesProgress();
-    for (int i = 0; i < torrent->filesCount(); ++i)
-    {
+    for (int i = 0; i < torrent->filesCount(); ++i) {
         const Path filePath = torrent->filePath(i);
-        if (Utils::Misc::isPreviewable(filePath))
-        {
+        if (Utils::Misc::isPreviewable(filePath)) {
             int row = previewListModel->rowCount();
             previewListModel->insertRow(row);
             previewListModel->setData(previewListModel->index(row, NAME), filePath.filename());
@@ -112,15 +107,13 @@ PreviewSelectDialog::PreviewSelectDialog(QWidget *parent, const BitTorrent::Torr
     loadWindowState();
 }
 
-PreviewSelectDialog::~PreviewSelectDialog()
-{
+PreviewSelectDialog::~PreviewSelectDialog() {
     saveWindowState();
 
     delete m_ui;
 }
 
-void PreviewSelectDialog::previewButtonClicked()
-{
+void PreviewSelectDialog::previewButtonClicked() {
     const QModelIndexList selectedIndexes = m_ui->previewList->selectionModel()->selectedRows(FILE_INDEX);
     if (selectedIndexes.isEmpty()) return;
 
@@ -131,12 +124,10 @@ void PreviewSelectDialog::previewButtonClicked()
     const int fileIndex = selectedIndexes.at(0).data().toInt();
     const Path path = m_torrent->actualStorageLocation() / m_torrent->actualFilePath(fileIndex);
     // File
-    if (!path.exists())
-    {
+    if (!path.exists()) {
         const bool isSingleFile = (m_ui->previewList->model()->rowCount() == 1);
         QWidget *parent = isSingleFile ? this->parentWidget() : this;
-        QMessageBox::critical(parent, tr("Preview impossible")
-            , tr("Sorry, we can't preview this file: \"%1\".").arg(path.toString()));
+        QMessageBox::critical(parent, tr("Preview impossible"), tr("Sorry, we can't preview this file: \"%1\".").arg(path.toString()));
         if (isSingleFile)
             reject();
         return;
@@ -146,16 +137,13 @@ void PreviewSelectDialog::previewButtonClicked()
     accept();
 }
 
-void PreviewSelectDialog::displayColumnHeaderMenu()
-{
+void PreviewSelectDialog::displayColumnHeaderMenu() {
     auto *menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->setToolTipsVisible(true);
 
-    QAction *resizeAction = menu->addAction(tr("Resize columns"), this, [this]()
-    {
-        for (int i = 0, count = m_ui->previewList->header()->count(); i < count; ++i)
-        {
+    QAction *resizeAction = menu->addAction(tr("Resize columns"), this, [this]() {
+        for (int i = 0, count = m_ui->previewList->header()->count(); i < count; ++i) {
             if (!m_ui->previewList->isColumnHidden(i))
                 m_ui->previewList->resizeColumnToContents(i);
         }
@@ -165,16 +153,14 @@ void PreviewSelectDialog::displayColumnHeaderMenu()
     menu->popup(QCursor::pos());
 }
 
-void PreviewSelectDialog::saveWindowState()
-{
+void PreviewSelectDialog::saveWindowState() {
     // Persist dialog size
     m_storeDialogSize = size();
     // Persist TreeView Header state
     m_storeTreeHeaderState = m_ui->previewList->header()->saveState();
 }
 
-void PreviewSelectDialog::loadWindowState()
-{
+void PreviewSelectDialog::loadWindowState() {
     // Restore dialog size
     if (const QSize dialogSize = m_storeDialogSize; dialogSize.isValid())
         resize(dialogSize);
@@ -184,19 +170,16 @@ void PreviewSelectDialog::loadWindowState()
         m_headerStateInitialized = m_ui->previewList->header()->restoreState(treeHeaderState);
 }
 
-void PreviewSelectDialog::showEvent(QShowEvent *event)
-{
+void PreviewSelectDialog::showEvent(QShowEvent *event) {
     // event originated from system
-    if (event->spontaneous())
-    {
+    if (event->spontaneous()) {
         QDialog::showEvent(event);
         return;
     }
 
     // Default size, have to be called after show(), because width is needed
     // Set Name column width to 60% of TreeView
-    if (!m_headerStateInitialized)
-    {
+    if (!m_headerStateInitialized) {
         const int nameSize = (m_ui->previewList->size().width() * 0.6);
         m_ui->previewList->header()->resizeSection(0, nameSize);
         m_headerStateInitialized = true;

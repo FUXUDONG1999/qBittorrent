@@ -41,8 +41,7 @@
 
 class QProcessEnvironment;
 
-struct QBtCommandLineParameters
-{
+struct QBtCommandLineParameters {
     bool showHelp = false;
     bool relativeFastresumePaths = false;
 #if !defined(Q_OS_WIN) || defined(DISABLE_GUI)
@@ -65,14 +64,15 @@ struct QBtCommandLineParameters
     QString unknownParameter;
 
     QBtCommandLineParameters() = default;
+
     explicit QBtCommandLineParameters(const QProcessEnvironment &);
 };
 
-class CommandLineParameterError : public RuntimeError
-{
+class CommandLineParameterError : public RuntimeError {
 public:
     using RuntimeError::RuntimeError;
 };
 
 QBtCommandLineParameters parseCommandLine(const QStringList &args);
+
 void displayUsage(const QString &prgName);

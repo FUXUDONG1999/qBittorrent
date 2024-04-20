@@ -28,10 +28,8 @@
 
 #pragma once
 
-namespace BitTorrent
-{
-    enum class DownloadPriority : int
-    {
+namespace BitTorrent {
+    enum class DownloadPriority : int {
         Ignored = 0,
         Normal = 1,
         High = 6,

@@ -32,26 +32,30 @@
 
 #include "base/settingvalue.h"
 
-namespace Ui
-{
+namespace Ui {
     class PluginSourceDialog;
 }
 
-class PluginSourceDialog final : public QDialog
-{
-    Q_OBJECT
+class PluginSourceDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PluginSourceDialog)
 
 public:
     explicit PluginSourceDialog(QWidget *parent = nullptr);
+
     ~PluginSourceDialog() override;
 
 signals:
+
     void askForUrl();
+
     void askForLocalFile();
 
 private slots:
+
     void on_localButton_clicked();
+
     void on_urlButton_clicked();
 
 private:

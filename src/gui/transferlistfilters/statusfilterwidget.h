@@ -37,13 +37,14 @@
 #include "base/torrentfilter.h"
 #include "basefilterwidget.h"
 
-class StatusFilterWidget final : public BaseFilterWidget
-{
-    Q_OBJECT
+class StatusFilterWidget final : public BaseFilterWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(StatusFilterWidget)
 
 public:
     StatusFilterWidget(QWidget *parent, TransferListWidget *transferList);
+
     ~StatusFilterWidget() override;
 
 private:
@@ -52,15 +53,21 @@ private:
     // These 4 methods are virtual slots in the base class.
     // No need to redeclare them here as slots.
     void showMenu() override;
+
     void applyFilter(int row) override;
+
     void handleTorrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents) override;
+
     void torrentAboutToBeDeleted(BitTorrent::Torrent *) override;
 
     void configure();
 
     void update(const QVector<BitTorrent::Torrent *> &torrents);
+
     void updateTorrentStatus(const BitTorrent::Torrent *torrent);
+
     void updateTexts();
+
     void hideZeroItems();
 
     using TorrentFilterBitset = std::bitset<32>;  // approximated size, this should be the number of TorrentFilter::Type elements

@@ -35,29 +35,33 @@
 #include "base/settingvalue.h"
 #include "uithemesource.h"
 
-namespace Ui
-{
+namespace Ui {
     class UIThemeDialog;
 }
 
 class ColorWidget;
+
 class IconWidget;
 
-class UIThemeDialog final : public QDialog
-{
-    Q_OBJECT
+class UIThemeDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(UIThemeDialog)
 
 public:
     explicit UIThemeDialog(QWidget *parent = nullptr);
+
     ~UIThemeDialog() override;
 
     void accept() override;
 
 private:
     void loadColors();
+
     void loadIcons();
+
     bool storeColors();
+
     bool storeIcons();
 
     Ui::UIThemeDialog *m_ui = nullptr;

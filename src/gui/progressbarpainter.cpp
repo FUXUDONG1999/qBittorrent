@@ -34,22 +34,22 @@
 #include <QStyleOptionViewItem>
 
 #if (defined(Q_OS_WIN) || defined(Q_OS_MACOS))
+
 #include <QProxyStyle>
+
 #endif
 
 #include "base/global.h"
 
-ProgressBarPainter::ProgressBarPainter()
-{
+ProgressBarPainter::ProgressBarPainter() {
 #if (defined(Q_OS_WIN) || defined(Q_OS_MACOS))
-    auto *fusionStyle = new QProxyStyle {u"fusion"_s};
+    auto *fusionStyle = new QProxyStyle{u"fusion"_s};
     fusionStyle->setParent(&m_dummyProgressBar);
     m_dummyProgressBar.setStyle(fusionStyle);
 #endif
 }
 
-void ProgressBarPainter::paint(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const int progress) const
-{
+void ProgressBarPainter::paint(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const int progress) const {
     QStyleOptionProgressBar styleOption;
     styleOption.initFrom(&m_dummyProgressBar);
     // QStyleOptionProgressBar fields

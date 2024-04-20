@@ -36,7 +36,9 @@
 #include <QTimer>
 
 #ifndef Q_OS_MACOS
+
 #include <QSystemTrayIcon>
+
 #endif
 
 #include "base/preferences.h"
@@ -50,8 +52,7 @@
 #include "notifications/dbusnotifier.h"
 #endif
 
-namespace
-{
+namespace {
 #ifdef Q_OS_MACOS
     DesktopIntegration *desktopIntegrationInstance = nullptr;
 
@@ -74,10 +75,9 @@ using namespace std::chrono_literals;
 #define NOTIFICATIONS_SETTINGS_KEY(name) (SETTINGS_KEY(u"Notifications/"_s) name)
 
 DesktopIntegration::DesktopIntegration(QObject *parent)
-    : QObject(parent)
-    , m_storeNotificationEnabled {NOTIFICATIONS_SETTINGS_KEY(u"Enabled"_s), true}
+        : QObject(parent), m_storeNotificationEnabled{NOTIFICATIONS_SETTINGS_KEY(u"Enabled"_s), true}
 #ifdef QBT_USES_DBUS
-    , m_storeNotificationTimeOut {NOTIFICATIONS_SETTINGS_KEY(u"Timeout"_s), -1}
+, m_storeNotificationTimeOut {NOTIFICATIONS_SETTINGS_KEY(u"Timeout"_s), -1}
 #endif
 {
 #ifdef Q_OS_MACOS
@@ -99,13 +99,11 @@ DesktopIntegration::DesktopIntegration(QObject *parent)
     connect(Preferences::instance(), &Preferences::changed, this, &DesktopIntegration::onPreferencesChanged);
 }
 
-DesktopIntegration::~DesktopIntegration()
-{
+DesktopIntegration::~DesktopIntegration() {
     delete m_menu;
 }
 
-bool DesktopIntegration::isActive() const
-{
+bool DesktopIntegration::isActive() const {
 #ifdef Q_OS_MACOS
     return true;
 #else
@@ -113,13 +111,11 @@ bool DesktopIntegration::isActive() const
 #endif
 }
 
-QString DesktopIntegration::toolTip() const
-{
+QString DesktopIntegration::toolTip() const {
     return m_toolTip;
 }
 
-void DesktopIntegration::setToolTip(const QString &toolTip)
-{
+void DesktopIntegration::setToolTip(const QString &toolTip) {
     if (m_toolTip == toolTip)
         return;
 
@@ -130,13 +126,11 @@ void DesktopIntegration::setToolTip(const QString &toolTip)
 #endif
 }
 
-QMenu *DesktopIntegration::menu() const
-{
+QMenu *DesktopIntegration::menu() const {
     return m_menu;
 }
 
-void DesktopIntegration::setMenu(QMenu *menu)
-{
+void DesktopIntegration::setMenu(QMenu *menu) {
     if (menu == m_menu)
         return;
 
@@ -175,13 +169,11 @@ void DesktopIntegration::setMenu(QMenu *menu)
 #endif
 }
 
-bool DesktopIntegration::isNotificationsEnabled() const
-{
+bool DesktopIntegration::isNotificationsEnabled() const {
     return m_storeNotificationEnabled;
 }
 
-void DesktopIntegration::setNotificationsEnabled(const bool value)
-{
+void DesktopIntegration::setNotificationsEnabled(const bool value) {
     if (m_storeNotificationEnabled == value)
         return;
 
@@ -201,8 +193,7 @@ void DesktopIntegration::setNotificationsEnabled(const bool value)
 #endif
 }
 
-int DesktopIntegration::notificationTimeout() const
-{
+int DesktopIntegration::notificationTimeout() const {
 #ifdef QBT_USES_DBUS
     return m_storeNotificationTimeOut;
 #else
@@ -217,8 +208,7 @@ void DesktopIntegration::setNotificationTimeout(const int value)
 }
 #endif
 
-void DesktopIntegration::showNotification(const QString &title, const QString &msg) const
-{
+void DesktopIntegration::showNotification(const QString &title, const QString &msg) const {
     if (!isNotificationsEnabled())
         return;
 
@@ -234,23 +224,16 @@ void DesktopIntegration::showNotification(const QString &title, const QString &m
 #endif
 }
 
-void DesktopIntegration::onPreferencesChanged()
-{
+void DesktopIntegration::onPreferencesChanged() {
 #ifndef Q_OS_MACOS
-    if (Preferences::instance()->systemTrayEnabled())
-    {
-        if (m_systrayIcon)
-        {
+    if (Preferences::instance()->systemTrayEnabled()) {
+        if (m_systrayIcon) {
             // Reload systray icon
             m_systrayIcon->setIcon(getSystrayIcon());
-        }
-        else
-        {
+        } else {
             createTrayIcon();
         }
-    }
-    else
-    {
+    } else {
         delete m_systrayIcon;
         m_systrayIcon = nullptr;
         emit stateChanged();
@@ -259,8 +242,8 @@ void DesktopIntegration::onPreferencesChanged()
 }
 
 #ifndef Q_OS_MACOS
-void DesktopIntegration::createTrayIcon()
-{
+
+void DesktopIntegration::createTrayIcon() {
     Q_ASSERT(!m_systrayIcon);
 
     m_systrayIcon = new QSystemTrayIcon(getSystrayIcon(), this);
@@ -270,11 +253,9 @@ void DesktopIntegration::createTrayIcon()
     if (m_menu)
         m_systrayIcon->setContextMenu(m_menu);
 
-    connect(m_systrayIcon, &QSystemTrayIcon::activated, this
-            , [this](const QSystemTrayIcon::ActivationReason reason)
-    {
+    connect(m_systrayIcon, &QSystemTrayIcon::activated, this, [this](const QSystemTrayIcon::ActivationReason reason) {
         if (reason == QSystemTrayIcon::Trigger)
-            emit activationRequested();
+                emit activationRequested();
     });
 #ifndef QBT_USES_DBUS
     connect(m_systrayIcon, &QSystemTrayIcon::messageClicked, this, &DesktopIntegration::notificationClicked);
@@ -284,22 +265,20 @@ void DesktopIntegration::createTrayIcon()
     emit stateChanged();
 }
 
-QIcon DesktopIntegration::getSystrayIcon() const
-{
+QIcon DesktopIntegration::getSystrayIcon() const {
     const TrayIcon::Style style = Preferences::instance()->trayIconStyle();
     QIcon icon;
-    switch (style)
-    {
-    default:
-    case TrayIcon::Style::Normal:
-        icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray"_s);
-        break;
-    case TrayIcon::Style::MonoDark:
-        icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray-dark"_s);
-        break;
-    case TrayIcon::Style::MonoLight:
-        icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray-light"_s);
-        break;
+    switch (style) {
+        default:
+        case TrayIcon::Style::Normal:
+            icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray"_s);
+            break;
+        case TrayIcon::Style::MonoDark:
+            icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray-dark"_s);
+            break;
+        case TrayIcon::Style::MonoLight:
+            icon = UIThemeManager::instance()->getIcon(u"qbittorrent-tray-light"_s);
+            break;
     }
 #ifdef Q_OS_UNIX
     // Workaround for invisible tray icon in KDE, https://bugreports.qt.io/browse/QTBUG-53550
@@ -308,4 +287,5 @@ QIcon DesktopIntegration::getSystrayIcon() const
 #endif
     return icon;
 }
+
 #endif // Q_OS_MACOS

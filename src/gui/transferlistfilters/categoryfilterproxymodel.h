@@ -34,13 +34,13 @@
 
 class QString;
 
-class CategoryFilterProxyModel final : public QSortFilterProxyModel
-{
+class CategoryFilterProxyModel final : public QSortFilterProxyModel {
 public:
     explicit CategoryFilterProxyModel(QObject *parent = nullptr);
 
     // CategoryFilterModel methods which we need to relay
     QModelIndex index(const QString &categoryName) const;
+
     QString categoryName(const QModelIndex &index) const;
 
 protected:

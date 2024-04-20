@@ -32,21 +32,22 @@
 
 #include "base/settingvalue.h"
 
-namespace Ui
-{
+namespace Ui {
     class StatsDialog;
 }
 
-class StatsDialog final : public QDialog
-{
-    Q_OBJECT
+class StatsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(StatsDialog)
 
 public:
-  explicit StatsDialog(QWidget *parent);
-  ~StatsDialog() override;
+    explicit StatsDialog(QWidget *parent);
+
+    ~StatsDialog() override;
 
 private slots:
+
     void update();
 
 private:

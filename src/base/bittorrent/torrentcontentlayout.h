@@ -33,17 +33,14 @@
 
 #include "base/path.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     // Using `Q_ENUM_NS()` without a wrapper namespace in our case is not advised
     // since `Q_NAMESPACE` cannot be used when the same namespace resides at different files.
     // https://www.kdab.com/new-qt-5-8-meta-object-support-namespaces/#comment-143779
-    inline namespace TorrentContentLayoutNS
-    {
+    inline namespace TorrentContentLayoutNS {
         Q_NAMESPACE
 
-        enum class TorrentContentLayout
-        {
+        enum class TorrentContentLayout {
             Original,
             Subfolder,
             NoSubfolder

@@ -32,21 +32,17 @@
 
 #include "downloadpriority.h"
 
-namespace BitTorrent::LT
-{
-    template <typename T>
-    constexpr typename T::underlying_type toUnderlyingType(const T &t) noexcept
-    {
+namespace BitTorrent::LT {
+    template<typename T>
+    constexpr typename T::underlying_type toUnderlyingType(const T &t) noexcept {
         return static_cast<typename T::underlying_type>(t);
     }
 
-    constexpr lt::download_priority_t toNative(const DownloadPriority priority) noexcept
-    {
+    constexpr lt::download_priority_t toNative(const DownloadPriority priority) noexcept {
         return static_cast<lt::download_priority_t>(static_cast<lt::download_priority_t::underlying_type>(priority));
     }
 
-    constexpr DownloadPriority fromNative(const lt::download_priority_t priority) noexcept
-    {
+    constexpr DownloadPriority fromNative(const lt::download_priority_t priority) noexcept {
         return static_cast<DownloadPriority>(toUnderlyingType(priority));
     }
 }

@@ -32,16 +32,19 @@
 #include <QTextBrowser>
 
 class QNetworkAccessManager;
+
 class QNetworkDiskCache;
+
 class QNetworkReply;
 
-class HtmlBrowser final : public QTextBrowser
-{
-    Q_OBJECT
+class HtmlBrowser final : public QTextBrowser {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(HtmlBrowser)
 
 public:
-    explicit HtmlBrowser(QWidget* parent = nullptr);
+    explicit HtmlBrowser(QWidget *parent = nullptr);
+
     ~HtmlBrowser() = default;
 
     QVariant loadResource(int type, const QUrl &name) override;
@@ -52,5 +55,6 @@ protected:
     QHash<QUrl, bool> m_activeRequests;
 
 protected slots:
+
     void resourceLoaded(QNetworkReply *reply);
 };

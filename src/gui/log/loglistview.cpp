@@ -42,39 +42,36 @@
 #include "logmodel.h"
 
 #ifdef Q_OS_WIN
+
 #include "base/preferences.h"
+
 #endif
 
-namespace
-{
+namespace {
     const QString SEPARATOR = u" - "_s;
 
-    int horizontalAdvance(const QFontMetrics &fontMetrics, const QString &text)
-    {
+    int horizontalAdvance(const QFontMetrics &fontMetrics, const QString &text) {
         return fontMetrics.horizontalAdvance(text);
     }
 
-    QString logText(const QModelIndex &index)
-    {
+    QString logText(const QModelIndex &index) {
         return index.data(BaseLogModel::TimeRole).toString()
-            + SEPARATOR
-            + index.data(BaseLogModel::MessageRole).toString();
+               + SEPARATOR
+               + index.data(BaseLogModel::MessageRole).toString();
     }
 
-    class LogItemDelegate final : public QStyledItemDelegate
-    {
+    class LogItemDelegate final : public QStyledItemDelegate {
     public:
         explicit LogItemDelegate(QObject *parent = nullptr)
-            : QStyledItemDelegate(parent)
+                : QStyledItemDelegate(parent)
 #ifdef Q_OS_WIN
-            , m_useCustomUITheme(Preferences::instance()->useCustomUITheme())
+                , m_useCustomUITheme(Preferences::instance()->useCustomUITheme())
 #endif
         {
         }
 
     private:
-        void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
-        {
+        void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
             painter->save();
             QStyledItemDelegate::paint(painter, option, index); // paints background, focus rect and selection rect
 
@@ -85,8 +82,8 @@ namespace
 #ifdef Q_OS_WIN
             // Windows default theme do not use highlighted text color
             const QPalette::ColorRole textRole = m_useCustomUITheme
-                ? (option.state.testFlag(QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::WindowText)
-                : QPalette::WindowText;
+                                                 ? (option.state.testFlag(QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::WindowText)
+                                                 : QPalette::WindowText;
 #else
             const QPalette::ColorRole textRole = option.state.testFlag(QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::WindowText;
 #endif
@@ -107,20 +104,18 @@ namespace
 
             const QFontMetrics fontMetrics = painter->fontMetrics(); // option.fontMetrics adds extra padding to QFontMetrics::width
             const int separatorCoordinateX = horizontalAdvance(fontMetrics, time);
-            style->drawItemText(painter, textRect.adjusted(separatorCoordinateX, 0, 0, 0), option.displayAlignment, option.palette
-                                , isEnabled, SEPARATOR, textRole);
+            style->drawItemText(painter, textRect.adjusted(separatorCoordinateX, 0, 0, 0), option.displayAlignment, option.palette, isEnabled, SEPARATOR,
+                                textRole);
 
             const int messageCoordinateX = separatorCoordinateX + horizontalAdvance(fontMetrics, SEPARATOR);
             const QString message = index.data(BaseLogModel::MessageRole).toString();
             palette.setColor(QPalette::Active, QPalette::WindowText, index.data(BaseLogModel::MessageForegroundRole).value<QColor>());
-            style->drawItemText(painter, textRect.adjusted(messageCoordinateX, 0, 0, 0), option.displayAlignment, palette
-                                , isEnabled, message, textRole);
+            style->drawItemText(painter, textRect.adjusted(messageCoordinateX, 0, 0, 0), option.displayAlignment, palette, isEnabled, message, textRole);
 
             painter->restore();
         }
 
-        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
-        {
+        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override {
             const QSize minimumFontPadding(4, 4);
             const QSize fontSize = option.fontMetrics.size(0, logText(index)) + minimumFontPadding;
             const QSize defaultSize = QStyledItemDelegate::sizeHint(option, index);
@@ -135,8 +130,7 @@ namespace
 }
 
 LogListView::LogListView(QWidget *parent)
-    : QListView(parent)
-{
+        : QListView(parent) {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setItemDelegate(new LogItemDelegate(this));
 
@@ -145,19 +139,17 @@ LogListView::LogListView(QWidget *parent)
 #endif
 }
 
-void LogListView::keyPressEvent(QKeyEvent *event)
-{
+void LogListView::keyPressEvent(QKeyEvent *event) {
     if (event->matches(QKeySequence::Copy))
         copySelection();
     else
         QListView::keyPressEvent(event);
 }
 
-void LogListView::copySelection() const
-{
+void LogListView::copySelection() const {
     QStringList list;
     const QModelIndexList selectedIndexes = selectionModel()->selectedRows();
-    for (const QModelIndex &index : selectedIndexes)
+    for (const QModelIndex &index: selectedIndexes)
         list.append(logText(index));
     QApplication::clipboard()->setText(list.join(u'\n'));
 }

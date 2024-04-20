@@ -34,9 +34,9 @@
 
 class DBusNotificationsInterface;
 
-class DBusNotifier final : public QObject
-{
-    Q_OBJECT
+class DBusNotifier final : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(DBusNotifier)
 
 public:
@@ -45,10 +45,12 @@ public:
     void showMessage(const QString &title, const QString &message, int timeout);
 
 signals:
+
     void messageClicked();
 
 private:
     void onActionInvoked(uint messageID, const QString &action);
+
     void onNotificationClosed(uint messageID, uint reason);
 
     DBusNotificationsInterface *m_notificationsInterface = nullptr;

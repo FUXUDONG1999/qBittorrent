@@ -40,32 +40,32 @@
 // https://github.com/qt/qtbase/blob/6.0/src/corelib/text/qcollator_win.cpp#L72-L78
 #if ((QT_FEATURE_icu == 1) || defined(Q_OS_MACOS) || defined(Q_OS_WIN))
 #define QBT_USE_QCOLLATOR
+
 #include <QCollator>
+
 #endif
 
 class QString;
 
-namespace Utils::Compare
-{
+namespace Utils::Compare {
 #ifdef QBT_USE_QCOLLATOR
-    template <Qt::CaseSensitivity caseSensitivity>
-    class NaturalCompare
-    {
+
+    template<Qt::CaseSensitivity caseSensitivity>
+    class NaturalCompare {
     public:
-        NaturalCompare()
-        {
+        NaturalCompare() {
             m_collator.setNumericMode(true);
             m_collator.setCaseSensitivity(caseSensitivity);
         }
 
-        int operator()(const QString &left, const QString &right) const
-        {
+        int operator()(const QString &left, const QString &right) const {
             return m_collator.compare(left, right);
         }
 
     private:
         QCollator m_collator;
     };
+
 #else
     int naturalCompare(const QString &left, const QString &right, Qt::CaseSensitivity caseSensitivity);
 
@@ -80,12 +80,10 @@ namespace Utils::Compare
     };
 #endif
 
-    template <Qt::CaseSensitivity caseSensitivity>
-    class NaturalLessThan
-    {
+    template<Qt::CaseSensitivity caseSensitivity>
+    class NaturalLessThan {
     public:
-        bool operator()(const QString &left, const QString &right) const
-        {
+        bool operator()(const QString &left, const QString &right) const {
             return (m_comparator(left, right) < 0);
         }
 

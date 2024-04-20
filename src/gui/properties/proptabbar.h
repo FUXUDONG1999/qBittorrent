@@ -32,14 +32,13 @@
 
 class QButtonGroup;
 
-class PropTabBar : public QHBoxLayout
-{
-  Q_OBJECT
-  Q_DISABLE_COPY_MOVE(PropTabBar)
+class PropTabBar : public QHBoxLayout {
+Q_OBJECT
+
+    Q_DISABLE_COPY_MOVE(PropTabBar)
 
 public:
-    enum PropertyTab
-    {
+    enum PropertyTab {
         MainTab,
         TrackersTab,
         PeersTab,
@@ -53,10 +52,13 @@ public:
     int currentIndex() const;
 
 signals:
+
     void tabChanged(int index);
+
     void visibilityToggled(bool visible);
 
 public slots:
+
     void setCurrentIndex(int index);
 
 private:

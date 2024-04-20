@@ -33,15 +33,16 @@
 
 #include "progressbarpainter.h"
 
-class PreviewListDelegate final : public QStyledItemDelegate
-{
-    Q_OBJECT
+class PreviewListDelegate final : public QStyledItemDelegate {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PreviewListDelegate)
 
 public:
     explicit PreviewListDelegate(QObject *parent = nullptr);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
     QWidget *createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const override;
 
 private:

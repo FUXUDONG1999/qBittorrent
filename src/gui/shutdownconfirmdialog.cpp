@@ -43,10 +43,7 @@
 using namespace std::chrono_literals;
 
 ShutdownConfirmDialog::ShutdownConfirmDialog(QWidget *parent, const ShutdownDialogAction &action)
-    : QDialog(parent)
-    , m_ui(new Ui::ShutdownConfirmDialog)
-    , m_action(action)
-{
+        : QDialog(parent), m_ui(new Ui::ShutdownConfirmDialog), m_action(action) {
     m_ui->setupUi(this);
 
     initText();
@@ -74,74 +71,65 @@ ShutdownConfirmDialog::ShutdownConfirmDialog(QWidget *parent, const ShutdownDial
     connect(&m_timer, &QTimer::timeout, this, &ShutdownConfirmDialog::updateSeconds);
 }
 
-ShutdownConfirmDialog::~ShutdownConfirmDialog()
-{
+ShutdownConfirmDialog::~ShutdownConfirmDialog() {
     delete m_ui;
 }
 
-void ShutdownConfirmDialog::showEvent(QShowEvent *event)
-{
+void ShutdownConfirmDialog::showEvent(QShowEvent *event) {
     QDialog::showEvent(event);
     m_timer.start();
 }
 
-bool ShutdownConfirmDialog::askForConfirmation(QWidget *parent, const ShutdownDialogAction &action)
-{
+bool ShutdownConfirmDialog::askForConfirmation(QWidget *parent, const ShutdownDialogAction &action) {
     ShutdownConfirmDialog dlg(parent, action);
     return (dlg.exec() == QDialog::Accepted);
 }
 
-void ShutdownConfirmDialog::updateSeconds()
-{
+void ShutdownConfirmDialog::updateSeconds() {
     --m_timeout;
     updateText();
-    if (m_timeout == 0)
-    {
+    if (m_timeout == 0) {
         m_timer.stop();
         accept();
     }
 }
 
-void ShutdownConfirmDialog::accept()
-{
+void ShutdownConfirmDialog::accept() {
     Preferences::instance()->setDontConfirmAutoExit(m_ui->neverShowAgainCheckbox->isChecked());
     QDialog::accept();
 }
 
-void ShutdownConfirmDialog::initText()
-{
+void ShutdownConfirmDialog::initText() {
     QPushButton *okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
 
-    switch (m_action)
-    {
-    case ShutdownDialogAction::Exit:
-        m_msg = tr("qBittorrent will now exit.");
-        okButton->setText(tr("E&xit Now"));
-        setWindowTitle(tr("Exit confirmation"));
-        break;
-    case ShutdownDialogAction::Shutdown:
-        m_msg = tr("The computer is going to shutdown.");
-        okButton->setText(tr("&Shutdown Now"));
-        setWindowTitle(tr("Shutdown confirmation"));
-        break;
-    case ShutdownDialogAction::Suspend:
-        m_msg = tr("The computer is going to enter suspend mode.");
-        okButton->setText(tr("&Suspend Now"));
-        setWindowTitle(tr("Suspend confirmation"));
-        break;
-    case ShutdownDialogAction::Hibernate:
-        m_msg = tr("The computer is going to enter hibernation mode.");
-        okButton->setText(tr("&Hibernate Now"));
-        setWindowTitle(tr("Hibernate confirmation"));
-        break;
+    switch (m_action) {
+        case ShutdownDialogAction::Exit:
+            m_msg = tr("qBittorrent will now exit.");
+            okButton->setText(tr("E&xit Now"));
+            setWindowTitle(tr("Exit confirmation"));
+            break;
+        case ShutdownDialogAction::Shutdown:
+            m_msg = tr("The computer is going to shutdown.");
+            okButton->setText(tr("&Shutdown Now"));
+            setWindowTitle(tr("Shutdown confirmation"));
+            break;
+        case ShutdownDialogAction::Suspend:
+            m_msg = tr("The computer is going to enter suspend mode.");
+            okButton->setText(tr("&Suspend Now"));
+            setWindowTitle(tr("Suspend confirmation"));
+            break;
+        case ShutdownDialogAction::Hibernate:
+            m_msg = tr("The computer is going to enter hibernation mode.");
+            okButton->setText(tr("&Hibernate Now"));
+            setWindowTitle(tr("Hibernate confirmation"));
+            break;
     }
 
     m_msg += u'\n';
     updateText();
 }
 
-void ShutdownConfirmDialog::updateText()
-{
+void ShutdownConfirmDialog::updateText() {
     QString t = tr("You can cancel the action within %1 seconds.").arg(QString::number(m_timeout)) + u'\n';
     m_ui->shutdownText->setText(m_msg + t);
 }

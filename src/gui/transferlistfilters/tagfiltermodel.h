@@ -39,45 +39,65 @@ class QModelIndex;
 
 class TagModelItem;
 
-class TagFilterModel final : public QAbstractListModel
-{
-    Q_OBJECT
+class TagFilterModel final : public QAbstractListModel {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TagFilterModel)
 
 public:
     explicit TagFilterModel(QObject *parent = nullptr);
+
     ~TagFilterModel() override;
 
     static bool isSpecialItem(const QModelIndex &index);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
     QModelIndex index(int row, int column, const QModelIndex &parent = {}) const override;
+
     int rowCount(const QModelIndex &parent = {}) const override;
 
     QModelIndex index(const QString &tag) const;
+
     QString tag(const QModelIndex &index) const;
 
 private slots:
+
     void tagAdded(const QString &tag);
+
     void tagRemoved(const QString &tag);
+
     void torrentTagAdded(BitTorrent::Torrent *torrent, const QString &tag);
+
     void torrentTagRemoved(BitTorrent::Torrent *, const QString &tag);
+
     void torrentsLoaded(const QVector<BitTorrent::Torrent *> &torrents);
+
     void torrentAboutToBeRemoved(BitTorrent::Torrent *torrent);
 
 private:
     static QString tagDisplayName(const QString &tag);
 
     void populate();
+
     void addToModel(const QString &tag, int count);
+
     void removeFromModel(int row);
+
     bool isValidRow(int row) const;
+
     int findRow(const QString &tag) const;
+
     TagModelItem *findItem(const QString &tag);
+
     QVector<TagModelItem *> findItems(const TagSet &tags);
+
     TagModelItem *allTagsItem();
+
     TagModelItem *untaggedItem();
 
     QList<TagModelItem> m_tagItems;  // Index corresponds to its row

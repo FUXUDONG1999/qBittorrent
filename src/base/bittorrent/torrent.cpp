@@ -33,9 +33,9 @@
 
 #include "infohash.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
     std::size_t qHash(const TorrentState key, const std::size_t seed)
 #else
     uint qHash(const TorrentState key, const uint seed)
@@ -59,28 +59,23 @@ namespace BitTorrent
     const int Torrent::MAX_SEEDING_TIME = 525600;
     const int Torrent::MAX_INACTIVE_SEEDING_TIME = 525600;
 
-    TorrentID Torrent::id() const
-    {
+    TorrentID Torrent::id() const {
         return infoHash().toTorrentID();
     }
 
-    bool Torrent::isResumed() const
-    {
+    bool Torrent::isResumed() const {
         return !isPaused();
     }
 
-    qlonglong Torrent::remainingSize() const
-    {
+    qlonglong Torrent::remainingSize() const {
         return wantedSize() - completedSize();
     }
 
-    void Torrent::toggleSequentialDownload()
-    {
+    void Torrent::toggleSequentialDownload() {
         setSequentialDownload(!isSequentialDownload());
     }
 
-    void Torrent::toggleFirstLastPiecePriority()
-    {
+    void Torrent::toggleFirstLastPiecePriority() {
         setFirstLastPiecePriority(!hasFirstLastPiecePriority());
     }
 }

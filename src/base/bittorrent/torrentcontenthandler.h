@@ -34,18 +34,21 @@
 #include "abstractfilestorage.h"
 #include "downloadpriority.h"
 
-namespace BitTorrent
-{
-    class TorrentContentHandler : public QObject, public AbstractFileStorage
-    {
+namespace BitTorrent {
+    class TorrentContentHandler : public QObject, public AbstractFileStorage {
     public:
         using QObject::QObject;
 
         virtual bool hasMetadata() const = 0;
+
         virtual Path actualStorageLocation() const = 0;
+
         virtual Path actualFilePath(int fileIndex) const = 0;
+
         virtual QVector<DownloadPriority> filePriorities() const = 0;
+
         virtual QVector<qreal> filesProgress() const = 0;
+
         /**
          * @brief fraction of file pieces that are available at least from one peer
          *
@@ -53,9 +56,11 @@ namespace BitTorrent
          * that can be downloaded right now. It varies between 0 to 1.
          */
         virtual QVector<qreal> availableFileFractions() const = 0;
-        virtual void fetchAvailableFileFractions(std::function<void (QVector<qreal>)> resultHandler) const = 0;
+
+        virtual void fetchAvailableFileFractions(std::function<void(QVector<qreal>)> resultHandler) const = 0;
 
         virtual void prioritizeFiles(const QVector<DownloadPriority> &priorities) = 0;
+
         virtual void flushCache() const = 0;
     };
 }

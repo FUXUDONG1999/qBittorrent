@@ -32,14 +32,13 @@
 
 #include "base/utils/compare.h"
 
-class PeerListSortModel final : public QSortFilterProxyModel
-{
-    Q_OBJECT
+class PeerListSortModel final : public QSortFilterProxyModel {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PeerListSortModel)
 
 public:
-    enum
-    {
+    enum {
         UnderlyingDataRole = Qt::UserRole
     };
 

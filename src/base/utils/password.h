@@ -30,22 +30,23 @@
 #pragma once
 
 class QByteArray;
+
 class QString;
 
-namespace Utils::Password
-{
+namespace Utils::Password {
     // Implements constant-time comparison to protect against timing attacks
     // Taken from https://crackstation.net/hashing-security.htm
     bool slowEquals(const QByteArray &a, const QByteArray &b);
 
     QString generate();
 
-    namespace PBKDF2
-    {
+    namespace PBKDF2 {
         QByteArray generate(const QString &password);
+
         QByteArray generate(const QByteArray &password);
 
         bool verify(const QByteArray &secret, const QString &password);
+
         bool verify(const QByteArray &secret, const QByteArray &password);
     }
 }

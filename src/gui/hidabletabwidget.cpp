@@ -36,18 +36,15 @@
 #endif
 
 HidableTabWidget::HidableTabWidget(QWidget *parent)
-    : QTabWidget(parent)
-{
+        : QTabWidget(parent) {
 }
 
-void HidableTabWidget::tabInserted(const int index)
-{
+void HidableTabWidget::tabInserted(const int index) {
     QTabWidget::tabInserted(index);
     tabBar()->setVisible(count() != 1);
 }
 
-void HidableTabWidget::tabRemoved(const int index)
-{
+void HidableTabWidget::tabRemoved(const int index) {
     //QTabWidget::tabInserted(index);
     QTabWidget::tabRemoved(index);
     tabBar()->setVisible(count() != 1);

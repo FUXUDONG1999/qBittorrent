@@ -36,11 +36,8 @@
 
 WatchedFolderOptionsDialog::WatchedFolderOptionsDialog(
         const TorrentFilesWatcher::WatchedFolderOptions &watchedFolderOptions, QWidget *parent)
-    : QDialog {parent}
-    , m_ui {new Ui::WatchedFolderOptionsDialog}
-    , m_addTorrentParamsWidget {new AddTorrentParamsWidget(watchedFolderOptions.addTorrentParams)}
-    , m_storeDialogSize {SETTINGS_KEY(u"DialogSize"_s)}
-{
+        : QDialog{parent}, m_ui{new Ui::WatchedFolderOptionsDialog},
+          m_addTorrentParamsWidget{new AddTorrentParamsWidget(watchedFolderOptions.addTorrentParams)}, m_storeDialogSize{SETTINGS_KEY(u"DialogSize"_s)} {
     m_ui->setupUi(this);
     m_ui->groupBoxParameters->layout()->addWidget(m_addTorrentParamsWidget);
 
@@ -50,14 +47,12 @@ WatchedFolderOptionsDialog::WatchedFolderOptionsDialog(
     loadState();
 }
 
-WatchedFolderOptionsDialog::~WatchedFolderOptionsDialog()
-{
+WatchedFolderOptionsDialog::~WatchedFolderOptionsDialog() {
     saveState();
     delete m_ui;
 }
 
-TorrentFilesWatcher::WatchedFolderOptions WatchedFolderOptionsDialog::watchedFolderOptions() const
-{
+TorrentFilesWatcher::WatchedFolderOptions WatchedFolderOptionsDialog::watchedFolderOptions() const {
     TorrentFilesWatcher::WatchedFolderOptions watchedFolderOptions;
     watchedFolderOptions.recursive = m_ui->checkBoxRecursive->isChecked();
     watchedFolderOptions.addTorrentParams = m_addTorrentParamsWidget->addTorrentParams();
@@ -65,13 +60,11 @@ TorrentFilesWatcher::WatchedFolderOptions WatchedFolderOptionsDialog::watchedFol
     return watchedFolderOptions;
 }
 
-void WatchedFolderOptionsDialog::loadState()
-{
+void WatchedFolderOptionsDialog::loadState() {
     if (const QSize dialogSize = m_storeDialogSize; dialogSize.isValid())
         resize(dialogSize);
 }
 
-void WatchedFolderOptionsDialog::saveState()
-{
+void WatchedFolderOptionsDialog::saveState() {
     m_storeDialogSize = size();
 }

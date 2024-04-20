@@ -32,8 +32,7 @@
 #include <QByteArray>
 #include <QVector>
 
-QVector<QByteArray> Utils::ByteArray::splitToViews(const QByteArray &in, const QByteArray &sep, const Qt::SplitBehavior behavior)
-{
+QVector<QByteArray> Utils::ByteArray::splitToViews(const QByteArray &in, const QByteArray &sep, const Qt::SplitBehavior behavior) {
     if (sep.isEmpty())
         return {in};
 
@@ -42,8 +41,7 @@ QVector<QByteArray> Utils::ByteArray::splitToViews(const QByteArray &in, const Q
                 ? (1 + (in.size() / sep.size()))
                 : (1 + (in.size() / (sep.size() + 1))));
     int head = 0;
-    while (head < in.size())
-    {
+    while (head < in.size()) {
         int end = in.indexOf(sep, head);
         if (end < 0)
             end = in.size();
@@ -59,19 +57,17 @@ QVector<QByteArray> Utils::ByteArray::splitToViews(const QByteArray &in, const Q
     return ret;
 }
 
-const QByteArray Utils::ByteArray::midView(const QByteArray &in, const int pos, const int len)
-{
+const QByteArray Utils::ByteArray::midView(const QByteArray &in, const int pos, const int len) {
     if ((pos < 0) || (pos >= in.size()) || (len == 0))
         return {};
 
     const int validLen = ((len < 0) || (pos + len) >= in.size())
-            ? in.size() - pos
-            : len;
+                         ? in.size() - pos
+                         : len;
     return QByteArray::fromRawData(in.constData() + pos, validLen);
 }
 
-QByteArray Utils::ByteArray::toBase32(const QByteArray &in)
-{
+QByteArray Utils::ByteArray::toBase32(const QByteArray &in) {
     const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     const char padchar = '=';
 
@@ -80,30 +76,24 @@ QByteArray Utils::ByteArray::toBase32(const QByteArray &in)
     auto tmp = QByteArray((inSize + 4) / 5 * 8, Qt::Uninitialized);
     qsizetype inIndex = 0;
     char *out = tmp.data();
-    while (inIndex < inSize)
-    {
+    while (inIndex < inSize) {
         // encode 5 bytes at a time
         qsizetype inPadLen = 5;
         int64_t chunk = 0;
-        while (inPadLen > 0)
-        {
+        while (inPadLen > 0) {
             chunk |= static_cast<int64_t>(static_cast<uchar>(in.data()[inIndex++])) << (--inPadLen * 8);
             if (inIndex == inSize)
                 break;
         }
 
         const int outCharCounts[] = {8, 7, 5, 4, 2};
-        for (int i = 7; i >= 0; --i)
-        {
-            if (i >= (8 - outCharCounts[inPadLen]))
-            {
+        for (int i = 7; i >= 0; --i) {
+            if (i >= (8 - outCharCounts[inPadLen])) {
                 const int shift = (i * 5);
                 const int64_t mask = static_cast<int64_t>(0x1f) << shift;
                 const int charIndex = (chunk & mask) >> shift;
                 *out++ = alphabet[charIndex];
-            }
-            else
-            {
+            } else {
                 *out++ = padchar;
             }
         }

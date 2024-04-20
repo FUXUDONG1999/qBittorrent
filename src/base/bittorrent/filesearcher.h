@@ -32,23 +32,23 @@
 
 #include "base/path.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class TorrentID;
 }
 
-class FileSearcher final : public QObject
-{
-    Q_OBJECT
+class FileSearcher final : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(FileSearcher)
 
 public:
     FileSearcher() = default;
 
 public slots:
-    void search(const BitTorrent::TorrentID &id, const PathList &originalFileNames
-                , const Path &savePath, const Path &downloadPath, bool forceAppendExt);
+
+    void search(const BitTorrent::TorrentID &id, const PathList &originalFileNames, const Path &savePath, const Path &downloadPath, bool forceAppendExt);
 
 signals:
+
     void searchFinished(const BitTorrent::TorrentID &id, const Path &savePath, const PathList &fileNames);
 };

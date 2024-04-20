@@ -31,19 +31,15 @@
 #include "logmodel.h"
 
 LogFilterModel::LogFilterModel(const Log::MsgTypes types, QObject *parent)
-    : QSortFilterProxyModel(parent)
-    , m_types(types)
-{
+        : QSortFilterProxyModel(parent), m_types(types) {
 }
 
-void LogFilterModel::setMessageTypes(const Log::MsgTypes types)
-{
+void LogFilterModel::setMessageTypes(const Log::MsgTypes types) {
     m_types = types;
     invalidateFilter();
 }
 
-bool LogFilterModel::filterAcceptsRow(const int sourceRow, const QModelIndex &sourceParent) const
-{
+bool LogFilterModel::filterAcceptsRow(const int sourceRow, const QModelIndex &sourceParent) const {
     const QAbstractItemModel *const sourceModel = this->sourceModel();
     const QModelIndex index = sourceModel->index(sourceRow, 0, sourceParent);
     const Log::MsgType type = static_cast<Log::MsgType>(sourceModel->data(index, BaseLogModel::TypeRole).toInt());

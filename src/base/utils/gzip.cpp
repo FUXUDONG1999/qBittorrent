@@ -37,17 +37,17 @@
 #ifndef ZLIB_CONST
 #define ZLIB_CONST  // make z_stream.next_in const
 #endif
+
 #include <zlib.h>
 
-QByteArray Utils::Gzip::compress(const QByteArray &data, const int level, bool *ok)
-{
+QByteArray Utils::Gzip::compress(const QByteArray &data, const int level, bool *ok) {
     if (ok)
         *ok = false;
 
     if (data.isEmpty())
         return {};
 
-    z_stream strm {};
+    z_stream strm{};
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -62,7 +62,7 @@ QByteArray Utils::Gzip::compress(const QByteArray &data, const int level, bool *
         return {};
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-    QByteArray ret {static_cast<qsizetype>(deflateBound(&strm, data.size())), Qt::Uninitialized};
+    QByteArray ret{static_cast<qsizetype>(deflateBound(&strm, data.size())), Qt::Uninitialized};
 #else
     QByteArray ret {static_cast<int>(deflateBound(&strm, data.size())), Qt::Uninitialized};
 #endif
@@ -83,8 +83,7 @@ QByteArray Utils::Gzip::compress(const QByteArray &data, const int level, bool *
     return ret;
 }
 
-QByteArray Utils::Gzip::decompress(const QByteArray &data, bool *ok)
-{
+QByteArray Utils::Gzip::decompress(const QByteArray &data, bool *ok) {
     if (ok) *ok = false;
 
     if (data.isEmpty())
@@ -93,7 +92,7 @@ QByteArray Utils::Gzip::decompress(const QByteArray &data, bool *ok)
     const int BUFSIZE = 1024 * 1024;
     std::vector<char> tmpBuf(BUFSIZE);
 
-    z_stream strm {};
+    z_stream strm{};
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -113,18 +112,15 @@ QByteArray Utils::Gzip::decompress(const QByteArray &data, bool *ok)
     output.reserve(data.size() * 3);
 
     // run inflate
-    while (true)
-    {
+    while (true) {
         result = inflate(&strm, Z_NO_FLUSH);
 
-        if (result == Z_STREAM_END)
-        {
+        if (result == Z_STREAM_END) {
             output.append(tmpBuf.data(), (BUFSIZE - strm.avail_out));
             break;
         }
 
-        if (result != Z_OK)
-        {
+        if (result != Z_OK) {
             inflateEnd(&strm);
             return {};
         }

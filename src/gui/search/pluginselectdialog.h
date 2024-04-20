@@ -36,59 +36,81 @@
 #include "base/settingvalue.h"
 
 class QDropEvent;
+
 class QTreeWidgetItem;
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-namespace Ui
-{
+namespace Ui {
     class PluginSelectDialog;
 }
 
-class PluginSelectDialog final : public QDialog
-{
-    Q_OBJECT
+class PluginSelectDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PluginSelectDialog)
 
 public:
     explicit PluginSelectDialog(SearchPluginManager *pluginManager, QWidget *parent = nullptr);
+
     ~PluginSelectDialog() override;
 
-    QVector<QTreeWidgetItem*> findItemsWithUrl(const QString &url);
+    QVector<QTreeWidgetItem *> findItemsWithUrl(const QString &url);
+
     QTreeWidgetItem *findItemWithID(const QString &id);
 
 protected:
     void dropEvent(QDropEvent *event) override;
+
     void dragEnterEvent(QDragEnterEvent *event) override;
 
 private slots:
+
     void on_actionUninstall_triggered();
+
     void on_updateButton_clicked();
+
     void on_installButton_clicked();
+
     void on_closeButton_clicked();
-    void togglePluginState(QTreeWidgetItem*, int);
+
+    void togglePluginState(QTreeWidgetItem *, int);
+
     void setRowColor(int row, const QString &color);
+
     void displayContextMenu();
+
     void enableSelection(bool enable);
+
     void askForLocalPlugin();
+
     void askForPluginUrl();
+
     void iconDownloadFinished(const Net::DownloadResult &result);
 
     void checkForUpdatesFinished(const QHash<QString, PluginVersion> &updateInfo);
+
     void checkForUpdatesFailed(const QString &reason);
+
     void pluginInstalled(const QString &name);
+
     void pluginInstallationFailed(const QString &name, const QString &reason);
+
     void pluginUpdated(const QString &name);
+
     void pluginUpdateFailed(const QString &name, const QString &reason);
 
 private:
     void loadSupportedSearchPlugins();
+
     void addNewPlugin(const QString &pluginName);
+
     void startAsyncOp();
+
     void finishAsyncOp();
+
     void finishPluginUpdate();
 
     Ui::PluginSelectDialog *m_ui = nullptr;

@@ -43,15 +43,12 @@
 #include "base/http/irequesthandler.h"
 #include "base/http/responsebuilder.h"
 
-namespace Http
-{
+namespace Http {
     class Server;
 }
 
-namespace BitTorrent
-{
-    struct Peer
-    {
+namespace BitTorrent {
+    struct Peer {
         QByteArray peerId;
         ushort port = 0;  // self-claimed by peer, might not be the same as socket port
         bool isSeeder = false;
@@ -64,9 +61,13 @@ namespace BitTorrent
     };
 
     bool operator==(const Peer &left, const Peer &right);
+
     bool operator!=(const Peer &left, const Peer &right);
+
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
     std::size_t qHash(const Peer &key, std::size_t seed = 0);
+
 #else
     uint qHash(const Peer &key, uint seed = 0);
 #endif
@@ -74,19 +75,19 @@ namespace BitTorrent
     // *Basic* Bittorrent tracker implementation
     // [BEP-3] The BitTorrent Protocol Specification
     // also see: https://wiki.theory.org/index.php/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
-    class Tracker final : public QObject, public Http::IRequestHandler, private Http::ResponseBuilder
-    {
-        Q_OBJECT
+    class Tracker final : public QObject, public Http::IRequestHandler, private Http::ResponseBuilder {
+    Q_OBJECT
+
         Q_DISABLE_COPY_MOVE(Tracker)
 
         struct TrackerAnnounceRequest;
 
-        struct TorrentStats
-        {
+        struct TorrentStats {
             qint64 seeders = 0;
             QSet<Peer> peers;
 
             void setPeer(const Peer &peer);
+
             bool removePeer(const Peer &peer);
         };
 
@@ -97,10 +98,13 @@ namespace BitTorrent
 
     private:
         Http::Response processRequest(const Http::Request &request, const Http::Environment &env) override;
+
         void processAnnounceRequest();
 
         void registerPeer(const TrackerAnnounceRequest &announceReq);
+
         void unregisterPeer(const TrackerAnnounceRequest &announceReq);
+
         void prepareAnnounceResponse(const TrackerAnnounceRequest &announceReq);
 
         Http::Server *m_server = nullptr;

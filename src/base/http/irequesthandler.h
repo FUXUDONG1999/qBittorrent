@@ -28,16 +28,15 @@
 
 #pragma once
 
-namespace Http
-{
+namespace Http {
     struct Environment;
     struct Request;
     struct Response;
 
-    class IRequestHandler
-    {
+    class IRequestHandler {
     public:
         virtual ~IRequestHandler() = default;
+
         virtual Response processRequest(const Request &request, const Environment &env) = 0;
     };
 }

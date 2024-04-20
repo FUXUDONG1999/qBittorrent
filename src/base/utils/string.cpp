@@ -36,14 +36,15 @@
 #include <QVector>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
 #include <QRegularExpression>
+
 #else
 #include <QRegExp>
 #endif
 
 // to send numbers instead of strings with suffixes
-QString Utils::String::fromDouble(const double n, const int precision)
-{
+QString Utils::String::fromDouble(const double n, const int precision) {
     /* HACK because QString rounds up. Eg QString::number(0.999*100.0, 'f', 1) == 99.9
     ** but QString::number(0.9999*100.0, 'f' ,1) == 100.0 The problem manifests when
     ** the number has more digits after the decimal than we want AND the digit after
@@ -55,10 +56,11 @@ QString Utils::String::fromDouble(const double n, const int precision)
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-QString Utils::String::wildcardToRegexPattern(const QString &pattern)
-{
+
+QString Utils::String::wildcardToRegexPattern(const QString &pattern) {
     return QRegularExpression::wildcardToRegularExpression(pattern, QRegularExpression::UnanchoredWildcardConversion);
 }
+
 #else
 // This is marked as internal in QRegExp.cpp, but is exported. The alternative would be to
 // copy the code from QRegExp::wc2rx().
@@ -70,30 +72,23 @@ QString Utils::String::wildcardToRegexPattern(const QString &pattern)
 }
 #endif
 
-QStringList Utils::String::splitCommand(const QString &command)
-{
+QStringList Utils::String::splitCommand(const QString &command) {
     QStringList ret;
     ret.reserve(32);
 
     bool inQuotes = false;
     QString tmp;
-    for (const QChar c : command)
-    {
-        if (c == u' ')
-        {
-            if (!inQuotes)
-            {
-                if (!tmp.isEmpty())
-                {
+    for (const QChar c: command) {
+        if (c == u' ') {
+            if (!inQuotes) {
+                if (!tmp.isEmpty()) {
                     ret.append(tmp);
                     tmp.clear();
                 }
 
                 continue;
             }
-        }
-        else if (c == u'"')
-        {
+        } else if (c == u'"') {
             inQuotes = !inQuotes;
         }
 
@@ -106,8 +101,7 @@ QStringList Utils::String::splitCommand(const QString &command)
     return ret;
 }
 
-std::optional<bool> Utils::String::parseBool(const QString &string)
-{
+std::optional<bool> Utils::String::parseBool(const QString &string) {
     if (string.compare(u"true", Qt::CaseInsensitive) == 0)
         return true;
     if (string.compare(u"false", Qt::CaseInsensitive) == 0)
@@ -116,8 +110,7 @@ std::optional<bool> Utils::String::parseBool(const QString &string)
     return std::nullopt;
 }
 
-std::optional<int> Utils::String::parseInt(const QString &string)
-{
+std::optional<int> Utils::String::parseInt(const QString &string) {
     bool ok = false;
     const int result = string.toInt(&ok);
     if (ok)
@@ -126,8 +119,7 @@ std::optional<int> Utils::String::parseInt(const QString &string)
     return std::nullopt;
 }
 
-std::optional<double> Utils::String::parseDouble(const QString &string)
-{
+std::optional<double> Utils::String::parseDouble(const QString &string) {
     bool ok = false;
     const double result = string.toDouble(&ok);
     if (ok)
@@ -136,8 +128,7 @@ std::optional<double> Utils::String::parseDouble(const QString &string)
     return std::nullopt;
 }
 
-QString Utils::String::join(const QList<QStringView> &strings, const QStringView separator)
-{
+QString Utils::String::join(const QList<QStringView> &strings, const QStringView separator) {
     if (strings.empty())
         return {};
 

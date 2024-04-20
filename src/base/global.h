@@ -35,15 +35,15 @@
 #define QBT_APP_64BIT
 #endif
 
-template <typename T>
+template<typename T>
 constexpr typename std::add_const_t<T> &asConst(T &t) noexcept { return t; }
 
 // Forward rvalue as const
-template <typename T>
+template<typename T>
 constexpr typename std::add_const_t<T> asConst(T &&t) noexcept { return std::forward<T>(t); }
 
 // Prevent const rvalue arguments
-template <typename T>
+template<typename T>
 void asConst(const T &&) = delete;
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 4, 0))

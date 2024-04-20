@@ -35,14 +35,13 @@
 
 class QHelpEvent;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
 }
 
-class PiecesBar : public QWidget
-{
-    Q_OBJECT
+class PiecesBar : public QWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PiecesBar)
 
     using base = QWidget;
@@ -60,20 +59,29 @@ public:
 protected:
     // QWidget interface
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
     void enterEvent(QEnterEvent *e) override;
+
 #else
     void enterEvent(QEvent *e) override;
 #endif
+
     void leaveEvent(QEvent *e) override;
+
     void mouseMoveEvent(QMouseEvent *e) override;
 
     void paintEvent(QPaintEvent *e) override;
+
     void requestImageUpdate();
 
     QColor backgroundColor() const;
+
     QColor borderColor() const;
+
     QColor pieceColor() const;
+
     QColor colorBoxBorderColor() const;
+
     const QVector<QRgb> &pieceColors() const;
 
     // mix two colors by light model, ratio <0, 1>
@@ -82,7 +90,8 @@ protected:
     static constexpr int borderWidth = 1;
 
 private:
-    void showToolTip(const QHelpEvent*);
+    void showToolTip(const QHelpEvent *);
+
     void highlightFile(int imagePos);
 
     virtual QString simpleToolTipText() const = 0;
@@ -90,6 +99,7 @@ private:
     // draw new image to replace the actual image
     // returns true if image was successfully updated
     virtual bool updateImage(QImage &image) = 0;
+
     void updatePieceColors();
 
     const BitTorrent::Torrent *m_torrent = nullptr;

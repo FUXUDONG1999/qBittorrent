@@ -37,19 +37,17 @@
 
 #include "base/bittorrent/torrent.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class InfoHash;
 }
 
-class TransferListModel final : public QAbstractListModel
-{
-    Q_OBJECT
+class TransferListModel final : public QAbstractListModel {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TransferListModel)
 
 public:
-    enum Column
-    {
+    enum Column {
         TR_QUEUE_POSITION,
         TR_NAME,
         TR_SIZE,
@@ -88,8 +86,7 @@ public:
         NB_COLUMNS
     };
 
-    enum DataRole
-    {
+    enum DataRole {
         UnderlyingDataRole = Qt::UserRole,
         AdditionalUnderlyingDataRole
     };
@@ -97,24 +94,36 @@ public:
     explicit TransferListModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = {}) const override;
+
     int columnCount(const QModelIndex &parent = {}) const override;
+
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     BitTorrent::Torrent *torrentHandle(const QModelIndex &index) const;
 
 private slots:
+
     void addTorrents(const QVector<BitTorrent::Torrent *> &torrents);
+
     void handleTorrentAboutToBeRemoved(BitTorrent::Torrent *torrent);
+
     void handleTorrentStatusUpdated(BitTorrent::Torrent *torrent);
+
     void handleTorrentsUpdated(const QVector<BitTorrent::Torrent *> &torrents);
 
 private:
     void configure();
+
     QString displayValue(const BitTorrent::Torrent *torrent, int column) const;
+
     QVariant internalValue(const BitTorrent::Torrent *torrent, int column, bool alt) const;
+
     QIcon getIconByState(BitTorrent::TorrentState state) const;
 
     QList<BitTorrent::Torrent *> m_torrentList;  // maps row number to torrent handle
@@ -123,8 +132,7 @@ private:
     // row text colors
     const QHash<BitTorrent::TorrentState, QColor> m_stateThemeColors;
 
-    enum class HideZeroValuesMode
-    {
+    enum class HideZeroValuesMode {
         Never,
         Paused,
         Always

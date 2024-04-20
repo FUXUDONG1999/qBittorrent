@@ -32,56 +32,49 @@
 
 using namespace BitTorrent;
 
-PeerAddress PeerAddress::parse(const QStringView address)
-{
+PeerAddress PeerAddress::parse(const QStringView address) {
     QList<QStringView> ipPort;
 
-    if (address.startsWith(u'[') && address.contains(u"]:"))
-    {  // IPv6
+    if (address.startsWith(u'[') && address.contains(u"]:")) {  // IPv6
         ipPort = address.split(u"]:");
         ipPort[0] = ipPort[0].mid(1);  // chop '['
-    }
-    else if (address.contains(u':'))
-    {  // IPv4
+    } else if (address.contains(u':')) {  // IPv4
         ipPort = address.split(u':');
-    }
-    else
-    {
+    } else {
         return {};
     }
 
-    const QHostAddress ip {ipPort[0].toString()};
+    const QHostAddress ip{ipPort[0].toString()};
     if (ip.isNull())
         return {};
 
-    const ushort port {ipPort[1].toUShort()};
+    const ushort port{ipPort[1].toUShort()};
     if (port == 0)
         return {};
 
     return {ip, port};
 }
 
-QString PeerAddress::toString() const
-{
+QString PeerAddress::toString() const {
     if (ip.isNull())
         return {};
 
     const QString ipStr = (ip.protocol() == QAbstractSocket::IPv6Protocol)
-        ? (u'[' + ip.toString() + u']')
-        : ip.toString();
+                          ? (u'[' + ip.toString() + u']')
+                          : ip.toString();
     return (ipStr + u':' + QString::number(port));
 }
 
-bool BitTorrent::operator==(const BitTorrent::PeerAddress &left, const BitTorrent::PeerAddress &right)
-{
+bool BitTorrent::operator==(const BitTorrent::PeerAddress &left, const BitTorrent::PeerAddress &right) {
     return (left.ip == right.ip) && (left.port == right.port);
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-std::size_t BitTorrent::qHash(const BitTorrent::PeerAddress &addr, const std::size_t seed)
-{
+
+std::size_t BitTorrent::qHash(const BitTorrent::PeerAddress &addr, const std::size_t seed) {
     return qHashMulti(seed, addr.ip, addr.port);
 }
+
 #else
 uint BitTorrent::qHash(const BitTorrent::PeerAddress &addr, const uint seed)
 {

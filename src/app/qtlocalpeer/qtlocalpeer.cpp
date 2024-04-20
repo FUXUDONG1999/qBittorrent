@@ -71,7 +71,9 @@
 #include <QtGlobal>
 
 #if defined(Q_OS_WIN)
+
 #include <Windows.h>
+
 #endif
 
 #include <QDataStream>
@@ -79,12 +81,13 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 
-namespace QtLP_Private
-{
+namespace QtLP_Private {
+
 #include "qtlockedfile.cpp"
 
 #if defined(Q_OS_WIN)
 #include "qtlockedfile_win.cpp"
+
 #else
 #include "qtlockedfile_unix.cpp"
 #endif
@@ -93,27 +96,21 @@ namespace QtLP_Private
 const char ACK[] = "ack";
 
 QtLocalPeer::QtLocalPeer(const QString &path, QObject *parent)
-    : QObject(parent)
-    , m_socketName(path + u"/ipc-socket")
-    , m_server(new QLocalServer(this))
-{
+        : QObject(parent), m_socketName(path + u"/ipc-socket"), m_server(new QLocalServer(this)) {
     m_server->setSocketOptions(QLocalServer::UserAccessOption);
 
     m_lockFile.setFileName(path + u"/lockfile");
     m_lockFile.open(QIODevice::ReadWrite);
 }
 
-QtLocalPeer::~QtLocalPeer()
-{
-    if (!isClient())
-    {
+QtLocalPeer::~QtLocalPeer() {
+    if (!isClient()) {
         m_lockFile.unlock();
         m_lockFile.remove();
     }
 }
 
-bool QtLocalPeer::isClient()
-{
+bool QtLocalPeer::isClient() {
     if (m_lockFile.isLocked())
         return false;
 
@@ -136,18 +133,16 @@ bool QtLocalPeer::isClient()
     return false;
 }
 
-bool QtLocalPeer::sendMessage(const QString &message, const int timeout)
-{
+bool QtLocalPeer::sendMessage(const QString &message, const int timeout) {
     if (!isClient())
         return false;
 
     QLocalSocket socket;
     bool connOk = false;
-    for(int i = 0; i < 2; i++)
-    {
+    for (int i = 0; i < 2; i++) {
         // Try twice, in case the other instance is just starting up
         socket.connectToServer(m_socketName);
-        connOk = socket.waitForConnected(timeout/2);
+        connOk = socket.waitForConnected(timeout / 2);
         if (connOk || i)
             break;
         int ms = 250;
@@ -165,8 +160,7 @@ bool QtLocalPeer::sendMessage(const QString &message, const int timeout)
     QDataStream ds(&socket);
     ds.writeBytes(uMsg.constData(), uMsg.size());
     bool res = socket.waitForBytesWritten(timeout);
-    if (res)
-    {
+    if (res) {
         res &= socket.waitForReadyRead(timeout);   // wait for ack
         if (res)
             res &= (socket.read(qstrlen(ACK)) == ACK);
@@ -174,16 +168,13 @@ bool QtLocalPeer::sendMessage(const QString &message, const int timeout)
     return res;
 }
 
-void QtLocalPeer::receiveConnection()
-{
+void QtLocalPeer::receiveConnection() {
     QLocalSocket *socket = m_server->nextPendingConnection();
     if (!socket)
         return;
 
-    while (true)
-    {
-        if (socket->state() == QLocalSocket::UnconnectedState)
-        {
+    while (true) {
+        if (socket->state() == QLocalSocket::UnconnectedState) {
             qWarning("QtLocalPeer: Peer disconnected");
             delete socket;
             return;
@@ -197,8 +188,7 @@ void QtLocalPeer::receiveConnection()
     QByteArray uMsg;
     quint32 remaining;
     ds >> remaining;
-    if (remaining > 65535)
-    {
+    if (remaining > 65535) {
         // drop suspiciously large data
         delete socket;
         return;
@@ -206,15 +196,13 @@ void QtLocalPeer::receiveConnection()
 
     uMsg.resize(remaining);
     int got = 0;
-    char* uMsgBuf = uMsg.data();
-    do
-    {
+    char *uMsgBuf = uMsg.data();
+    do {
         got = ds.readRawData(uMsgBuf, remaining);
         remaining -= got;
         uMsgBuf += got;
     } while (remaining && got >= 0 && socket->waitForReadyRead(2000));
-    if (got < 0)
-    {
+    if (got < 0) {
         qWarning("QtLocalPeer: Message reception failed %s", socket->errorString().toLatin1().constData());
         delete socket;
         return;

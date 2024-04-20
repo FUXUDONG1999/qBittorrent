@@ -32,13 +32,14 @@
 
 #include "base/logger.h"
 
-class LogFilterModel final : public QSortFilterProxyModel
-{
-    Q_OBJECT
+class LogFilterModel final : public QSortFilterProxyModel {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(LogFilterModel)
 
 public:
     explicit LogFilterModel(Log::MsgTypes types = Log::ALL, QObject *parent = nullptr);
+
     void setMessageTypes(Log::MsgTypes types);
 
 private:

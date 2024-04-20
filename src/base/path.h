@@ -39,47 +39,62 @@
 
 #include "base/interfaces/istringable.h"
 
-class Path final : public IStringable
-{
+class Path final : public IStringable {
 public:
     Path() = default;
 
     explicit Path(const QString &pathStr);
+
     explicit Path(const std::string &pathStr);
 
     bool isValid() const;
+
     bool isEmpty() const;
+
     bool isAbsolute() const;
+
     bool isRelative() const;
 
     bool exists() const;
 
     Path rootItem() const;
+
     Path parentPath() const;
 
     QString filename() const;
 
     QString extension() const;
+
     bool hasExtension(QStringView ext) const;
+
     void removeExtension();
+
     Path removedExtension() const;
+
     void removeExtension(QStringView ext);
+
     Path removedExtension(QStringView ext) const;
 
     bool hasAncestor(const Path &other) const;
+
     Path relativePathOf(const Path &childPath) const;
 
     QString data() const;
+
     QString toString() const override;
+
     std::filesystem::path toStdFsPath() const;
 
     Path &operator/=(const Path &other);
+
     Path &operator+=(QStringView str);
 
     static Path commonPath(const Path &left, const Path &right);
 
     static Path findRootFolder(const PathList &filePaths);
+
     static void stripRootFolder(PathList &filePaths);
+
     static void addRootFolder(PathList &filePaths, const Path &rootFolder);
 
     friend Path operator/(const Path &lhs, const Path &rhs);
@@ -95,14 +110,19 @@ private:
 Q_DECLARE_METATYPE(Path)
 
 bool operator==(const Path &lhs, const Path &rhs);
+
 bool operator!=(const Path &lhs, const Path &rhs);
+
 Path operator+(const Path &lhs, QStringView rhs);
 
 QDataStream &operator<<(QDataStream &out, const Path &path);
+
 QDataStream &operator>>(QDataStream &in, Path &path);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
 std::size_t qHash(const Path &key, std::size_t seed = 0);
+
 #else
 uint qHash(const Path &key, uint seed = 0);
 #endif

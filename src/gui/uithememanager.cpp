@@ -40,10 +40,8 @@
 #include "base/preferences.h"
 #include "uithemecommon.h"
 
-namespace
-{
-    bool isDarkTheme()
-    {
+namespace {
+    bool isDarkTheme() {
         const QPalette palette = qApp->palette();
         const QColor &color = palette.color(QPalette::Active, QPalette::Base);
         return (color.lightness() < 127);
@@ -52,37 +50,31 @@ namespace
 
 UIThemeManager *UIThemeManager::m_instance = nullptr;
 
-void UIThemeManager::freeInstance()
-{
+void UIThemeManager::freeInstance() {
     delete m_instance;
     m_instance = nullptr;
 }
 
-void UIThemeManager::initInstance()
-{
+void UIThemeManager::initInstance() {
     if (!m_instance)
         m_instance = new UIThemeManager;
 }
 
 UIThemeManager::UIThemeManager()
-    : m_useCustomTheme {Preferences::instance()->useCustomUITheme()}
+        : m_useCustomTheme{Preferences::instance()->useCustomUITheme()}
 #if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS))
-    , m_useSystemIcons {Preferences::instance()->useSystemIcons()}
+, m_useSystemIcons {Preferences::instance()->useSystemIcons()}
 #endif
 {
-    if (m_useCustomTheme)
-    {
+    if (m_useCustomTheme) {
         const Path themePath = Preferences::instance()->customUIThemePath();
 
-        if (themePath.hasExtension(u".qbtheme"_s))
-        {
+        if (themePath.hasExtension(u".qbtheme"_s)) {
             if (QResource::registerResource(themePath.data(), u"/uitheme"_s))
                 m_themeSource = std::make_unique<QRCThemeSource>();
             else
                 LogMsg(tr("Failed to load UI theme from file: \"%1\"").arg(themePath.toString()), Log::WARNING);
-        }
-        else if (themePath.filename() == CONFIG_FILE_NAME)
-        {
+        } else if (themePath.filename() == CONFIG_FILE_NAME) {
             m_themeSource = std::make_unique<FolderThemeSource>(themePath.parentPath());
         }
     }
@@ -90,25 +82,21 @@ UIThemeManager::UIThemeManager()
     if (!m_themeSource)
         m_themeSource = std::make_unique<DefaultThemeSource>();
 
-    if (m_useCustomTheme)
-    {
+    if (m_useCustomTheme) {
         applyPalette();
         applyStyleSheet();
     }
 }
 
-UIThemeManager *UIThemeManager::instance()
-{
+UIThemeManager *UIThemeManager::instance() {
     return m_instance;
 }
 
-void UIThemeManager::applyStyleSheet() const
-{
+void UIThemeManager::applyStyleSheet() const {
     qApp->setStyleSheet(QString::fromUtf8(m_themeSource->readStyleSheet()));
 }
 
-QIcon UIThemeManager::getIcon(const QString &iconId, [[maybe_unused]] const QString &fallback) const
-{
+QIcon UIThemeManager::getIcon(const QString &iconId, [[maybe_unused]] const QString &fallback) const {
     const auto colorMode = isDarkTheme() ? ColorMode::Dark : ColorMode::Light;
     auto &icons = (colorMode == ColorMode::Dark) ? m_darkModeIcons : m_icons;
 
@@ -127,13 +115,12 @@ QIcon UIThemeManager::getIcon(const QString &iconId, [[maybe_unused]] const QStr
     }
 #endif
 
-    const QIcon icon {m_themeSource->getIconPath(iconId, colorMode).data()};
+    const QIcon icon{m_themeSource->getIconPath(iconId, colorMode).data()};
     icons[iconId] = icon;
     return icon;
 }
 
-QIcon UIThemeManager::getFlagIcon(const QString &countryIsoCode) const
-{
+QIcon UIThemeManager::getFlagIcon(const QString &countryIsoCode) const {
     if (countryIsoCode.isEmpty())
         return {};
 
@@ -142,13 +129,12 @@ QIcon UIThemeManager::getFlagIcon(const QString &countryIsoCode) const
     if (iter != m_flags.end())
         return *iter;
 
-    const QIcon icon {u":/icons/flags/" + key + u".svg"};
+    const QIcon icon{u":/icons/flags/" + key + u".svg"};
     m_flags[key] = icon;
     return icon;
 }
 
-QPixmap UIThemeManager::getScaledPixmap(const QString &iconId, const int height) const
-{
+QPixmap UIThemeManager::getScaledPixmap(const QString &iconId, const int height) const {
     // (workaround) svg images require the use of `QIcon()` to load and scale losslessly,
     // otherwise other image classes will convert it to pixmap first and follow-up scaling will become lossy.
 
@@ -157,8 +143,7 @@ QPixmap UIThemeManager::getScaledPixmap(const QString &iconId, const int height)
     const QString cacheKey = iconId + u'@' + QString::number(height);
 
     QPixmap pixmap;
-    if (!QPixmapCache::find(cacheKey, &pixmap))
-    {
+    if (!QPixmapCache::find(cacheKey, &pixmap)) {
         pixmap = getIcon(iconId).pixmap(height);
         QPixmapCache::insert(cacheKey, pixmap);
     }
@@ -166,55 +151,51 @@ QPixmap UIThemeManager::getScaledPixmap(const QString &iconId, const int height)
     return pixmap;
 }
 
-QColor UIThemeManager::getColor(const QString &id) const
-{
+QColor UIThemeManager::getColor(const QString &id) const {
     const QColor color = m_themeSource->getColor(id, (isDarkTheme() ? ColorMode::Dark : ColorMode::Light));
     Q_ASSERT(color.isValid());
 
     return color;
 }
 
-void UIThemeManager::applyPalette() const
-{
-    struct ColorDescriptor
-    {
+void UIThemeManager::applyPalette() const {
+    struct ColorDescriptor {
         QString id;
         QPalette::ColorRole colorRole;
         QPalette::ColorGroup colorGroup;
     };
 
     const ColorDescriptor paletteColorDescriptors[] =
-    {
-        {u"Palette.Window"_s, QPalette::Window, QPalette::Normal},
-        {u"Palette.WindowText"_s, QPalette::WindowText, QPalette::Normal},
-        {u"Palette.Base"_s, QPalette::Base, QPalette::Normal},
-        {u"Palette.AlternateBase"_s, QPalette::AlternateBase, QPalette::Normal},
-        {u"Palette.Text"_s, QPalette::Text, QPalette::Normal},
-        {u"Palette.ToolTipBase"_s, QPalette::ToolTipBase, QPalette::Normal},
-        {u"Palette.ToolTipText"_s, QPalette::ToolTipText, QPalette::Normal},
-        {u"Palette.BrightText"_s, QPalette::BrightText, QPalette::Normal},
-        {u"Palette.Highlight"_s, QPalette::Highlight, QPalette::Normal},
-        {u"Palette.HighlightedText"_s, QPalette::HighlightedText, QPalette::Normal},
-        {u"Palette.Button"_s, QPalette::Button, QPalette::Normal},
-        {u"Palette.ButtonText"_s, QPalette::ButtonText, QPalette::Normal},
-        {u"Palette.Link"_s, QPalette::Link, QPalette::Normal},
-        {u"Palette.LinkVisited"_s, QPalette::LinkVisited, QPalette::Normal},
-        {u"Palette.Light"_s, QPalette::Light, QPalette::Normal},
-        {u"Palette.Midlight"_s, QPalette::Midlight, QPalette::Normal},
-        {u"Palette.Mid"_s, QPalette::Mid, QPalette::Normal},
-        {u"Palette.Dark"_s, QPalette::Dark, QPalette::Normal},
-        {u"Palette.Shadow"_s, QPalette::Shadow, QPalette::Normal},
-        {u"Palette.WindowTextDisabled"_s, QPalette::WindowText, QPalette::Disabled},
-        {u"Palette.TextDisabled"_s, QPalette::Text, QPalette::Disabled},
-        {u"Palette.ToolTipTextDisabled"_s, QPalette::ToolTipText, QPalette::Disabled},
-        {u"Palette.BrightTextDisabled"_s, QPalette::BrightText, QPalette::Disabled},
-        {u"Palette.HighlightedTextDisabled"_s, QPalette::HighlightedText, QPalette::Disabled},
-        {u"Palette.ButtonTextDisabled"_s, QPalette::ButtonText, QPalette::Disabled}
-    };
+            {
+                    {u"Palette.Window"_s,                  QPalette::Window,          QPalette::Normal},
+                    {u"Palette.WindowText"_s,              QPalette::WindowText,      QPalette::Normal},
+                    {u"Palette.Base"_s,                    QPalette::Base,            QPalette::Normal},
+                    {u"Palette.AlternateBase"_s,           QPalette::AlternateBase,   QPalette::Normal},
+                    {u"Palette.Text"_s,                    QPalette::Text,            QPalette::Normal},
+                    {u"Palette.ToolTipBase"_s,             QPalette::ToolTipBase,     QPalette::Normal},
+                    {u"Palette.ToolTipText"_s,             QPalette::ToolTipText,     QPalette::Normal},
+                    {u"Palette.BrightText"_s,              QPalette::BrightText,      QPalette::Normal},
+                    {u"Palette.Highlight"_s,               QPalette::Highlight,       QPalette::Normal},
+                    {u"Palette.HighlightedText"_s,         QPalette::HighlightedText, QPalette::Normal},
+                    {u"Palette.Button"_s,                  QPalette::Button,          QPalette::Normal},
+                    {u"Palette.ButtonText"_s,              QPalette::ButtonText,      QPalette::Normal},
+                    {u"Palette.Link"_s,                    QPalette::Link,            QPalette::Normal},
+                    {u"Palette.LinkVisited"_s,             QPalette::LinkVisited,     QPalette::Normal},
+                    {u"Palette.Light"_s,                   QPalette::Light,           QPalette::Normal},
+                    {u"Palette.Midlight"_s,                QPalette::Midlight,        QPalette::Normal},
+                    {u"Palette.Mid"_s,                     QPalette::Mid,             QPalette::Normal},
+                    {u"Palette.Dark"_s,                    QPalette::Dark,            QPalette::Normal},
+                    {u"Palette.Shadow"_s,                  QPalette::Shadow,          QPalette::Normal},
+                    {u"Palette.WindowTextDisabled"_s,      QPalette::WindowText,      QPalette::Disabled},
+                    {u"Palette.TextDisabled"_s,            QPalette::Text,            QPalette::Disabled},
+                    {u"Palette.ToolTipTextDisabled"_s,     QPalette::ToolTipText,     QPalette::Disabled},
+                    {u"Palette.BrightTextDisabled"_s,      QPalette::BrightText,      QPalette::Disabled},
+                    {u"Palette.HighlightedTextDisabled"_s, QPalette::HighlightedText, QPalette::Disabled},
+                    {u"Palette.ButtonTextDisabled"_s,      QPalette::ButtonText,      QPalette::Disabled}
+            };
 
     QPalette palette = qApp->palette();
-    for (const ColorDescriptor &colorDescriptor : paletteColorDescriptors)
-    {
+    for (const ColorDescriptor &colorDescriptor: paletteColorDescriptors) {
         // For backward compatibility, the palette color overrides are read from the section of the "light mode" colors
         const QColor newColor = m_themeSource->getColor(colorDescriptor.id, ColorMode::Light);
         if (newColor.isValid())

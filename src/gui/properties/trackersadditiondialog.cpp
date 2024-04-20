@@ -45,12 +45,8 @@
 #define SETTINGS_KEY(name) u"AddTrackersDialog/" name
 
 TrackersAdditionDialog::TrackersAdditionDialog(QWidget *parent, BitTorrent::Torrent *const torrent)
-    : QDialog(parent)
-    , m_ui(new Ui::TrackersAdditionDialog)
-    , m_torrent(torrent)
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
-    , m_storeTrackersListURL(SETTINGS_KEY(u"TrackersListURL"_s))
-{
+        : QDialog(parent), m_ui(new Ui::TrackersAdditionDialog), m_torrent(torrent), m_storeDialogSize(SETTINGS_KEY(u"Size"_s)),
+          m_storeTrackersListURL(SETTINGS_KEY(u"TrackersListURL"_s)) {
     m_ui->setupUi(this);
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Add"));
@@ -65,24 +61,20 @@ TrackersAdditionDialog::TrackersAdditionDialog(QWidget *parent, BitTorrent::Torr
     loadSettings();
 }
 
-TrackersAdditionDialog::~TrackersAdditionDialog()
-{
+TrackersAdditionDialog::~TrackersAdditionDialog() {
     saveSettings();
 
     delete m_ui;
 }
 
-void TrackersAdditionDialog::onAccepted() const
-{
+void TrackersAdditionDialog::onAccepted() const {
     const QVector<BitTorrent::TrackerEntry> entries = BitTorrent::parseTrackerEntries(m_ui->textEditTrackersList->toPlainText());
     m_torrent->addTrackers(entries);
 }
 
-void TrackersAdditionDialog::onDownloadButtonClicked()
-{
+void TrackersAdditionDialog::onDownloadButtonClicked() {
     const QString url = m_ui->lineEditListURL->text();
-    if (url.isEmpty())
-    {
+    if (url.isEmpty()) {
         QMessageBox::warning(this, tr("Trackers list URL error"), tr("The trackers list URL cannot be empty"));
         return;
     }
@@ -91,20 +83,18 @@ void TrackersAdditionDialog::onDownloadButtonClicked()
     m_ui->downloadButton->setEnabled(false);
     setCursor(Qt::WaitCursor);
 
-    Net::DownloadManager::instance()->download(url, Preferences::instance()->useProxyForGeneralPurposes()
-            , this, &TrackersAdditionDialog::onTorrentListDownloadFinished);
+    Net::DownloadManager::instance()->download(url, Preferences::instance()->useProxyForGeneralPurposes(), this,
+                                               &TrackersAdditionDialog::onTorrentListDownloadFinished);
 }
 
-void TrackersAdditionDialog::onTorrentListDownloadFinished(const Net::DownloadResult &result)
-{
+void TrackersAdditionDialog::onTorrentListDownloadFinished(const Net::DownloadResult &result) {
     // Restore the cursor, buttons...
     m_ui->downloadButton->setEnabled(true);
     setCursor(Qt::ArrowCursor);
 
-    if (result.status != Net::DownloadStatus::Success)
-    {
-        QMessageBox::warning(this, tr("Download trackers list error")
-            , tr("Error occurred when downloading the trackers list. Reason: \"%1\"").arg(result.errorString));
+    if (result.status != Net::DownloadStatus::Success) {
+        QMessageBox::warning(this, tr("Download trackers list error"),
+                             tr("Error occurred when downloading the trackers list. Reason: \"%1\"").arg(result.errorString));
         return;
     }
 
@@ -118,14 +108,12 @@ void TrackersAdditionDialog::onTorrentListDownloadFinished(const Net::DownloadRe
     m_ui->textEditTrackersList->insertPlainText(trackers);
 }
 
-void TrackersAdditionDialog::saveSettings()
-{
+void TrackersAdditionDialog::saveSettings() {
     m_storeDialogSize = size();
     m_storeTrackersListURL = m_ui->lineEditListURL->text();
 }
 
-void TrackersAdditionDialog::loadSettings()
-{
+void TrackersAdditionDialog::loadSettings() {
     if (const QSize dialogSize = m_storeDialogSize; dialogSize.isValid())
         resize(dialogSize);
     m_ui->lineEditListURL->setText(m_storeTrackersListURL);

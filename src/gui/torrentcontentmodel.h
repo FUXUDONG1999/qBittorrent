@@ -37,60 +37,78 @@
 #include "torrentcontentmodelitem.h"
 
 class QFileIconProvider;
+
 class QModelIndex;
+
 class QVariant;
 
 class TorrentContentModelFile;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class TorrentContentHandler;
 }
 
-class TorrentContentModel final : public QAbstractItemModel
-{
-    Q_OBJECT
+class TorrentContentModel final : public QAbstractItemModel {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentContentModel)
 
 public:
-    enum Roles
-    {
+    enum Roles {
         UnderlyingDataRole = Qt::UserRole
     };
 
     explicit TorrentContentModel(QObject *parent = nullptr);
+
     ~TorrentContentModel() override;
 
     void setContentHandler(BitTorrent::TorrentContentHandler *contentHandler);
+
     BitTorrent::TorrentContentHandler *contentHandler() const;
 
     void refresh();
 
     QVector<BitTorrent::DownloadPriority> getFilePriorities() const;
+
     TorrentContentModelItem::ItemType itemType(const QModelIndex &index) const;
+
     int getFileIndex(const QModelIndex &index) const;
+
     Path getItemPath(const QModelIndex &index) const;
 
     int columnCount(const QModelIndex &parent = {}) const override;
+
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
     QModelIndex index(int row, int column, const QModelIndex &parent = {}) const override;
+
     QModelIndex parent(const QModelIndex &index) const override;
+
     int rowCount(const QModelIndex &parent = {}) const override;
 
 signals:
+
     void renameFailed(const QString &errorMessage);
 
 private:
     using ColumnInterval = IndexInterval<int>;
 
     void populate();
+
     void updateFilesProgress();
+
     void updateFilesPriorities();
+
     void updateFilesAvailability();
+
     bool setItemPriority(const QModelIndex &index, BitTorrent::DownloadPriority priority);
+
     void notifySubtreeUpdated(const QModelIndex &index, const QVector<ColumnInterval> &columns);
 
     BitTorrent::TorrentContentHandler *m_contentHandler = nullptr;

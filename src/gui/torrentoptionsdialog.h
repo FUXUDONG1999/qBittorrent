@@ -37,42 +37,49 @@
 
 class QAbstractButton;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
+
     class TorrentID;
 }
 
-namespace Ui
-{
+namespace Ui {
     class TorrentOptionsDialog;
 }
 
-class TorrentOptionsDialog final : public QDialog
-{
-    Q_OBJECT
+class TorrentOptionsDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentOptionsDialog)
 
 public:
     explicit TorrentOptionsDialog(QWidget *parent, const QVector<BitTorrent::Torrent *> &torrents);
+
     ~TorrentOptionsDialog() override;
 
 public slots:
+
     void accept() override;
 
 private slots:
+
     void handleCategoryChanged(int index);
+
     void handleTMMChanged();
+
     void handleUseDownloadPathChanged();
 
     void handleUpSpeedLimitChanged();
+
     void handleDownSpeedLimitChanged();
 
     void handleRatioTypeChanged();
 
 private:
     qreal getRatio() const;
+
     int getSeedingTime() const;
+
     int getInactiveSeedingTime() const;
 
     QVector<BitTorrent::TorrentID> m_torrentIDs;
@@ -82,8 +89,7 @@ private:
     QString m_currentCategoriesString;
     bool m_allSameCategory = true;
     QAbstractButton *m_previousRadio = nullptr;
-    struct
-    {
+    struct {
         Path savePath;
         Path downloadPath;
         QString category;

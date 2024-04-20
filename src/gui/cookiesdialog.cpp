@@ -40,14 +40,12 @@
 #define SETTINGS_KEY(name) u"CookiesDialog/" name
 
 CookiesDialog::CookiesDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::CookiesDialog)
-    , m_cookiesModel(new CookiesModel(Net::DownloadManager::instance()->allCookies(), this))
-    , m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
+        : QDialog(parent), m_ui(new Ui::CookiesDialog), m_cookiesModel(new CookiesModel(Net::DownloadManager::instance()->allCookies(), this)),
+          m_storeDialogSize(SETTINGS_KEY(u"Size"_s))
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    , m_storeViewState("GUI/Qt6/" SETTINGS_KEY(u"ViewState"_s))
+        , m_storeViewState("GUI/Qt6/" SETTINGS_KEY(u"ViewState"_s))
 #else
-    , m_storeViewState(SETTINGS_KEY(u"CookiesViewState"_s))
+, m_storeViewState(SETTINGS_KEY(u"CookiesViewState"_s))
 #endif
 {
     m_ui->setupUi(this);
@@ -68,8 +66,8 @@ CookiesDialog::CookiesDialog(QWidget *parent)
     m_ui->treeView->setModel(m_cookiesModel);
     if (m_cookiesModel->rowCount() > 0)
         m_ui->treeView->selectionModel()->setCurrentIndex(
-                    m_cookiesModel->index(0, 0),
-                    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+                m_cookiesModel->index(0, 0),
+                QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
     if (const QSize dialogSize = m_storeDialogSize; dialogSize.isValid())
         resize(dialogSize);
@@ -77,40 +75,35 @@ CookiesDialog::CookiesDialog(QWidget *parent)
     m_ui->treeView->header()->restoreState(m_storeViewState);
 }
 
-CookiesDialog::~CookiesDialog()
-{
+CookiesDialog::~CookiesDialog() {
     m_storeDialogSize = size();
     m_storeViewState = m_ui->treeView->header()->saveState();
     delete m_ui;
 }
 
-void CookiesDialog::accept()
-{
+void CookiesDialog::accept() {
     Net::DownloadManager::instance()->setAllCookies(m_cookiesModel->cookies());
     QDialog::accept();
 }
 
-void CookiesDialog::onButtonAddClicked()
-{
+void CookiesDialog::onButtonAddClicked() {
     int row = m_ui->treeView->selectionModel()->currentIndex().row() + 1;
 
     m_cookiesModel->insertRow(row);
     m_ui->treeView->selectionModel()->setCurrentIndex(
-                m_cookiesModel->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+            m_cookiesModel->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
-void CookiesDialog::onButtonDeleteClicked()
-{
+void CookiesDialog::onButtonDeleteClicked() {
     QModelIndexList idxs = m_ui->treeView->selectionModel()->selectedRows();
 
     // sort in descending order
     std::sort(idxs.begin(), idxs.end(),
-        [](const QModelIndex &l, const QModelIndex &r)
-        {
-            return (l.row() > r.row());
-        }
+              [](const QModelIndex &l, const QModelIndex &r) {
+                  return (l.row() > r.row());
+              }
     );
 
-    for (const QModelIndex &idx : asConst(idxs))
+    for (const QModelIndex &idx: asConst(idxs))
         m_cookiesModel->removeRow(idx.row());
 }

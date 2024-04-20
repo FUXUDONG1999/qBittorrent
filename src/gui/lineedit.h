@@ -32,17 +32,19 @@
 #include <QLineEdit>
 
 class QKeyEvent;
+
 class QTimer;
 
-class LineEdit final : public QLineEdit
-{
-    Q_OBJECT
+class LineEdit final : public QLineEdit {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(LineEdit)
 
 public:
     explicit LineEdit(QWidget *parent = nullptr);
 
 signals:
+
     void textChanged(const QString &text);
 
 private:

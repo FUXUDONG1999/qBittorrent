@@ -54,96 +54,82 @@ using namespace BitTorrent;
 const int torrentInfoId = qRegisterMetaType<TorrentInfo>();
 
 TorrentInfo::TorrentInfo(const lt::torrent_info &nativeInfo)
-    : m_nativeInfo {std::make_shared<const lt::torrent_info>(nativeInfo)}
-{
+        : m_nativeInfo{std::make_shared<const lt::torrent_info>(nativeInfo)} {
     Q_ASSERT(m_nativeInfo->is_valid() && (m_nativeInfo->num_files() > 0));
 
     const lt::file_storage &fileStorage = m_nativeInfo->orig_files();
     m_nativeIndexes.reserve(fileStorage.num_files());
-    for (const lt::file_index_t nativeIndex : fileStorage.file_range())
-    {
+    for (const lt::file_index_t nativeIndex: fileStorage.file_range()) {
         if (!fileStorage.pad_file_at(nativeIndex))
             m_nativeIndexes.append(nativeIndex);
     }
 }
 
-TorrentInfo &TorrentInfo::operator=(const TorrentInfo &other)
-{
-    if (this != &other)
-    {
+TorrentInfo &TorrentInfo::operator=(const TorrentInfo &other) {
+    if (this != &other) {
         m_nativeInfo = other.m_nativeInfo;
         m_nativeIndexes = other.m_nativeIndexes;
     }
     return *this;
 }
 
-bool TorrentInfo::isValid() const
-{
+bool TorrentInfo::isValid() const {
     return (m_nativeInfo != nullptr);
 }
 
-nonstd::expected<TorrentInfo, QString> TorrentInfo::load(const QByteArray &data) noexcept
-{
+nonstd::expected<TorrentInfo, QString> TorrentInfo::load(const QByteArray &data) noexcept {
     // 2-step construction to overcome default limits of `depth_limit` & `token_limit` which are
     // used in `torrent_info()` constructor
     const auto *pref = Preferences::instance();
 
     lt::error_code ec;
-    const lt::bdecode_node node = lt::bdecode(data, ec
-            , nullptr, pref->getBdecodeDepthLimit(), pref->getBdecodeTokenLimit());
+    const lt::bdecode_node node = lt::bdecode(data, ec, nullptr, pref->getBdecodeDepthLimit(), pref->getBdecodeTokenLimit());
     if (ec)
         return nonstd::make_unexpected(QString::fromStdString(ec.message()));
 
-    const lt::torrent_info nativeInfo {node, ec};
+    const lt::torrent_info nativeInfo{node, ec};
     if (ec)
         return nonstd::make_unexpected(QString::fromStdString(ec.message()));
 
     return TorrentInfo(nativeInfo);
 }
 
-nonstd::expected<TorrentInfo, QString> TorrentInfo::loadFromFile(const Path &path) noexcept
-{
+nonstd::expected<TorrentInfo, QString> TorrentInfo::loadFromFile(const Path &path) noexcept {
     QByteArray data;
-    try
-    {
+    try {
         const qint64 torrentSizeLimit = Preferences::instance()->getTorrentFileSizeLimit();
         const auto readResult = Utils::IO::readFile(path, torrentSizeLimit);
         if (!readResult)
             return nonstd::make_unexpected(readResult.error().message);
         data = readResult.value();
     }
-    catch (const std::bad_alloc &e)
-    {
+    catch (const std::bad_alloc &e) {
         return nonstd::make_unexpected(tr("Failed to allocate memory when reading file. File: \"%1\". Error: \"%2\"")
-            .arg(path.toString(), QString::fromLocal8Bit(e.what())));
+                                               .arg(path.toString(), QString::fromLocal8Bit(e.what())));
     }
 
     return load(data);
 }
 
-nonstd::expected<void, QString> TorrentInfo::saveToFile(const Path &path) const
-{
+nonstd::expected<void, QString> TorrentInfo::saveToFile(const Path &path) const {
     if (!isValid())
         return nonstd::make_unexpected(tr("Invalid metadata"));
 
-    try
-    {
+    try {
         const auto torrentCreator = lt::create_torrent(*m_nativeInfo);
         const lt::entry torrentEntry = torrentCreator.generate();
         const nonstd::expected<void, QString> result = Utils::IO::saveToFile(path, torrentEntry);
         if (!result)
             return result.get_unexpected();
     }
-    catch (const lt::system_error &err)
-    {
+    catch (const lt::system_error &err) {
         return nonstd::make_unexpected(QString::fromLocal8Bit(err.what()));
     }
 
     return {};
 }
 
-InfoHash TorrentInfo::infoHash() const
-{
+InfoHash TorrentInfo::infoHash() const {
     if (!isValid()) return {};
 
 #ifdef QBT_USES_LIBTORRENT2
@@ -153,79 +139,68 @@ InfoHash TorrentInfo::infoHash() const
 #endif
 }
 
-QString TorrentInfo::name() const
-{
+QString TorrentInfo::name() const {
     if (!isValid()) return {};
 
     return QString::fromStdString(m_nativeInfo->orig_files().name());
 }
 
-QDateTime TorrentInfo::creationDate() const
-{
+QDateTime TorrentInfo::creationDate() const {
     if (!isValid()) return {};
 
     const std::time_t date = m_nativeInfo->creation_date();
     return ((date != 0) ? QDateTime::fromSecsSinceEpoch(date) : QDateTime());
 }
 
-QString TorrentInfo::creator() const
-{
+QString TorrentInfo::creator() const {
     if (!isValid()) return {};
 
     return QString::fromStdString(m_nativeInfo->creator());
 }
 
-QString TorrentInfo::comment() const
-{
+QString TorrentInfo::comment() const {
     if (!isValid()) return {};
 
     return QString::fromStdString(m_nativeInfo->comment());
 }
 
-bool TorrentInfo::isPrivate() const
-{
+bool TorrentInfo::isPrivate() const {
     if (!isValid()) return false;
 
     return m_nativeInfo->priv();
 }
 
-qlonglong TorrentInfo::totalSize() const
-{
+qlonglong TorrentInfo::totalSize() const {
     if (!isValid()) return -1;
 
     return m_nativeInfo->total_size();
 }
 
-int TorrentInfo::filesCount() const
-{
+int TorrentInfo::filesCount() const {
     if (!isValid()) return -1;
 
     return m_nativeIndexes.size();
 }
 
-int TorrentInfo::pieceLength() const
-{
+int TorrentInfo::pieceLength() const {
     if (!isValid()) return -1;
 
     return m_nativeInfo->piece_length();
 }
 
-int TorrentInfo::pieceLength(const int index) const
-{
+int TorrentInfo::pieceLength(const int index) const {
     if (!isValid()) return -1;
 
-    return m_nativeInfo->piece_size(lt::piece_index_t {index});
+    return m_nativeInfo->piece_size(lt::piece_index_t{index});
 }
 
-int TorrentInfo::piecesCount() const
-{
+int TorrentInfo::piecesCount() const {
     if (!isValid()) return -1;
 
     return m_nativeInfo->num_pieces();
 }
 
-Path TorrentInfo::filePath(const int index) const
-{
+Path TorrentInfo::filePath(const int index) const {
     if (!isValid()) return {};
 
     Q_ASSERT(index >= 0);
@@ -236,8 +211,7 @@ Path TorrentInfo::filePath(const int index) const
     return Path(m_nativeInfo->orig_files().file_path(m_nativeIndexes[index]));
 }
 
-PathList TorrentInfo::filePaths() const
-{
+PathList TorrentInfo::filePaths() const {
     PathList list;
     list.reserve(filesCount());
     for (int i = 0; i < filesCount(); ++i)
@@ -246,8 +220,7 @@ PathList TorrentInfo::filePaths() const
     return list;
 }
 
-qlonglong TorrentInfo::fileSize(const int index) const
-{
+qlonglong TorrentInfo::fileSize(const int index) const {
     if (!isValid()) return -1;
 
     Q_ASSERT(index >= 0);
@@ -258,8 +231,7 @@ qlonglong TorrentInfo::fileSize(const int index) const
     return m_nativeInfo->orig_files().file_size(m_nativeIndexes[index]);
 }
 
-qlonglong TorrentInfo::fileOffset(const int index) const
-{
+qlonglong TorrentInfo::fileOffset(const int index) const {
     if (!isValid()) return -1;
 
     Q_ASSERT(index >= 0);
@@ -270,22 +242,20 @@ qlonglong TorrentInfo::fileOffset(const int index) const
     return m_nativeInfo->orig_files().file_offset(m_nativeIndexes[index]);
 }
 
-QVector<TrackerEntry> TorrentInfo::trackers() const
-{
+QVector<TrackerEntry> TorrentInfo::trackers() const {
     if (!isValid()) return {};
 
     const std::vector<lt::announce_entry> trackers = m_nativeInfo->trackers();
 
     QVector<TrackerEntry> ret;
     ret.reserve(static_cast<decltype(ret)::size_type>(trackers.size()));
-    for (const lt::announce_entry &tracker : trackers)
+    for (const lt::announce_entry &tracker: trackers)
         ret.append({QString::fromStdString(tracker.url), tracker.tier});
 
     return ret;
 }
 
-QVector<QUrl> TorrentInfo::urlSeeds() const
-{
+QVector<QUrl> TorrentInfo::urlSeeds() const {
     if (!isValid()) return {};
 
     const std::vector<lt::web_seed_entry> &nativeWebSeeds = m_nativeInfo->web_seeds();
@@ -293,8 +263,7 @@ QVector<QUrl> TorrentInfo::urlSeeds() const
     QVector<QUrl> urlSeeds;
     urlSeeds.reserve(static_cast<decltype(urlSeeds)::size_type>(nativeWebSeeds.size()));
 
-    for (const lt::web_seed_entry &webSeed : nativeWebSeeds)
-    {
+    for (const lt::web_seed_entry &webSeed: nativeWebSeeds) {
 #if LIBTORRENT_VERSION_NUM < 20100
         if (webSeed.type == lt::web_seed_entry::url_seed)
             urlSeeds.append(QUrl(QString::fromStdString(webSeed.url)));
@@ -306,41 +275,36 @@ QVector<QUrl> TorrentInfo::urlSeeds() const
     return urlSeeds;
 }
 
-QByteArray TorrentInfo::metadata() const
-{
+QByteArray TorrentInfo::metadata() const {
     if (!isValid()) return {};
 #ifdef QBT_USES_LIBTORRENT2
-    const lt::span<const char> infoSection {m_nativeInfo->info_section()};
+    const lt::span<const char> infoSection{m_nativeInfo->info_section()};
     return {infoSection.data(), static_cast<int>(infoSection.size())};
 #else
     return {m_nativeInfo->metadata().get(), m_nativeInfo->metadata_size()};
 #endif
 }
 
-PathList TorrentInfo::filesForPiece(const int pieceIndex) const
-{
+PathList TorrentInfo::filesForPiece(const int pieceIndex) const {
     // no checks here because fileIndicesForPiece() will return an empty list
     const QVector<int> fileIndices = fileIndicesForPiece(pieceIndex);
 
     PathList res;
     res.reserve(fileIndices.size());
-    std::transform(fileIndices.begin(), fileIndices.end(), std::back_inserter(res)
-                   , [this](int i) { return filePath(i); });
+    std::transform(fileIndices.begin(), fileIndices.end(), std::back_inserter(res), [this](int i) { return filePath(i); });
 
     return res;
 }
 
-QVector<int> TorrentInfo::fileIndicesForPiece(const int pieceIndex) const
-{
+QVector<int> TorrentInfo::fileIndicesForPiece(const int pieceIndex) const {
     if (!isValid() || (pieceIndex < 0) || (pieceIndex >= piecesCount()))
         return {};
 
     const std::vector<lt::file_slice> files = m_nativeInfo->map_block(
-                lt::piece_index_t {pieceIndex}, 0, m_nativeInfo->piece_size(lt::piece_index_t {pieceIndex}));
+            lt::piece_index_t{pieceIndex}, 0, m_nativeInfo->piece_size(lt::piece_index_t{pieceIndex}));
     QVector<int> res;
     res.reserve(static_cast<decltype(res)::size_type>(files.size()));
-    for (const lt::file_slice &fileSlice : files)
-    {
+    for (const lt::file_slice &fileSlice: files) {
         const int index = m_nativeIndexes.indexOf(fileSlice.file_index);
         if (index >= 0)
             res.append(index);
@@ -349,8 +313,7 @@ QVector<int> TorrentInfo::fileIndicesForPiece(const int pieceIndex) const
     return res;
 }
 
-QVector<QByteArray> TorrentInfo::pieceHashes() const
-{
+QVector<QByteArray> TorrentInfo::pieceHashes() const {
     if (!isValid())
         return {};
 
@@ -359,32 +322,28 @@ QVector<QByteArray> TorrentInfo::pieceHashes() const
     hashes.reserve(count);
 
     for (int i = 0; i < count; ++i)
-        hashes += {m_nativeInfo->hash_for_piece_ptr(lt::piece_index_t {i}), SHA1Hash::length()};
+        hashes += {m_nativeInfo->hash_for_piece_ptr(lt::piece_index_t{i}), SHA1Hash::length()};
 
     return hashes;
 }
 
-TorrentInfo::PieceRange TorrentInfo::filePieces(const Path &filePath) const
-{
+TorrentInfo::PieceRange TorrentInfo::filePieces(const Path &filePath) const {
     if (!isValid()) // if we do not check here the debug message will be printed, which would be not correct
         return {};
 
     const int index = fileIndex(filePath);
-    if (index == -1)
-    {
+    if (index == -1) {
         qDebug() << "Filename" << filePath.toString() << "was not found in torrent" << name();
         return {};
     }
     return filePieces(index);
 }
 
-TorrentInfo::PieceRange TorrentInfo::filePieces(const int fileIndex) const
-{
+TorrentInfo::PieceRange TorrentInfo::filePieces(const int fileIndex) const {
     if (!isValid())
         return {};
 
-    if ((fileIndex < 0) || (fileIndex >= filesCount()))
-    {
+    if ((fileIndex < 0) || (fileIndex >= filesCount())) {
         qDebug() << "File index (" << fileIndex << ") is out of range for torrent" << name();
         return {};
     }
@@ -401,12 +360,10 @@ TorrentInfo::PieceRange TorrentInfo::filePieces(const int fileIndex) const
     return makeInterval(beginIdx, endIdx);
 }
 
-int TorrentInfo::fileIndex(const Path &filePath) const
-{
+int TorrentInfo::fileIndex(const Path &filePath) const {
     // the check whether the object is valid is not needed here
     // because if filesCount() returns -1 the loop exits immediately
-    for (int i = 0; i < filesCount(); ++i)
-    {
+    for (int i = 0; i < filesCount(); ++i) {
         if (filePath == this->filePath(i))
             return i;
     }
@@ -414,15 +371,13 @@ int TorrentInfo::fileIndex(const Path &filePath) const
     return -1;
 }
 
-std::shared_ptr<lt::torrent_info> TorrentInfo::nativeInfo() const
-{
+std::shared_ptr<lt::torrent_info> TorrentInfo::nativeInfo() const {
     if (!isValid())
         return nullptr;
 
     return std::make_shared<lt::torrent_info>(*m_nativeInfo);
 }
 
-QVector<lt::file_index_t> TorrentInfo::nativeIndexes() const
-{
+QVector<lt::file_index_t> TorrentInfo::nativeIndexes() const {
     return m_nativeIndexes;
 }

@@ -39,7 +39,9 @@
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #elif defined Q_OS_WIN
+
 #include <io.h>
+
 #endif
 
 #include <QCoreApplication>
@@ -48,33 +50,34 @@
 #include "base/version.h"
 
 #ifdef STACKTRACE
+
 #include "stacktrace.h"
 
 #ifndef DISABLE_GUI
+
 #include "gui/stacktracedialog.h"
+
 #endif
 #endif //STACKTRACE
 
-namespace
-{
+namespace {
     // sys_signame[] is only defined in BSD
     const char *const sysSigName[] =
-    {
+            {
 #ifdef Q_OS_WIN
-        "", "", "SIGINT", "", "SIGILL", "", "SIGABRT_COMPAT", "", "SIGFPE", "",
-        "", "SIGSEGV", "", "", "", "SIGTERM", "", "", "", "",
-        "", "SIGBREAK", "SIGABRT", "", "", "", "", "", "", "",
-        "", ""
+                    "", "", "SIGINT", "", "SIGILL", "", "SIGABRT_COMPAT", "", "SIGFPE", "",
+                    "", "SIGSEGV", "", "", "", "SIGTERM", "", "", "", "",
+                    "", "SIGBREAK", "SIGABRT", "", "", "", "", "", "", "",
+                    "", ""
 #else
-        "", "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL",
-        "SIGUSR1", "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
-        "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH", "SIGIO",
-        "SIGPWR", "SIGUNUSED"
+                    "", "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL",
+                    "SIGUSR1", "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
+                    "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH", "SIGIO",
+                    "SIGPWR", "SIGUNUSED"
 #endif
-    };
+            };
 
-    void safePrint(const char *str)
-    {
+    void safePrint(const char *str) {
         const size_t strLen = strlen(str);
 #ifdef Q_OS_WIN
         if (_write(_fileno(stderr), str, static_cast<unsigned int>(strLen)) < static_cast<int>(strLen))
@@ -85,8 +88,7 @@ namespace
 #endif
     }
 
-    void normalExitHandler(const int signum)
-    {
+    void normalExitHandler(const int signum) {
         const char *msgs[] = {"Catching signal: ", sysSigName[signum], "\nExiting cleanly\n"};
         std::for_each(std::begin(msgs), std::end(msgs), safePrint);
         signal(signum, SIG_DFL);
@@ -94,12 +96,12 @@ namespace
     }
 
 #ifdef STACKTRACE
-    void abnormalExitHandler(const int signum)
-    {
+
+    void abnormalExitHandler(const int signum) {
         const char msg[] = "\n\n*************************************************************\n"
-            "Please file a bug report at https://bug.qbittorrent.org and provide the following information:\n\n"
-            "qBittorrent version: " QBT_VERSION "\n\n"
-            "Caught signal: ";
+                           "Please file a bug report at https://bug.qbittorrent.org and provide the following information:\n\n"
+                           "qBittorrent version: " QBT_VERSION "\n\n"
+                           "Caught signal: ";
         const char *sigName = sysSigName[signum];
         const std::string stacktrace = getStacktrace();
 
@@ -115,11 +117,11 @@ namespace
         signal(signum, SIG_DFL);
         raise(signum);
     }
+
 #endif // STACKTRACE
 }
 
-void registerSignalHandlers()
-{
+void registerSignalHandlers() {
     signal(SIGINT, normalExitHandler);
     signal(SIGTERM, normalExitHandler);
 

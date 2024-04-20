@@ -37,35 +37,31 @@
 #include <QString>
 #include <QStringView>
 
-namespace BitTorrent
-{
-    struct TrackerEntry
-    {
+namespace BitTorrent {
+    struct TrackerEntry {
         using Endpoint = lt::tcp::endpoint;
 
-        enum Status
-        {
+        enum Status {
             NotContacted = 1,
             Working = 2,
             Updating = 3,
             NotWorking = 4
         };
 
-        struct EndpointStats
-        {
+        struct EndpointStats {
             Status status = NotContacted;
             int numPeers = -1;
             int numSeeds = -1;
             int numLeeches = -1;
             int numDownloaded = -1;
-            QString message {};
+            QString message{};
         };
 
-        QString url {};
+        QString url{};
         int tier = 0;
 
         // TODO: Use QHash<TrackerEntry::Endpoint, QHash<int, EndpointStats>> once Qt5 is dropped.
-        QMap<Endpoint, QHash<int, EndpointStats>> stats {};
+        QMap<Endpoint, QHash<int, EndpointStats>> stats{};
 
         // Deprecated fields
         Status status = NotContacted;
@@ -73,14 +69,17 @@ namespace BitTorrent
         int numSeeds = -1;
         int numLeeches = -1;
         int numDownloaded = -1;
-        QString message {};
+        QString message{};
     };
 
     QVector<TrackerEntry> parseTrackerEntries(QStringView str);
 
     bool operator==(const TrackerEntry &left, const TrackerEntry &right);
+
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
     std::size_t qHash(const TrackerEntry &key, std::size_t seed = 0);
+
 #else
     uint qHash(const TrackerEntry &key, uint seed = 0);
 #endif

@@ -36,10 +36,10 @@
 #include <QtContainerFwd>
 
 class QProcess;
+
 class QTimer;
 
-struct SearchResult
-{
+struct SearchResult {
     QString fileName;
     QString fileUrl;
     qlonglong fileSize = 0;
@@ -51,33 +51,41 @@ struct SearchResult
 
 class SearchPluginManager;
 
-class SearchHandler : public QObject
-{
-    Q_OBJECT
+class SearchHandler : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(SearchHandler)
 
     friend class SearchPluginManager;
 
-    SearchHandler(const QString &pattern, const QString &category
-                  , const QStringList &usedPlugins, SearchPluginManager *manager);
+    SearchHandler(const QString &pattern, const QString &category, const QStringList &usedPlugins, SearchPluginManager *manager);
 
 public:
     bool isActive() const;
+
     QString pattern() const;
+
     SearchPluginManager *manager() const;
+
     QList<SearchResult> results() const;
 
     void cancelSearch();
 
 signals:
+
     void searchFinished(bool cancelled = false);
+
     void searchFailed();
+
     void newSearchResults(const QVector<SearchResult> &results);
 
 private:
     void readSearchOutput();
+
     void processFailed();
+
     void processFinished(int exitcode);
+
     bool parseSearchResult(QStringView line, SearchResult &searchResult);
 
     const QString m_pattern;

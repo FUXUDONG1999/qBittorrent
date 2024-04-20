@@ -30,8 +30,7 @@
 
 class QString;
 
-class IStringable
-{
+class IStringable {
 public:
     virtual ~IStringable() = default;
 

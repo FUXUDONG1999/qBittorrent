@@ -36,12 +36,9 @@
 
 class QJsonObject;
 
-namespace BitTorrent
-{
-    struct CategoryOptions
-    {
-        struct DownloadPathOption
-        {
+namespace BitTorrent {
+    struct CategoryOptions {
+        struct DownloadPathOption {
             bool enabled;
             Path path;
         };
@@ -50,9 +47,11 @@ namespace BitTorrent
         std::optional<DownloadPathOption> downloadPath;
 
         static CategoryOptions fromJSON(const QJsonObject &jsonObj);
+
         QJsonObject toJSON() const;
     };
 
     bool operator==(const CategoryOptions::DownloadPathOption &left, const CategoryOptions::DownloadPathOption &right);
+
     bool operator==(const CategoryOptions &left, const CategoryOptions &right);
 }

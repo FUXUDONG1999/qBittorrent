@@ -39,163 +39,268 @@
 #include "windowstate.h"
 
 class QCloseEvent;
+
 class QComboBox;
+
 class QFileSystemWatcher;
+
 class QSplitter;
+
 class QString;
+
 class QTabWidget;
+
 class QTimer;
 
 class AboutDialog;
+
 class DownloadFromURLDialog;
+
 class ExecutionLogWidget;
+
 class LineEdit;
+
 class OptionsDialog;
+
 class PowerManagement;
+
 class ProgramUpdater;
+
 class PropertiesWidget;
+
 class RSSWidget;
+
 class SearchWidget;
+
 class StatsDialog;
+
 class StatusBar;
+
 class TorrentCreatorDialog;
+
 class TransferListFiltersWidget;
+
 class TransferListWidget;
 
-namespace Net
-{
+namespace Net {
     struct DownloadResult;
 }
 
-namespace Ui
-{
+namespace Ui {
     class MainWindow;
 }
 
-class MainWindow final : public QMainWindow, public GUIApplicationComponent
-{
-    Q_OBJECT
+class MainWindow final : public QMainWindow, public GUIApplicationComponent {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(MainWindow)
 
 public:
     explicit MainWindow(IGUIApplication *app, WindowState initialState = WindowState::Normal);
+
     ~MainWindow() override;
 
     QWidget *currentTabWidget() const;
+
     TransferListWidget *transferListWidget() const;
+
     PropertiesWidget *propertiesWidget() const;
 
     // ExecutionLog properties
     bool isExecutionLogEnabled() const;
+
     void setExecutionLogEnabled(bool value);
+
     Log::MsgTypes executionLogMsgTypes() const;
+
     void setExecutionLogMsgTypes(Log::MsgTypes value);
 
     // Notifications properties
 
     // Misc properties
     bool isDownloadTrackerFavicon() const;
+
     void setDownloadTrackerFavicon(bool value);
 
     void activate();
+
     void cleanup();
 
 private slots:
+
     void showFilterContextMenu();
+
     void desktopNotificationClicked();
+
     void saveSettings() const;
+
     void loadSettings();
+
     void saveSplitterSettings() const;
+
     void tabChanged(int newTab);
+
     bool defineUILockPassword();
+
     void clearUILockPassword();
+
     bool unlockUI();
+
     void notifyOfUpdate(const QString &);
+
     void showConnectionSettings();
+
     void minimizeWindow();
+
     // Keyboard shortcuts
     void createKeyboardShortcuts();
+
     void displayTransferTab() const;
+
     void displaySearchTab();
+
     void displayRSSTab();
+
     void displayExecutionLogTab();
+
     void focusSearchFilter();
+
     void reloadSessionStats();
+
     void reloadTorrentStats(const QVector<BitTorrent::Torrent *> &torrents);
+
     void loadPreferences();
+
     void askRecursiveTorrentDownloadConfirmation(const BitTorrent::Torrent *torrent);
+
     void optionsSaved();
+
     void toggleAlternativeSpeeds();
 
 #ifdef Q_OS_WIN
+
     void pythonDownloadFinished(const Net::DownloadResult &result);
+
 #endif
+
     void addToolbarContextMenu();
+
     void manageCookies();
 
     void downloadFromURLList(const QStringList &urlList);
+
     void updateAltSpeedsBtn(bool alternative);
+
     void updateNbTorrents();
+
     void handleRSSUnreadCountUpdated(int count);
 
     void on_actionSearchWidget_triggered();
+
     void on_actionRSSReader_triggered();
+
     void on_actionSpeedInTitleBar_triggered();
+
     void on_actionTopToolBar_triggered();
+
     void on_actionShowStatusbar_triggered();
+
     void on_actionShowFiltersSidebar_triggered(bool checked);
+
     void on_actionDonateMoney_triggered();
+
     void on_actionExecutionLogs_triggered(bool checked);
+
     void on_actionNormalMessages_triggered(bool checked);
+
     void on_actionInformationMessages_triggered(bool checked);
+
     void on_actionWarningMessages_triggered(bool checked);
+
     void on_actionCriticalMessages_triggered(bool checked);
+
     void on_actionAutoExit_toggled(bool);
+
     void on_actionAutoSuspend_toggled(bool);
+
     void on_actionAutoHibernate_toggled(bool);
+
     void on_actionAutoShutdown_toggled(bool);
+
     void on_actionAbout_triggered();
+
     void on_actionStatistics_triggered();
+
     void on_actionCreateTorrent_triggered();
+
     void on_actionOptions_triggered();
+
     void on_actionSetGlobalSpeedLimits_triggered();
+
     void on_actionDocumentation_triggered() const;
+
     void on_actionOpen_triggered();
+
     void on_actionDownloadFromURL_triggered();
+
     void on_actionExit_triggered();
+
     void on_actionLock_triggered();
+
     // Check for unpaused downloading or seeding torrents and prevent system suspend/sleep according to preferences
     void updatePowerManagementState();
 
     void toolbarMenuRequested();
+
     void toolbarIconsOnly();
+
     void toolbarTextOnly();
+
     void toolbarTextBeside();
+
     void toolbarTextUnder();
+
     void toolbarFollowSystem();
+
 #ifdef Q_OS_MACOS
     void on_actionCloseWindow_triggered();
 #else
+
     void toggleVisibility();
+
 #endif
 
 private:
     QMenu *createDesktopIntegrationMenu();
+
 #ifdef Q_OS_WIN
+
     void installPython();
+
 #endif
 
     void dropEvent(QDropEvent *event) override;
+
     void dragEnterEvent(QDragEnterEvent *event) override;
+
     void closeEvent(QCloseEvent *) override;
+
     void showEvent(QShowEvent *) override;
+
     void keyPressEvent(QKeyEvent *event) override;
+
     bool event(QEvent *e) override;
+
     void displayRSSTab(bool enable);
+
     void displaySearchTab(bool enable);
+
     void createTorrentTriggered(const Path &path);
+
     void showStatusBar(bool show);
+
     void showFiltersSidebar(bool show);
+
     void applyTransferListFilter();
 
     Ui::MainWindow *m_ui = nullptr;
@@ -243,7 +348,9 @@ private:
     CachedSettingValue<Log::MsgTypes> m_storeExecutionLogTypes;
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
     void checkProgramUpdate(bool invokedByUser);
+
     void handleUpdateCheckFinished(ProgramUpdater *updater, bool invokedByUser);
 
     QTimer *m_programUpdateTimer = nullptr;

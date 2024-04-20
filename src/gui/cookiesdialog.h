@@ -34,25 +34,28 @@
 
 class CookiesModel;
 
-namespace Ui
-{
+namespace Ui {
     class CookiesDialog;
 }
 
-class CookiesDialog final : public QDialog
-{
-    Q_OBJECT
+class CookiesDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(CookiesDialog)
 
 public:
     explicit CookiesDialog(QWidget *parent = nullptr);
+
     ~CookiesDialog();
 
 public slots:
+
     void accept() override;
 
 private slots:
+
     void onButtonAddClicked();
+
     void onButtonDeleteClicked();
 
 private:

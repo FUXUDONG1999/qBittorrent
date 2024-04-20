@@ -41,18 +41,22 @@
 #include "base/pathfwd.h"
 #include "uithemesource.h"
 
-class UIThemeManager final : public QObject
-{
-    Q_OBJECT
+class UIThemeManager final : public QObject {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(UIThemeManager)
 
 public:
     static void initInstance();
+
     static void freeInstance();
+
     static UIThemeManager *instance();
 
     QIcon getIcon(const QString &iconId, const QString &fallback = {}) const;
+
     QIcon getFlagIcon(const QString &countryIsoCode) const;
+
     QPixmap getScaledPixmap(const QString &iconId, int height) const;
 
     QColor getColor(const QString &id) const;
@@ -61,6 +65,7 @@ private:
     UIThemeManager(); // singleton class
 
     void applyPalette() const;
+
     void applyStyleSheet() const;
 
     static UIThemeManager *m_instance;

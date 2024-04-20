@@ -31,32 +31,37 @@
 #include <QHash>
 #include <QListWidget>
 
-namespace RSS
-{
+namespace RSS {
     class Article;
+
     class Item;
 }
 
-class ArticleListWidget : public QListWidget
-{
-    Q_OBJECT
+class ArticleListWidget : public QListWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(ArticleListWidget)
 
 public:
     explicit ArticleListWidget(QWidget *parent);
 
     RSS::Article *getRSSArticle(QListWidgetItem *item) const;
+
     QListWidgetItem *mapRSSArticle(RSS::Article *rssArticle) const;
 
     void setRSSItem(RSS::Item *rssItem, bool unreadOnly = false);
 
 private slots:
+
     void handleArticleAdded(RSS::Article *rssArticle);
+
     void handleArticleRead(RSS::Article *rssArticle);
+
     void handleArticleAboutToBeRemoved(RSS::Article *rssArticle);
 
 private:
     void checkInvariant() const;
+
     QListWidgetItem *createItem(RSS::Article *article) const;
 
     RSS::Item *m_rssItem = nullptr;

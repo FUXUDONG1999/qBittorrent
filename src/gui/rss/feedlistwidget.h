@@ -32,42 +32,59 @@
 #include <QHash>
 #include <QTreeWidget>
 
-namespace RSS
-{
+namespace RSS {
     class Article;
+
     class Feed;
+
     class Folder;
+
     class Item;
 }
 
-class FeedListWidget final : public QTreeWidget
-{
-    Q_OBJECT
+class FeedListWidget final : public QTreeWidget {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(FeedListWidget)
 
 public:
     explicit FeedListWidget(QWidget *parent);
 
     QTreeWidgetItem *stickyUnreadItem() const;
+
     QList<QTreeWidgetItem *> getAllOpenedFolders(QTreeWidgetItem *parent = nullptr) const;
+
     RSS::Item *getRSSItem(QTreeWidgetItem *item) const;
+
     QTreeWidgetItem *mapRSSItem(RSS::Item *rssItem) const;
+
     QString itemPath(QTreeWidgetItem *item) const;
+
     bool isFeed(QTreeWidgetItem *item) const;
+
     bool isFolder(QTreeWidgetItem *item) const;
 
 private slots:
+
     void handleItemAdded(RSS::Item *rssItem);
+
     void handleFeedStateChanged(RSS::Feed *feed);
+
     void handleFeedIconLoaded(RSS::Feed *feed);
+
     void handleItemUnreadCountChanged(RSS::Item *rssItem);
+
     void handleItemPathChanged(RSS::Item *rssItem);
+
     void handleItemAboutToBeRemoved(RSS::Item *rssItem);
 
 private:
     void dragMoveEvent(QDragMoveEvent *event) override;
+
     void dropEvent(QDropEvent *event) override;
+
     QTreeWidgetItem *createItem(RSS::Item *rssItem, QTreeWidgetItem *parentItem = nullptr);
+
     void fill(QTreeWidgetItem *parent, RSS::Folder *rssParent);
 
     QHash<RSS::Item *, QTreeWidgetItem *> m_rssToTreeItemMapping;

@@ -34,24 +34,21 @@
 #include "base/path.h"
 #include "base/settingvalue.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class Torrent;
 }
 
-namespace Ui
-{
+namespace Ui {
     class PreviewSelectDialog;
 }
 
-class PreviewSelectDialog final : public QDialog
-{
-    Q_OBJECT
+class PreviewSelectDialog final : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PreviewSelectDialog)
 
 public:
-    enum PreviewColumn
-    {
+    enum PreviewColumn {
         NAME,
         SIZE,
         PROGRESS,
@@ -61,19 +58,24 @@ public:
     };
 
     PreviewSelectDialog(QWidget *parent, const BitTorrent::Torrent *torrent);
+
     ~PreviewSelectDialog();
 
 signals:
+
     void readyToPreviewFile(const Path &filePath) const;
 
 private slots:
+
     void previewButtonClicked();
+
     void displayColumnHeaderMenu();
 
 private:
     void showEvent(QShowEvent *event) override;
 
     void loadWindowState();
+
     void saveWindowState();
 
     Ui::PreviewSelectDialog *m_ui = nullptr;

@@ -30,7 +30,6 @@
 
 #include <boost/stacktrace.hpp>
 
-std::string getStacktrace()
-{
+std::string getStacktrace() {
     return boost::stacktrace::to_string(boost::stacktrace::stacktrace());
 }

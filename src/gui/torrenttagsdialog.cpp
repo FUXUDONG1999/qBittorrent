@@ -43,18 +43,14 @@
 #define SETTINGS_KEY(name) u"GUI/TorrentTagsDialog/" name
 
 TorrentTagsDialog::TorrentTagsDialog(const TagSet &initialTags, QWidget *parent)
-    : QDialog(parent)
-    , m_ui {new Ui::TorrentTagsDialog}
-    , m_storeDialogSize {SETTINGS_KEY(u"Size"_s)}
-{
+        : QDialog(parent), m_ui{new Ui::TorrentTagsDialog}, m_storeDialogSize{SETTINGS_KEY(u"Size"_s)} {
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     auto *tagsLayout = new FlowLayout(m_ui->scrollArea);
-    for (const QString &tag : asConst(initialTags.united(BitTorrent::Session::instance()->tags())))
-    {
+    for (const QString &tag: asConst(initialTags.united(BitTorrent::Session::instance()->tags()))) {
         auto *tagWidget = new QCheckBox(tag);
         if (initialTags.contains(tag))
             tagWidget->setChecked(true);
@@ -69,18 +65,15 @@ TorrentTagsDialog::TorrentTagsDialog(const TagSet &initialTags, QWidget *parent)
         resize(dialogSize);
 }
 
-TorrentTagsDialog::~TorrentTagsDialog()
-{
+TorrentTagsDialog::~TorrentTagsDialog() {
     m_storeDialogSize = size();
     delete m_ui;
 }
 
-TagSet TorrentTagsDialog::tags() const
-{
+TagSet TorrentTagsDialog::tags() const {
     TagSet tags;
     auto *layout = m_ui->scrollArea->layout();
-    for (int i = 0; i < (layout->count() - 1); ++i)
-    {
+    for (int i = 0; i < (layout->count() - 1); ++i) {
         const auto *tagWidget = static_cast<QCheckBox *>(layout->itemAt(i)->widget());
         if (tagWidget->isChecked())
             tags.insert(tagWidget->text());
@@ -89,28 +82,20 @@ TagSet TorrentTagsDialog::tags() const
     return tags;
 }
 
-void TorrentTagsDialog::addNewTag()
-{
+void TorrentTagsDialog::addNewTag() {
     bool done = false;
     QString tag;
-    while (!done)
-    {
+    while (!done) {
         bool ok = false;
-        tag = AutoExpandableDialog::getText(this
-                , tr("New Tag"), tr("Tag:"), QLineEdit::Normal, tag, &ok).trimmed();
+        tag = AutoExpandableDialog::getText(this, tr("New Tag"), tr("Tag:"), QLineEdit::Normal, tag, &ok).trimmed();
         if (!ok || tag.isEmpty())
             break;
 
-        if (!BitTorrent::Session::isValidTag(tag))
-        {
+        if (!BitTorrent::Session::isValidTag(tag)) {
             QMessageBox::warning(this, tr("Invalid tag name"), tr("Tag name '%1' is invalid.").arg(tag));
-        }
-        else if (BitTorrent::Session::instance()->tags().contains(tag))
-        {
+        } else if (BitTorrent::Session::instance()->tags().contains(tag)) {
             QMessageBox::warning(this, tr("Tag exists"), tr("Tag name already exists."));
-        }
-        else
-        {
+        } else {
             auto *layout = m_ui->scrollArea->layout();
             auto *btn = layout->takeAt(layout->count() - 1);
             auto *tagWidget = new QCheckBox(tag);

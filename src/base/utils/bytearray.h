@@ -34,8 +34,7 @@
 
 class QByteArray;
 
-namespace Utils::ByteArray
-{
+namespace Utils::ByteArray {
     // Mimic QStringView(in).split(sep, behavior)
     QVector<QByteArray> splitToViews(const QByteArray &in, const QByteArray &sep, Qt::SplitBehavior behavior = Qt::KeepEmptyParts);
 

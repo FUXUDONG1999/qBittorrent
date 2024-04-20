@@ -31,20 +31,17 @@
 #include <QList>
 #include <QVector>
 
-QVector<BitTorrent::TrackerEntry> BitTorrent::parseTrackerEntries(const QStringView str)
-{
+QVector<BitTorrent::TrackerEntry> BitTorrent::parseTrackerEntries(const QStringView str) {
     const QList<QStringView> trackers = str.split(u'\n');  // keep the empty parts to track tracker tier
 
     QVector<BitTorrent::TrackerEntry> entries;
     entries.reserve(trackers.size());
 
     int trackerTier = 0;
-    for (QStringView tracker : trackers)
-    {
+    for (QStringView tracker: trackers) {
         tracker = tracker.trimmed();
 
-        if (tracker.isEmpty())
-        {
+        if (tracker.isEmpty()) {
             if (trackerTier < std::numeric_limits<decltype(trackerTier)>::max())  // prevent overflow
                 ++trackerTier;
             continue;
@@ -56,12 +53,12 @@ QVector<BitTorrent::TrackerEntry> BitTorrent::parseTrackerEntries(const QStringV
     return entries;
 }
 
-bool BitTorrent::operator==(const TrackerEntry &left, const TrackerEntry &right)
-{
+bool BitTorrent::operator==(const TrackerEntry &left, const TrackerEntry &right) {
     return (left.url == right.url);
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+
 std::size_t BitTorrent::qHash(const TrackerEntry &key, const std::size_t seed)
 #else
 uint BitTorrent::qHash(const TrackerEntry &key, const uint seed)

@@ -31,18 +31,18 @@
 
 #include <QDialog>
 
-namespace Ui
-{
+namespace Ui {
     class StacktraceDialog;
 }
 
-class StacktraceDialog : public QDialog
-{
-    Q_OBJECT
+class StacktraceDialog : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(StacktraceDialog)
 
 public:
     explicit StacktraceDialog(QWidget *parent = nullptr);
+
     ~StacktraceDialog() override;
 
     void setText(const QString &signalName, const QString &stacktrace);

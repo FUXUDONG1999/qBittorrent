@@ -38,44 +38,37 @@
 #include "base/profile.h"
 #include "base/utils/io.h"
 
-namespace
-{
+namespace {
     const qint64 FILE_MAX_SIZE = 1024 * 1024;
 
-    QJsonObject parseThemeConfig(const QByteArray &data)
-    {
+    QJsonObject parseThemeConfig(const QByteArray &data) {
         if (data.isEmpty())
             return {};
 
         QJsonParseError jsonError;
         const QJsonDocument configJsonDoc = QJsonDocument::fromJson(data, &jsonError);
-        if (jsonError.error != QJsonParseError::NoError)
-        {
+        if (jsonError.error != QJsonParseError::NoError) {
             LogMsg(UIThemeSource::tr("Couldn't parse UI Theme configuration file. Reason: %1")
-                   .arg(jsonError.errorString()), Log::WARNING);
+                           .arg(jsonError.errorString()), Log::WARNING);
             return {};
         }
 
-        if (!configJsonDoc.isObject())
-        {
+        if (!configJsonDoc.isObject()) {
             LogMsg(UIThemeSource::tr("UI Theme configuration file has invalid format. Reason: %1")
-                   .arg(UIThemeSource::tr("Root JSON value is not an object")), Log::WARNING);
+                           .arg(UIThemeSource::tr("Root JSON value is not an object")), Log::WARNING);
             return {};
         }
 
         return configJsonDoc.object();
     }
 
-    QHash<QString, QColor> colorsFromJSON(const QJsonObject &jsonObj)
-    {
+    QHash<QString, QColor> colorsFromJSON(const QJsonObject &jsonObj) {
         QHash<QString, QColor> colors;
-        for (auto colorNode = jsonObj.constBegin(); colorNode != jsonObj.constEnd(); ++colorNode)
-        {
-            const QColor color {colorNode.value().toString()};
-            if (!color.isValid())
-            {
+        for (auto colorNode = jsonObj.constBegin(); colorNode != jsonObj.constEnd(); ++colorNode) {
+            const QColor color{colorNode.value().toString()};
+            if (!color.isValid()) {
                 LogMsg(UIThemeSource::tr("Invalid color for ID \"%1\" is provided by theme")
-                       .arg(colorNode.key()), Log::WARNING);
+                               .arg(colorNode.key()), Log::WARNING);
                 continue;
             }
 
@@ -85,8 +78,7 @@ namespace
         return colors;
     }
 
-    Path findIcon(const QString &iconId, const Path &dir)
-    {
+    Path findIcon(const QString &iconId, const Path &dir) {
         const Path pathSvg = dir / Path(iconId + u".svg");
         if (pathSvg.exists())
             return pathSvg;
@@ -100,49 +92,34 @@ namespace
 }
 
 DefaultThemeSource::DefaultThemeSource()
-    : m_defaultPath {u":"_s}
-    , m_userPath {specialFolderLocation(SpecialFolder::Config) / Path(u"themes/default"_s)}
-    , m_colors {defaultUIThemeColors()}
-{
+        : m_defaultPath{u":"_s}, m_userPath{specialFolderLocation(SpecialFolder::Config) / Path(u"themes/default"_s)}, m_colors{defaultUIThemeColors()} {
     loadColors();
 }
 
-QByteArray DefaultThemeSource::readStyleSheet()
-{
+QByteArray DefaultThemeSource::readStyleSheet() {
     return {};
 }
 
-QColor DefaultThemeSource::getColor(const QString &colorId, const ColorMode colorMode) const
-{
+QColor DefaultThemeSource::getColor(const QString &colorId, const ColorMode colorMode) const {
     return (colorMode == ColorMode::Light)
-            ? m_colors.value(colorId).light : m_colors.value(colorId).dark;
+           ? m_colors.value(colorId).light : m_colors.value(colorId).dark;
 }
 
-Path DefaultThemeSource::getIconPath(const QString &iconId, const ColorMode colorMode) const
-{
-    const Path iconsPath {u"icons"_s};
+Path DefaultThemeSource::getIconPath(const QString &iconId, const ColorMode colorMode) const {
+    const Path iconsPath{u"icons"_s};
     const Path lightModeIconsPath = iconsPath / Path(u"light"_s);
     const Path darkModeIconsPath = iconsPath / Path(u"dark"_s);
 
-    if (colorMode == ColorMode::Dark)
-    {
-        if (const Path iconPath = findIcon(iconId, (m_userPath / darkModeIconsPath))
-                ; !iconPath.isEmpty())
-        {
+    if (colorMode == ColorMode::Dark) {
+        if (const Path iconPath = findIcon(iconId, (m_userPath / darkModeIconsPath)); !iconPath.isEmpty()) {
             return iconPath;
         }
 
-        if (const Path iconPath = findIcon(iconId, (m_defaultPath / darkModeIconsPath))
-                ; !iconPath.isEmpty())
-        {
+        if (const Path iconPath = findIcon(iconId, (m_defaultPath / darkModeIconsPath)); !iconPath.isEmpty()) {
             return iconPath;
         }
-    }
-    else
-    {
-        if (const Path iconPath = findIcon(iconId, (m_userPath / lightModeIconsPath))
-                ; !iconPath.isEmpty())
-        {
+    } else {
+        if (const Path iconPath = findIcon(iconId, (m_userPath / lightModeIconsPath)); !iconPath.isEmpty()) {
             return iconPath;
         }
     }
@@ -150,11 +127,9 @@ Path DefaultThemeSource::getIconPath(const QString &iconId, const ColorMode colo
     return findIcon(iconId, (m_defaultPath / iconsPath));
 }
 
-void DefaultThemeSource::loadColors()
-{
+void DefaultThemeSource::loadColors() {
     const auto readResult = Utils::IO::readFile((m_userPath / Path(CONFIG_FILE_NAME)), FILE_MAX_SIZE, QIODevice::Text);
-    if (!readResult)
-    {
+    if (!readResult) {
         if (readResult.error().status != Utils::IO::ReadError::NotExist)
             LogMsg(tr("Failed to load default theme colors. %1").arg(readResult.error().message), Log::WARNING);
 
@@ -168,16 +143,14 @@ void DefaultThemeSource::loadColors()
     const QJsonObject config = parseThemeConfig(configData);
 
     const QHash<QString, QColor> lightModeColorOverrides = colorsFromJSON(config.value(KEY_COLORS_LIGHT).toObject());
-    for (auto overridesIt = lightModeColorOverrides.cbegin(); overridesIt != lightModeColorOverrides.cend(); ++overridesIt)
-    {
+    for (auto overridesIt = lightModeColorOverrides.cbegin(); overridesIt != lightModeColorOverrides.cend(); ++overridesIt) {
         auto it = m_colors.find(overridesIt.key());
         if (it != m_colors.end())
             it.value().light = overridesIt.value();
     }
 
     const QHash<QString, QColor> darkModeColorOverrides = colorsFromJSON(config.value(KEY_COLORS_DARK).toObject());
-    for (auto overridesIt = darkModeColorOverrides.cbegin(); overridesIt != darkModeColorOverrides.cend(); ++overridesIt)
-    {
+    for (auto overridesIt = darkModeColorOverrides.cbegin(); overridesIt != darkModeColorOverrides.cend(); ++overridesIt) {
         auto it = m_colors.find(overridesIt.key());
         if (it != m_colors.end())
             it.value().dark = overridesIt.value();
@@ -185,59 +158,44 @@ void DefaultThemeSource::loadColors()
 }
 
 CustomThemeSource::CustomThemeSource(const Path &themeRootPath)
-    : m_themeRootPath {themeRootPath}
-{
+        : m_themeRootPath{themeRootPath} {
     loadColors();
 }
 
-QColor CustomThemeSource::getColor(const QString &colorId, const ColorMode colorMode) const
-{
-    if (colorMode == ColorMode::Dark)
-    {
-        if (const QColor color = m_darkModeColors.value(colorId)
-                ; color.isValid())
-        {
+QColor CustomThemeSource::getColor(const QString &colorId, const ColorMode colorMode) const {
+    if (colorMode == ColorMode::Dark) {
+        if (const QColor color = m_darkModeColors.value(colorId); color.isValid()) {
             return color;
         }
     }
 
-    if (const QColor color = m_colors.value(colorId)
-            ; color.isValid())
-    {
+    if (const QColor color = m_colors.value(colorId); color.isValid()) {
         return color;
     }
 
     return defaultThemeSource()->getColor(colorId, colorMode);
 }
 
-Path CustomThemeSource::getIconPath(const QString &iconId, const ColorMode colorMode) const
-{
-    const Path iconsPath {u"icons"_s};
+Path CustomThemeSource::getIconPath(const QString &iconId, const ColorMode colorMode) const {
+    const Path iconsPath{u"icons"_s};
     const Path darkModeIconsPath = iconsPath / Path(u"dark"_s);
 
-    if (colorMode == ColorMode::Dark)
-    {
-        if (const Path iconPath = findIcon(iconId, (themeRootPath() / darkModeIconsPath))
-                ; !iconPath.isEmpty())
-        {
+    if (colorMode == ColorMode::Dark) {
+        if (const Path iconPath = findIcon(iconId, (themeRootPath() / darkModeIconsPath)); !iconPath.isEmpty()) {
             return iconPath;
         }
     }
 
-    if (const Path iconPath = findIcon(iconId, (themeRootPath() / iconsPath))
-            ; !iconPath.isEmpty())
-    {
+    if (const Path iconPath = findIcon(iconId, (themeRootPath() / iconsPath)); !iconPath.isEmpty()) {
         return iconPath;
     }
 
     return defaultThemeSource()->getIconPath(iconId, colorMode);
 }
 
-QByteArray CustomThemeSource::readStyleSheet()
-{
+QByteArray CustomThemeSource::readStyleSheet() {
     const auto readResult = Utils::IO::readFile((themeRootPath() / Path(STYLESHEET_FILE_NAME)), FILE_MAX_SIZE, QIODevice::Text);
-    if (!readResult)
-    {
+    if (!readResult) {
         if (readResult.error().status != Utils::IO::ReadError::NotExist)
             LogMsg(tr("Failed to load custom theme style sheet. %1").arg(readResult.error().message), Log::WARNING);
 
@@ -247,21 +205,17 @@ QByteArray CustomThemeSource::readStyleSheet()
     return readResult.value();
 }
 
-DefaultThemeSource *CustomThemeSource::defaultThemeSource() const
-{
+DefaultThemeSource *CustomThemeSource::defaultThemeSource() const {
     return m_defaultThemeSource.get();
 }
 
-Path CustomThemeSource::themeRootPath() const
-{
+Path CustomThemeSource::themeRootPath() const {
     return m_themeRootPath;
 }
 
-void CustomThemeSource::loadColors()
-{
+void CustomThemeSource::loadColors() {
     const auto readResult = Utils::IO::readFile((themeRootPath() / Path(CONFIG_FILE_NAME)), FILE_MAX_SIZE, QIODevice::Text);
-    if (!readResult)
-    {
+    if (!readResult) {
         if (readResult.error().status != Utils::IO::ReadError::NotExist)
             LogMsg(tr("Failed to load custom theme colors. %1").arg(readResult.error().message), Log::WARNING);
 
@@ -279,13 +233,10 @@ void CustomThemeSource::loadColors()
 }
 
 FolderThemeSource::FolderThemeSource(const Path &folderPath)
-    : CustomThemeSource(folderPath)
-    , m_folder {folderPath}
-{
+        : CustomThemeSource(folderPath), m_folder{folderPath} {
 }
 
-QByteArray FolderThemeSource::readStyleSheet()
-{
+QByteArray FolderThemeSource::readStyleSheet() {
     // Directory used by stylesheet to reference internal resources
     // for example `icon: url(:/uitheme/file.svg)` will be expected to
     // point to a file `file.svg` in root directory of CONFIG_FILE_NAME
@@ -296,6 +247,5 @@ QByteArray FolderThemeSource::readStyleSheet()
 }
 
 QRCThemeSource::QRCThemeSource()
-    : CustomThemeSource(Path(u":/uitheme"_s))
-{
+        : CustomThemeSource(Path(u":/uitheme"_s)) {
 }

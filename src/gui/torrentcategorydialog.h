@@ -32,36 +32,42 @@
 
 #include "base/path.h"
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     struct CategoryOptions;
 }
 
-namespace Ui
-{
+namespace Ui {
     class TorrentCategoryDialog;
 }
 
-class TorrentCategoryDialog : public QDialog
-{
-    Q_OBJECT
+class TorrentCategoryDialog : public QDialog {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(TorrentCategoryDialog)
 
 public:
     static QString createCategory(QWidget *parent, const QString &parentCategoryName = {});
+
     static void editCategory(QWidget *parent, const QString &categoryName);
 
     explicit TorrentCategoryDialog(QWidget *parent = nullptr);
+
     ~TorrentCategoryDialog() override;
 
     void setCategoryNameEditable(bool editable);
+
     QString categoryName() const;
+
     void setCategoryName(const QString &categoryName);
+
     void setCategoryOptions(const BitTorrent::CategoryOptions &categoryOptions);
+
     BitTorrent::CategoryOptions categoryOptions() const;
 
 private slots:
+
     void categoryNameChanged(const QString &categoryName);
+
     void useDownloadPathChanged(int index);
 
 private:

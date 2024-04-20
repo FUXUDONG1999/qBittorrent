@@ -33,13 +33,11 @@
 
 #include "base/utils/compare.h"
 
-class SearchSortModel final : public QSortFilterProxyModel
-{
+class SearchSortModel final : public QSortFilterProxyModel {
     using base = QSortFilterProxyModel;
 
 public:
-    enum SearchColumn
-    {
+    enum SearchColumn {
         NAME,
         SIZE,
         SEEDS,
@@ -50,14 +48,14 @@ public:
         NB_SEARCH_COLUMNS
     };
 
-    enum SearchDataRole
-    {
+    enum SearchDataRole {
         UnderlyingDataRole = Qt::UserRole
     };
 
     explicit SearchSortModel(QObject *parent = nullptr);
 
     void enableNameFilter(bool enabled);
+
     void setNameFilter(const QString &searchTerm = {});
 
     //! \brief Sets parameters for filtering by size
@@ -80,13 +78,16 @@ public:
     QString searchTerm() const;
 
     int minSeeds() const;
+
     int maxSeeds() const;
 
     qint64 minSize() const;
+
     qint64 maxSize() const;
 
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:

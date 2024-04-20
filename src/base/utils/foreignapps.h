@@ -34,15 +34,14 @@
 #include "base/global.h"
 #include "base/utils/version.h"
 
-namespace Utils::ForeignApps
-{
+namespace Utils::ForeignApps {
     inline const QString PYTHON_ISOLATE_MODE_FLAG = u"-I"_s;
 
-    struct PythonInfo
-    {
+    struct PythonInfo {
         using Version = Utils::Version<3, 1>;
 
         bool isValid() const;
+
         bool isSupportedVersion() const;
 
         QString executableName;

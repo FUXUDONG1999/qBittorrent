@@ -31,8 +31,7 @@
 #include "base/applicationcomponent.h"
 #include "interfaces/iguiapplication.h"
 
-class GUIApplicationComponent : public ApplicationComponent
-{
+class GUIApplicationComponent : public ApplicationComponent {
     Q_DISABLE_COPY_MOVE(GUIApplicationComponent)
 
 public:

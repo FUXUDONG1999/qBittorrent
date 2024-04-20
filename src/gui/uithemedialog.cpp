@@ -51,28 +51,22 @@
 
 #define SETTINGS_KEY(name) u"GUI/UIThemeDialog/" name
 
-namespace
-{
-    Path userConfigPath()
-    {
+namespace {
+    Path userConfigPath() {
         return specialFolderLocation(SpecialFolder::Config) / Path(u"themes/default"_s);
     }
 
-    Path defaultIconPath(const QString &iconID, [[maybe_unused]] const ColorMode colorMode)
-    {
+    Path defaultIconPath(const QString &iconID, [[maybe_unused]] const ColorMode colorMode) {
         return Path(u":icons"_s) / Path(iconID + u".svg");
     }
 }
 
-class ColorWidget final : public QFrame
-{
+class ColorWidget final : public QFrame {
     Q_DISABLE_COPY_MOVE(ColorWidget)
 
 public:
     explicit ColorWidget(const QColor &currentColor, const QColor &defaultColor, QWidget *parent = nullptr)
-        : QFrame(parent)
-        , m_defaultColor {defaultColor}
-    {
+            : QFrame(parent), m_defaultColor{defaultColor} {
         setObjectName(u"colorWidget"_s);
         setFrameShape(QFrame::Box);
         setFrameShadow(QFrame::Plain);
@@ -80,19 +74,16 @@ public:
         setCurrentColor(currentColor);
     }
 
-    QColor currentColor() const
-    {
+    QColor currentColor() const {
         return m_currentColor;
     }
 
 private:
-    void mouseDoubleClickEvent([[maybe_unused]] QMouseEvent *event) override
-    {
+    void mouseDoubleClickEvent([[maybe_unused]] QMouseEvent *event) override {
         showColorDialog();
     }
 
-    void contextMenuEvent([[maybe_unused]] QContextMenuEvent *event) override
-    {
+    void contextMenuEvent([[maybe_unused]] QContextMenuEvent *event) override {
         QMenu *menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -102,8 +93,7 @@ private:
         menu->popup(QCursor::pos());
     }
 
-    void setCurrentColor(const QColor &color)
-    {
+    void setCurrentColor(const QColor &color) {
         if (m_currentColor == color)
             return;
 
@@ -111,22 +101,18 @@ private:
         applyColor(m_currentColor);
     }
 
-    void resetColor()
-    {
+    void resetColor() {
         setCurrentColor(m_defaultColor);
     }
 
-    void applyColor(const QColor &color)
-    {
+    void applyColor(const QColor &color) {
         setStyleSheet(u"#colorWidget { background-color: %1; }"_s.arg(color.name()));
     }
 
-    void showColorDialog()
-    {
+    void showColorDialog() {
         auto *dialog = new QColorDialog(m_currentColor, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dialog, &QDialog::accepted, this, [this, dialog]
-        {
+        connect(dialog, &QDialog::accepted, this, [this, dialog] {
             setCurrentColor(dialog->currentColor());
         });
 
@@ -137,34 +123,28 @@ private:
     QColor m_currentColor;
 };
 
-class IconWidget final : public QLabel
-{
+class IconWidget final : public QLabel {
     Q_DISABLE_COPY_MOVE(IconWidget)
 
 public:
     explicit IconWidget(const Path &currentPath, const Path &defaultPath, QWidget *parent = nullptr)
-        : QLabel(parent)
-        , m_defaultPath {defaultPath}
-    {
+            : QLabel(parent), m_defaultPath{defaultPath} {
         setObjectName(u"iconWidget"_s);
         setAlignment(Qt::AlignCenter);
 
         setCurrentPath(currentPath);
     }
 
-    Path currentPath() const
-    {
+    Path currentPath() const {
         return m_currentPath;
     }
 
 private:
-    void mouseDoubleClickEvent([[maybe_unused]] QMouseEvent *event) override
-    {
+    void mouseDoubleClickEvent([[maybe_unused]] QMouseEvent *event) override {
         showFileDialog();
     }
 
-    void contextMenuEvent([[maybe_unused]] QContextMenuEvent *event) override
-    {
+    void contextMenuEvent([[maybe_unused]] QContextMenuEvent *event) override {
         QMenu *menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -174,8 +154,7 @@ private:
         menu->popup(QCursor::pos());
     }
 
-    void setCurrentPath(const Path &path)
-    {
+    void setCurrentPath(const Path &path) {
         if (m_currentPath == path)
             return;
 
@@ -183,26 +162,21 @@ private:
         showIcon(m_currentPath);
     }
 
-    void resetIcon()
-    {
+    void resetIcon() {
         setCurrentPath(m_defaultPath);
     }
 
-    void showIcon(const Path &iconPath)
-    {
-        const QIcon icon {iconPath.data()};
+    void showIcon(const Path &iconPath) {
+        const QIcon icon{iconPath.data()};
         setPixmap(icon.pixmap(Utils::Gui::smallIconSize()));
     }
 
-    void showFileDialog()
-    {
-        auto *dialog = new QFileDialog(this, tr("Select icon")
-                , QDir::homePath(), (tr("Supported image files") + u" (*.svg *.png)"));
+    void showFileDialog() {
+        auto *dialog = new QFileDialog(this, tr("Select icon"), QDir::homePath(), (tr("Supported image files") + u" (*.svg *.png)"));
         dialog->setFileMode(QFileDialog::ExistingFile);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dialog, &QDialog::accepted, this, [this, dialog]
-        {
-            const Path iconPath {dialog->selectedFiles().value(0)};
+        connect(dialog, &QDialog::accepted, this, [this, dialog] {
+            const Path iconPath{dialog->selectedFiles().value(0)};
             setCurrentPath(iconPath);
         });
 
@@ -214,10 +188,7 @@ private:
 };
 
 UIThemeDialog::UIThemeDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_ui {new Ui::UIThemeDialog}
-    , m_storeDialogSize {SETTINGS_KEY(u"Size"_s)}
-{
+        : QDialog(parent), m_ui{new Ui::UIThemeDialog}, m_storeDialogSize{SETTINGS_KEY(u"Size"_s)} {
     m_ui->setupUi(this);
 
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -230,14 +201,12 @@ UIThemeDialog::UIThemeDialog(QWidget *parent)
         resize(dialogSize);
 }
 
-UIThemeDialog::~UIThemeDialog()
-{
+UIThemeDialog::~UIThemeDialog() {
     m_storeDialogSize = size();
     delete m_ui;
 }
 
-void UIThemeDialog::accept()
-{
+void UIThemeDialog::accept() {
     QDialog::accept();
 
     bool hasError = false;
@@ -246,20 +215,19 @@ void UIThemeDialog::accept()
     if (!storeIcons())
         hasError = true;
 
-    if (hasError)
-    {
-        QMessageBox::critical(this, tr("UI Theme Configuration.")
-                , tr("The UI Theme changes could not be fully applied. The details can be found in the Log."));
+    if (hasError) {
+        QMessageBox::critical(this, tr("UI Theme Configuration."), tr("The UI Theme changes could not be fully applied. The details can be found in the Log."));
     }
 }
 
-void UIThemeDialog::loadColors()
-{
+void UIThemeDialog::loadColors() {
     const QHash<QString, UIThemeColor> defaultColors = defaultUIThemeColors();
-    const QList<QString> colorIDs = std::invoke([](auto &&list) { list.sort(); return list; }, defaultColors.keys());
+    const QList<QString> colorIDs = std::invoke([](auto &&list) {
+        list.sort();
+        return list;
+    }, defaultColors.keys());
     int row = 2;
-    for (const QString &id : colorIDs)
-    {
+    for (const QString &id: colorIDs) {
         m_ui->colorsLayout->addWidget(new QLabel(id), row, 0);
 
         const UIThemeColor &defaultColor = defaultColors.value(id);
@@ -276,23 +244,21 @@ void UIThemeDialog::loadColors()
     }
 }
 
-void UIThemeDialog::loadIcons()
-{
+void UIThemeDialog::loadIcons() {
     const QSet<QString> defaultIcons = defaultUIThemeIcons();
-    const QList<QString> iconIDs = std::invoke([](auto &&list) { list.sort(); return list; }
-            , QList<QString>(defaultIcons.cbegin(), defaultIcons.cend()));
+    const QList<QString> iconIDs = std::invoke([](auto &&list) {
+        list.sort();
+        return list;
+    }, QList<QString>(defaultIcons.cbegin(), defaultIcons.cend()));
     int row = 2;
-    for (const QString &id : iconIDs)
-    {
+    for (const QString &id: iconIDs) {
         m_ui->iconsLayout->addWidget(new QLabel(id), row, 0);
 
-        auto *lightIconWidget = new IconWidget(m_defaultThemeSource.getIconPath(id, ColorMode::Light)
-                , defaultIconPath(id, ColorMode::Light), this);
+        auto *lightIconWidget = new IconWidget(m_defaultThemeSource.getIconPath(id, ColorMode::Light), defaultIconPath(id, ColorMode::Light), this);
         m_lightIconWidgets.insert(id, lightIconWidget);
         m_ui->iconsLayout->addWidget(lightIconWidget, row, 2);
 
-        auto *darkIconWidget = new IconWidget(m_defaultThemeSource.getIconPath(id, ColorMode::Dark)
-                , defaultIconPath(id, ColorMode::Dark), this);
+        auto *darkIconWidget = new IconWidget(m_defaultThemeSource.getIconPath(id, ColorMode::Dark), defaultIconPath(id, ColorMode::Dark), this);
         m_darkIconWidgets.insert(id, darkIconWidget);
         m_ui->iconsLayout->addWidget(darkIconWidget, row, 4);
 
@@ -300,23 +266,20 @@ void UIThemeDialog::loadIcons()
     }
 }
 
-bool UIThemeDialog::storeColors()
-{
+bool UIThemeDialog::storeColors() {
     QJsonObject userConfig;
     userConfig.insert(u"version", 2);
 
     const QHash<QString, UIThemeColor> defaultColors = defaultUIThemeColors();
-    const auto addColorOverrides = [this, &defaultColors, &userConfig](const ColorMode colorMode)
-    {
+    const auto addColorOverrides = [this, &defaultColors, &userConfig](const ColorMode colorMode) {
         const QHash<QString, ColorWidget *> &colorWidgets = (colorMode == ColorMode::Light)
-                ? m_lightColorWidgets : m_darkColorWidgets;
+                                                            ? m_lightColorWidgets : m_darkColorWidgets;
 
         QJsonObject colors;
-        for (auto it = colorWidgets.cbegin(); it != colorWidgets.cend(); ++it)
-        {
+        for (auto it = colorWidgets.cbegin(); it != colorWidgets.cend(); ++it) {
             const QString &colorID = it.key();
             const QColor &defaultColor = (colorMode == ColorMode::Light)
-                    ? defaultColors.value(colorID).light : defaultColors.value(colorID).dark;
+                                         ? defaultColors.value(colorID).light : defaultColors.value(colorID).dark;
             const QColor &color = it.value()->currentColor();
             if (color != defaultColor)
                 colors.insert(it.key(), color.name());
@@ -331,8 +294,7 @@ bool UIThemeDialog::storeColors()
 
     const QByteArray configData = QJsonDocument(userConfig).toJson();
     const nonstd::expected<void, QString> result = Utils::IO::saveToFile((userConfigPath() / Path(CONFIG_FILE_NAME)), configData);
-    if (!result)
-    {
+    if (!result) {
         const QString error = tr("Couldn't save UI Theme configuration. Reason: %1").arg(result.error());
         LogMsg(error, Log::WARNING);
         return false;
@@ -341,19 +303,16 @@ bool UIThemeDialog::storeColors()
     return true;
 }
 
-bool UIThemeDialog::storeIcons()
-{
+bool UIThemeDialog::storeIcons() {
     bool hasError = false;
 
-    const auto updateIcons = [this, &hasError](const ColorMode colorMode)
-    {
+    const auto updateIcons = [this, &hasError](const ColorMode colorMode) {
         const QHash<QString, IconWidget *> &iconWidgets = (colorMode == ColorMode::Light)
-                ? m_lightIconWidgets : m_darkIconWidgets;
+                                                          ? m_lightIconWidgets : m_darkIconWidgets;
         const Path subdirPath = (colorMode == ColorMode::Light)
-                ? Path(u"icons/light"_s) : Path(u"icons/dark"_s);
+                                ? Path(u"icons/light"_s) : Path(u"icons/dark"_s);
 
-        for (auto it = iconWidgets.cbegin(); it != iconWidgets.cend(); ++it)
-        {
+        for (auto it = iconWidgets.cbegin(); it != iconWidgets.cend(); ++it) {
             const QString &id = it.key();
             const Path &path = it.value()->currentPath();
             if (path == m_defaultThemeSource.getIconPath(id, colorMode))
@@ -361,27 +320,21 @@ bool UIThemeDialog::storeIcons()
 
             const Path &userIconPathBase = userConfigPath() / subdirPath / Path(id);
 
-            if (const Path oldIconPath = userIconPathBase + u".svg"
-                    ; path.exists() && !Utils::Fs::removeFile(oldIconPath))
-            {
+            if (const Path oldIconPath = userIconPathBase + u".svg"; path.exists() && !Utils::Fs::removeFile(oldIconPath)) {
                 const QString error = tr("Couldn't remove icon file. File: %1.").arg(oldIconPath.toString());
                 LogMsg(error, Log::WARNING);
                 hasError = true;
                 continue;
             }
 
-            if (const Path oldIconPath = userIconPathBase + u".png"
-                    ; path.exists() && !Utils::Fs::removeFile(oldIconPath))
-            {
+            if (const Path oldIconPath = userIconPathBase + u".png"; path.exists() && !Utils::Fs::removeFile(oldIconPath)) {
                 const QString error = tr("Couldn't remove icon file. File: %1.").arg(oldIconPath.toString());
                 LogMsg(error, Log::WARNING);
                 hasError = true;
                 continue;
             }
 
-            if (const Path targetPath = userIconPathBase + path.extension()
-                    ; !Utils::Fs::copyFile(path, targetPath))
-            {
+            if (const Path targetPath = userIconPathBase + path.extension(); !Utils::Fs::copyFile(path, targetPath)) {
                 const QString error = tr("Couldn't copy icon file. Source: %1. Destination: %2.")
                         .arg(path.toString(), targetPath.toString());
                 LogMsg(error, Log::WARNING);

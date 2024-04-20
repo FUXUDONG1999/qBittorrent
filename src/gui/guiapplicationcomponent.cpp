@@ -29,11 +29,9 @@
 #include "guiapplicationcomponent.h"
 
 GUIApplicationComponent::GUIApplicationComponent(IGUIApplication *app)
-    : ApplicationComponent(app)
-{
+        : ApplicationComponent(app) {
 }
 
-IGUIApplication *GUIApplicationComponent::app() const
-{
+IGUIApplication *GUIApplicationComponent::app() const {
     return static_cast<IGUIApplication *>(ApplicationComponent::app());
 }

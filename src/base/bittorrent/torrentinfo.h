@@ -39,61 +39,90 @@
 #include "base/pathfwd.h"
 
 class QByteArray;
+
 class QDateTime;
+
 class QString;
+
 class QUrl;
 
-namespace BitTorrent
-{
+namespace BitTorrent {
     class InfoHash;
+
     struct TrackerEntry;
 
-    class TorrentInfo
-    {
-        Q_DECLARE_TR_FUNCTIONS(TorrentInfo)
+    class TorrentInfo {
+    Q_DECLARE_TR_FUNCTIONS(TorrentInfo)
 
     public:
         TorrentInfo() = default;
+
         TorrentInfo(const TorrentInfo &other) = default;
 
         explicit TorrentInfo(const lt::torrent_info &nativeInfo);
 
         static nonstd::expected<TorrentInfo, QString> load(const QByteArray &data) noexcept;
+
         static nonstd::expected<TorrentInfo, QString> loadFromFile(const Path &path) noexcept;
+
         nonstd::expected<void, QString> saveToFile(const Path &path) const;
 
         TorrentInfo &operator=(const TorrentInfo &other);
 
         bool isValid() const;
+
         InfoHash infoHash() const;
+
         QString name() const;
+
         QDateTime creationDate() const;
+
         QString creator() const;
+
         QString comment() const;
+
         bool isPrivate() const;
+
         qlonglong totalSize() const;
+
         int filesCount() const;
+
         int pieceLength() const;
+
         int pieceLength(int index) const;
+
         int piecesCount() const;
+
         Path filePath(int index) const;
+
         PathList filePaths() const;
+
         qlonglong fileSize(int index) const;
+
         qlonglong fileOffset(int index) const;
+
         QVector<TrackerEntry> trackers() const;
+
         QVector<QUrl> urlSeeds() const;
+
         QByteArray metadata() const;
+
         PathList filesForPiece(int pieceIndex) const;
+
         QVector<int> fileIndicesForPiece(int pieceIndex) const;
+
         QVector<QByteArray> pieceHashes() const;
 
         using PieceRange = IndexRange<int>;
+
         // returns pair of the first and the last pieces into which
         // the given file extends (maybe partially).
         PieceRange filePieces(const Path &filePath) const;
+
         PieceRange filePieces(int fileIndex) const;
 
         std::shared_ptr<lt::torrent_info> nativeInfo() const;
+
         QVector<lt::file_index_t> nativeIndexes() const;
 
     private:

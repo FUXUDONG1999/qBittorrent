@@ -30,9 +30,9 @@
 
 #include "piecesbar.h"
 
-class PieceAvailabilityBar final : public PiecesBar
-{
-    Q_OBJECT
+class PieceAvailabilityBar final : public PiecesBar {
+Q_OBJECT
+
     Q_DISABLE_COPY_MOVE(PieceAvailabilityBar)
 
     using base = PiecesBar;
@@ -47,6 +47,7 @@ public:
 
 private:
     bool updateImage(QImage &image) override;
+
     QString simpleToolTipText() const override;
 
     // last used int vector, uses to better resize redraw
