@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR) # Policies <= CMP0097 default to NEW
 
 project(qBittorrent
-    DESCRIPTION "The qBittorrent BitTorrent client"
-    HOMEPAGE_URL "https://www.qbittorrent.org/"
-    LANGUAGES CXX
+        DESCRIPTION "The qBittorrent BitTorrent client"
+        HOMEPAGE_URL "https://www.qbittorrent.org/"
+        LANGUAGES CXX
 )
 
 # version requirements - older versions may work, but you are on your own
@@ -37,32 +37,31 @@ feature_option(VERBOSE_CONFIGURE "Show information about PACKAGES_FOUND and PACK
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
     feature_option_dependent(DBUS
-        "Enable support for notifications and power-management features via D-Bus"
-        ON "GUI" OFF
+            "Enable support for notifications and power-management features via D-Bus"
+            ON "GUI" OFF
     )
-endif()
+endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     feature_option_dependent(SYSTEMD
-        "Install systemd service file. Target directory is overridable with `SYSTEMD_SERVICES_INSTALL_DIR` variable"
-        OFF "NOT GUI" OFF
+            "Install systemd service file. Target directory is overridable with `SYSTEMD_SERVICES_INSTALL_DIR` variable"
+            OFF "NOT GUI" OFF
     )
-endif()
+endif ()
 
 if (MSVC)
     feature_option(MSVC_RUNTIME_DYNAMIC "Use MSVC dynamic runtime library (-MD) instead of static (-MT)" ON)
-endif()
+endif ()
 
 if (VERBOSE_CONFIGURE)
     feature_summary(WHAT ALL)
-else()
+else ()
     feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES)
-endif()
+endif ()
 
 include(CheckPackages)
 include(CommonConfig)
 
-# Generate version header
 configure_file("src/base/version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/base/version.h" @ONLY)
 
 add_subdirectory(src)
@@ -70,4 +69,4 @@ add_subdirectory(dist)
 
 if (TESTING)
     add_subdirectory(test)
-endif()
+endif ()
