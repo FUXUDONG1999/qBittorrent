@@ -1,4 +1,7 @@
 #include "trace.h"
+
+#ifdef WIN32
+
 #include <windows.h>
 #include <dbghelp.h>
 
@@ -40,6 +43,33 @@ std::vector<QString> getFrames() {
 
     return result;
 }
+
+#endif
+
+#ifdef __linux__
+
+#include <execinfo.h>
+#include <unistd.h>
+
+std::vector<QString> getFrames() {
+    void *array[10];
+    size_t size;
+
+    size = backtrace(array, 10);
+    std::vector<QString> result;
+
+    char **strings = backtrace_symbols(array, size);
+
+    for (int i = 0; i < size; i++) {
+        result.emplace_back(QString::fromStdString(strings[i]));
+    }
+
+    free(strings);
+
+    return result;
+}
+
+#endif
 
 QString getTrace(int deepth) {
     std::vector<QString> frames = getFrames();
