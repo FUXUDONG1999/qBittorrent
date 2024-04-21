@@ -29,7 +29,8 @@ std::vector<QString> getFrames() {
 
         if (SymFromAddr(process, address, &displacementSym, pSymbol) && SymGetLineFromAddr64(process, address, &displacementLine, &line)) {
             std::string str{line.FileName};
-            snprintf(szFrameInfo, sizeof(szFrameInfo), "%s:%lu:%s", str.replace(0, 51, "").c_str(), line.LineNumber, pSymbol->Name);
+            snprintf(szFrameInfo, sizeof(szFrameInfo), "%s:%lu:%s", str.replace(0, str.find("src\\"), "").c_str(), line.LineNumber,
+                     pSymbol->Name);
         } else {
             snprintf(szFrameInfo, sizeof(szFrameInfo), "error: %lu", GetLastError());
         }
