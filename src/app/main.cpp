@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <memory>
 
+#define TORRENT_DISABLE_LOGGING
+
 #ifdef Q_OS_UNIX
 #include <sys/resource.h>
 #endif

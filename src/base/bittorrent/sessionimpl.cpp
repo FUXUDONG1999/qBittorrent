@@ -4854,6 +4854,9 @@ void SessionImpl::handleAlert(const lt::alert *a) {
             case lt::torrent_conflict_alert::alert_type:
                 handleTorrentConflictAlert(static_cast<const lt::torrent_conflict_alert *>(a));
                 break;
+            case lt::torrent_log_alert::alert_type:
+                handleDebugLogAlter(static_cast<const lt::torrent_log_alert *>(a));
+                break;
 #endif
         }
     }
@@ -5319,6 +5322,10 @@ void SessionImpl::handleTrackerAlert(const lt::tracker_alert *a) {
     }
 }
 
+void SessionImpl::handleDebugLogAlter(const lt::torrent_log_alert *a) {
+    LogMsg(QString::fromStdString(a->message()));
+}
+
 #ifdef QBT_USES_LIBTORRENT2
 
 void SessionImpl::handleTorrentConflictAlert(const lt::torrent_conflict_alert *a) {
@@ -5355,7 +5362,7 @@ void SessionImpl::handleTorrentConflictAlert(const lt::torrent_conflict_alert *a
 
     if (!torrent1 || !torrent2)
         emit
-    metadataDownloaded(TorrentInfo(*a->metadata));
+        metadataDownloaded(TorrentInfo(*a->metadata));
 }
 
 #endif

@@ -926,6 +926,8 @@ namespace BitTorrent {
 
         void handleTrackerAlert(const lt::tracker_alert *a);
 
+        void handleDebugLogAlter(const lt::torrent_log_alert *a);
+
 #ifdef QBT_USES_LIBTORRENT2
 
         void handleTorrentConflictAlert(const lt::torrent_conflict_alert *a);
