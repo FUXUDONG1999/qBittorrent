@@ -13,7 +13,9 @@
 #include <unistd.h>
 #endif // Q_OS_HAIKU
 #elif defined DISABLE_GUI
+
 #include <io.h>
+
 #endif
 
 #include <QCoreApplication>
@@ -36,7 +38,9 @@ Q_IMPORT_PLUGIN(QICOPlugin)
 #endif // QBT_STATIC_QT
 
 #else // DISABLE_GUI
+
 #include <cstdio>
+
 #endif // DISABLE_GUI
 
 #include "base/global.h"
@@ -122,15 +126,13 @@ int main(int argc, char *argv[]) {
                                                     .arg(params.unknownParameter));
         }
 #if !defined(Q_OS_WIN) || defined(DISABLE_GUI)
-        if (params.showVersion)
-        {
-            if (isOneArg)
-            {
+        if (params.showVersion) {
+            if (isOneArg) {
                 displayVersion();
                 return EXIT_SUCCESS;
             }
             throw CommandLineParameterError(QCoreApplication::translate("Main", "%1 must be the single command line parameter.")
-                                     .arg(u"-v (or --version)"_s));
+                                                    .arg(u"-v (or --version)"_s));
         }
 #endif
         if (params.showHelp) {
@@ -282,8 +284,8 @@ void displayBadArgMessage(const QString &message) {
     msgBox.exec();
 #else
     const QString errMsg = QCoreApplication::translate("Main", "Bad command line: ") + u'\n'
-        + message + u'\n'
-        + help + u'\n';
+                           + message + u'\n'
+                           + help + u'\n';
     fprintf(stderr, "%s", qUtf8Printable(errMsg));
 #endif
 }
@@ -314,14 +316,15 @@ bool userAgreesWithLegalNotice() {
 
 #ifdef DISABLE_GUI
     const QString eula = u"\n*** %1 ***\n"_s.arg(QCoreApplication::translate("Main", "Legal Notice"))
-        + QCoreApplication::translate("Main", "qBittorrent is a file sharing program. When you run a torrent, its data will be made available to others by means of upload. Any content you share is your sole responsibility.") + u"\n\n"
-        + QCoreApplication::translate("Main", "No further notices will be issued.") + u"\n\n"
-        + QCoreApplication::translate("Main", "Press %1 key to accept and continue...").arg(u"'y'"_s) + u'\n';
+                         + QCoreApplication::translate("Main",
+                                                       "qBittorrent is a file sharing program. When you run a torrent, its data will be made available to others by means of upload. Any content you share is your sole responsibility.") +
+                         u"\n\n"
+                         + QCoreApplication::translate("Main", "No further notices will be issued.") + u"\n\n"
+                         + QCoreApplication::translate("Main", "Press %1 key to accept and continue...").arg(u"'y'"_s) + u'\n';
     printf("%s", qUtf8Printable(eula));
 
     const char ret = getchar(); // Read pressed key
-    if ((ret == 'y') || (ret == 'Y'))
-    {
+    if ((ret == 'y') || (ret == 'Y')) {
         // Save the answer
         pref->setAcceptedLegal(true);
         return true;

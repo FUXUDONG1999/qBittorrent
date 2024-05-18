@@ -6,6 +6,9 @@ project(qBittorrent
         LANGUAGES CXX
 )
 
+# 开发调试库
+include_directories("D://program//visualstudio2022//ide//VC//vcpkg//buildtrees//libtorrent//src//v2.0.9-b2c835423e.clean//src")
+
 # version requirements - older versions may work, but you are on your own
 set(minBoostVersion 1.71)
 set(minQt5Version 5.15.2)

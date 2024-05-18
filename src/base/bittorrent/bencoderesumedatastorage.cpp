@@ -142,8 +142,7 @@ BitTorrent::LoadResumeDataResult BitTorrent::BencodeResumeDataStorage::load(cons
 }
 
 void BitTorrent::BencodeResumeDataStorage::doLoadAll() const {
-    qDebug() << "Loading torrents count: " << m_registeredTorrents.size();
-
+    LogMsg(tr("Loading torrents count: %1").arg(m_registeredTorrents.size()));
     emit
     const_cast<BencodeResumeDataStorage *>(this)->loadStarted(m_registeredTorrents);
 
